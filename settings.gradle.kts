@@ -26,4 +26,15 @@ dependencyResolutionManagement {
 rootProject.name = "speechmate"
 
 include(":app")
+
 include(":feature")
+include(":feature:main")
+
+
+include(":core")
+include(":core:designsystem")
+include(":core:data")
+include(":core:domain")
+include(":core:common")
+include(":core:network")
+include(":core:navigation")

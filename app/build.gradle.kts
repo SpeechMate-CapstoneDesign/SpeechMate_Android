@@ -1,7 +1,7 @@
 plugins {
     id("speechmate.android.application")
-    alias(libs.plugins.firebase.crashlytics)
-    alias(libs.plugins.google.services)
+  //  alias(libs.plugins.firebase.crashlytics)
+   // alias(libs.plugins.google.services)
 }
 
 
@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-//    implementation(projects.feature.main)
+    implementation(projects.feature.main)
 
     implementation(libs.kakao.user)
 
