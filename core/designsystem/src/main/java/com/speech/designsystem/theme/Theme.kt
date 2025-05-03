@@ -12,10 +12,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 
-//private val LocalTypography = staticCompositionLocalOf {
-//    SpeechMateTypography()
-//}
-//
+private val LocalTypography = staticCompositionLocalOf {
+    SpeechMateTypography()
+}
+
 
 @Composable
 fun SpeechMateTheme(
@@ -25,8 +25,8 @@ fun SpeechMateTheme(
     CompositionLocalProvider(content = content)
 }
 
-//object SpeechMateTheme {
-//    val typography: TraceTypography
-//        @Composable
-//        get() = LocalTypography.current
-//}
+object SpeechMateTheme {
+    val typography: SpeechMateTypography
+        @Composable
+        get() = LocalTypography.current
+}
