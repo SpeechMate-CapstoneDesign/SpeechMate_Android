@@ -16,10 +16,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppNavHost
+import dagger.hilt.android.AndroidEntryPoint
 
 private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

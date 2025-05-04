@@ -15,5 +15,5 @@ data object PracticeBaseRoute : Route
 
 sealed class PracticeGraph : Route {
     @Serializable
-    data object PracticeRoute : Route
+    data object PracticeRoute : PracticeGraph()
 }

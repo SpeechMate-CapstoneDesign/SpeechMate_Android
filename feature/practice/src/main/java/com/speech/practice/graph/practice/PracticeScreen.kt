@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,11 +39,19 @@ import com.speech.designsystem.theme.Upload
 internal fun PracticeRoute(
     viewModel: PracticeViewModel = hiltViewModel()
 ) {
-    PracticeScreen()
+    PracticeScreen(
+        onRecordAudio = viewModel::recordAudio,
+        onRecordVideo = viewModel::stopRecordAudio,
+        onUploadFile = {}
+    )
 }
 
 @Composable
-private fun PracticeScreen() {
+private fun PracticeScreen(
+    onRecordAudio : () -> Unit,
+    onRecordVideo : () -> Unit,
+    onUploadFile: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,9 +80,13 @@ private fun PracticeScreen() {
             Spacer(Modifier.weight(1f))
 
             Box(
-                modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(RecordAudio).padding(20.dp).clickable {
-
-                },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(RecordAudio)
+                    .padding(20.dp)
+                    .clickable {
+                        onRecordAudio()
+                    },
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -93,9 +102,13 @@ private fun PracticeScreen() {
             Spacer(Modifier.weight(1f))
 
             Box(
-                modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(RecordVideo).padding(20.dp).clickable {
-
-                },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(RecordVideo)
+                    .padding(20.dp)
+                    .clickable {
+                        onRecordVideo()
+                    },
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -114,9 +127,13 @@ private fun PracticeScreen() {
         Spacer(Modifier.height(30.dp))
 
         Box(
-            modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(LightGray).padding(20.dp).clickable {
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(LightGray)
+                .padding(20.dp)
+                .clickable {
 
-            },
+                },
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -136,5 +153,9 @@ private fun PracticeScreen() {
 @Preview
 @Composable
 private fun PracticeScreenPreview() {
-    PracticeScreen()
+    PracticeScreen(
+        onRecordAudio = {},
+        onRecordVideo = {},
+        onUploadFile = {}
+    )
 }

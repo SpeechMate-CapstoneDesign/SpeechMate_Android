@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.speech.navigation.PracticeBaseRoute
 
 
 @Composable
@@ -16,7 +17,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = PracticeGraph.PracticeRoute,
+        startDestination = PracticeBaseRoute,
         modifier = modifier,
     ) {
         val currentRoute = navController.currentDestination?.route
