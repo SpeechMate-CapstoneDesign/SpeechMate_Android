@@ -67,6 +67,8 @@ internal fun RecordAudioRoute(
         onPlay = {},
         onStop = viewModel::stopRecordAudio,
         onCancel = {},
+        playAudio = viewModel::playAudio,
+        stopPlayAudio = viewModel::stopPlayback,
         elapsedTime = elapsedTime
     )
 }
@@ -79,6 +81,8 @@ private fun RecordAudioScreen(
     onPlay: () -> Unit,
     onStop: () -> Unit,
     onCancel: () -> Unit,
+    playAudio : () -> Unit,
+    stopPlayAudio : () -> Unit,
     isRecording: Boolean,
     isPaused: Boolean,
     elapsedTime: String
@@ -127,7 +131,7 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.weight(1f))
 
                 Box(
-                    modifier = Modifier.clickable(isRipple = true) {
+                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
                         onCancel()
                     }
                 ) {
@@ -151,7 +155,7 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clickable(isRipple = true) {
+                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
                         onStop()
                     }
                 ) {
@@ -178,7 +182,7 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clickable(isRipple = true) {
+                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
                         if (!isPaused) onPause() else onPlay()
                     }
                 ) {
@@ -231,6 +235,16 @@ private fun RecordAudioScreen(
             }
         }
 
+//        Row(modifier = Modifier.fillMaxWidth()) {
+//            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
+//                playAudio()
+//            })
+//            Spacer(Modifier.width(30.dp))
+//            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
+//                stopPlayAudio()
+//            })
+//        }
+
 
         Spacer(Modifier.height(60.dp))
 
@@ -249,6 +263,8 @@ private fun RecordAudioScreenPreview() {
         onPlay = {},
         onStop = {},
         onCancel = {},
+        playAudio = {},
+        stopPlayAudio = {},
         elapsedTime = "00 : 00.00"
     )
 }

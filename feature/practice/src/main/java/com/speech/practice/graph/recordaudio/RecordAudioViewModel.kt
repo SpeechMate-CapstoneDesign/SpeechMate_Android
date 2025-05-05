@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -22,6 +23,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,16 +42,17 @@ class RecordAudioViewModel @Inject constructor(
     val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
 
     private val _elapsedTime = MutableStateFlow(0L)
-    val elapsedTime: StateFlow<Long> = _elapsedTime.asStateFlow()
 
     private val _timeText = MutableStateFlow("00:00 . 00")
     val timeText: StateFlow<String> = _timeText.asStateFlow()
 
     private var timerJob: Job? = null
+    private var recordJob: Job? = null
 
     private var recorder: AudioRecord? = null
     private var audioFile: File? = null
-    private var recordJob: Job? = null
+    private var player: MediaPlayer? = null
+
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun recordAudio() {
@@ -56,7 +61,7 @@ class RecordAudioViewModel @Inject constructor(
 
         audioFile = File(
             context.filesDir,
-            "record_\test.wav"
+            "record_\\${System.currentTimeMillis()}.wav"
         )
 
         recorder = AudioRecord(
@@ -72,11 +77,11 @@ class RecordAudioViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
+            var totalBytes = 0
             FileOutputStream(audioFile!!).use { fos ->
-                // WAV 헤더 자리 확보 (44 bytes)
                 fos.write(ByteArray(44))
                 val buffer = ByteArray(bufferSize)
-                var totalBytes = 0
+
 
                 while (_isRecording.value) {
                     val read = recorder?.read(buffer, 0, buffer.size) ?: 0
@@ -85,12 +90,11 @@ class RecordAudioViewModel @Inject constructor(
                         totalBytes += read
                     }
                 }
-
             }
+
+            writeWavHeader(audioFile!!, totalBytes)
             _eventChannel.send(RecordAudioEvent.RecordingStopped)
         }
-
-
     }
 
     fun stopRecordAudio() {
@@ -127,6 +131,24 @@ class RecordAudioViewModel @Inject constructor(
         timerJob = null
     }
 
+    fun playAudio() {
+        audioFile?.takeIf { it.exists() }?.let { file ->
+            player?.release()
+            player = MediaPlayer().apply {
+                setDataSource(file.absolutePath)
+                prepare()
+                start()
+            }
+            viewModelScope.launch { _eventChannel.send(RecordAudioEvent.PlaybackStarted) }
+        }
+    }
+
+    fun stopPlayback() {
+        player?.apply { stop(); release() }
+        player = null
+        viewModelScope.launch { _eventChannel.send(RecordAudioEvent.PlaybackStopped) }
+    }
+
     @SuppressLint("DefaultLocale")
     private fun setTimerText(elapsedTime: Long) {
         val m = (elapsedTime / 1000) / 60
@@ -134,6 +156,31 @@ class RecordAudioViewModel @Inject constructor(
         val ms = ((elapsedTime % 1000) / 10).toInt()
         _timeText.value = String.format("%02d : %02d . %02d", m, s, ms)
     }
+
+    private fun writeWavHeader(file: File, totalAudioLen: Int) {
+        val totalDataLen = totalAudioLen + 36
+        val channels = 1
+        val byteRate = SAMPLE_RATE * channels * 2
+        val header = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN)
+            .put("RIFF".toByteArray())
+            .putInt(totalDataLen)
+            .put("WAVE".toByteArray())
+            .put("fmt ".toByteArray())
+            .putInt(16)
+            .putShort(1.toShort())
+            .putShort(channels.toShort())
+            .putInt(SAMPLE_RATE)
+            .putInt(byteRate)
+            .putShort((channels * 2).toShort())
+            .putShort(16.toShort())
+            .put("data".toByteArray())
+            .putInt(totalAudioLen)
+        RandomAccessFile(file, "rw").use { raf ->
+            raf.seek(0)
+            raf.write(header.array())
+        }
+    }
+
 
     sealed class RecordAudioEvent {
         data object RecordingStarted : RecordAudioEvent()
