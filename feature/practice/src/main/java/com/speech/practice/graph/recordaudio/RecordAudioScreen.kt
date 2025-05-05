@@ -53,12 +53,22 @@ internal fun RecordAudioRoute(
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
     val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()
 
-    RecordAudioScreen(navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused)
+    RecordAudioScreen(
+        navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
+        onRecordAudio = {},
+        onPause = {},
+        onStop = {},
+        onCancel = {}
+    )
 }
 
 @Composable
 private fun RecordAudioScreen(
     navigateBack: () -> Unit,
+    onRecordAudio: () -> Unit,
+    onPause: () -> Unit,
+    onStop: () -> Unit,
+    onCancel : () -> Unit,
     isRecording: Boolean,
     isPaused: Boolean,
 ) {
@@ -85,7 +95,7 @@ private fun RecordAudioScreen(
                 modifier = Modifier.align(Alignment.TopEnd)
             ) {
                 Image(
-                    painter = painterResource(com.speech.designsystem.R.drawable.setting_ic),
+                    painter = painterResource(R.drawable.setting_ic),
                     contentDescription = "설정",
                     modifier = Modifier.size(50.dp)
                 )
@@ -98,7 +108,7 @@ private fun RecordAudioScreen(
 
         Spacer(Modifier.weight(1f))
 
-        if(isRecording) {
+        if (isRecording) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -150,7 +160,7 @@ private fun RecordAudioScreen(
                             .align(
                                 Center
                             ),
-                        colorFilter = ColorFilter.tint(PrimaryActive)
+                        colorFilter = ColorFilter.tint(Color.Red)
                     )
                 }
 
@@ -169,7 +179,9 @@ private fun RecordAudioScreen(
                     )
 
                     Image(
-                        painter = if(!isPaused) painterResource(R.drawable.pause_audio) else painterResource(R.drawable.play_audio),
+                        painter = if (!isPaused) painterResource(R.drawable.pause_audio) else painterResource(
+                            R.drawable.play_audio
+                        ),
                         contentDescription = "일시 정지",
                         modifier = Modifier
                             .size(20.dp)
@@ -186,7 +198,7 @@ private fun RecordAudioScreen(
         }
 
 
-        if(!isRecording) {
+        if (!isRecording) {
             Box(
                 modifier = Modifier.clickable(isRipple = true) {
 
@@ -220,6 +232,10 @@ private fun RecordAudioScreenPreview() {
     RecordAudioScreen(
         navigateBack = {},
         isRecording = true,
-        isPaused = true
+        isPaused = true,
+        onRecordAudio = {},
+        onPause = {},
+        onStop = {},
+        onCancel = {}
     )
 }
