@@ -31,80 +31,12 @@ class PracticeViewModel @Inject constructor(
     private val _eventChannel = Channel<PracticeEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    private val _isRecording = MutableStateFlow(false)
-    val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
-
-    private var recorder: AudioRecord? = null
-    private var audioFile: File? = null
-    private var recordJob : Job? = null
-
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun recordAudio() {
-        if (_isRecording.value) return
-        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-
-        audioFile = File(
-            context.filesDir,
-            "record_\${System.currentTimeMillis()}.wav"
-        )
-
-        recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE,
-            CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
-        ).apply { startRecording() }
-
-        _isRecording.value = true
-
-        viewModelScope.launch {
-            _eventChannel.send(PracticeEvent.RecordingStarted)
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            FileOutputStream(audioFile!!).use { fos ->
-                // WAV 헤더 자리 확보 (44 bytes)
-                fos.write(ByteArray(44))
-                val buffer = ByteArray(bufferSize)
-                var totalBytes = 0
-
-                while (_isRecording.value) {
-                    val read = recorder?.read(buffer, 0, buffer.size) ?: 0
-                    if (read > 0) {
-                        fos.write(buffer, 0, read)
-                        totalBytes += read
-                    }
-                }
-
-            }
-            _eventChannel.send(PracticeEvent.RecordingStopped)
-        }
-
-
-    }
-
-    fun stopRecordAudio() {
-        if (!_isRecording.value) return
-        _isRecording.value = false
-        recordJob?.cancel()
-
-        recorder?.apply {
-            stop()
-            release()
-        }
-
-        recorder = null
-    }
 
 
     sealed class PracticeEvent {
-        data object RecordingStarted : PracticeEvent()
-        data object RecordingStopped : PracticeEvent()
+        data object NavigateToRecordAudio : PracticeEvent()
     }
 
 
-    companion object {
-        private const val SAMPLE_RATE = 16000
-        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
-        private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-    }
+
 }

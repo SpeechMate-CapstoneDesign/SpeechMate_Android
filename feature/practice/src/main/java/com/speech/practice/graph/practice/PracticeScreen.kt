@@ -32,23 +32,23 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.RecordAudio
 import com.speech.designsystem.theme.RecordVideo
 import com.speech.designsystem.theme.SpeechMateTheme
-import com.speech.designsystem.theme.Upload
 
 
 @Composable
 internal fun PracticeRoute(
+    navigateToRecordAudio : () -> Unit,
     viewModel: PracticeViewModel = hiltViewModel()
 ) {
     PracticeScreen(
-        onRecordAudio = viewModel::recordAudio,
-        onRecordVideo = viewModel::stopRecordAudio,
+        navigateToRecordAudio = navigateToRecordAudio,
+        onRecordVideo = {},
         onUploadFile = {}
     )
 }
 
 @Composable
 private fun PracticeScreen(
-    onRecordAudio : () -> Unit,
+    navigateToRecordAudio: () -> Unit,
     onRecordVideo : () -> Unit,
     onUploadFile: () -> Unit
 ) {
@@ -85,7 +85,7 @@ private fun PracticeScreen(
                     .background(RecordAudio)
                     .padding(20.dp)
                     .clickable {
-                        onRecordAudio()
+                        navigateToRecordAudio()
                     },
             ) {
                 Row(
@@ -106,7 +106,7 @@ private fun PracticeScreen(
                     .clip(RoundedCornerShape(16.dp))
                     .background(RecordVideo)
                     .padding(20.dp)
-                    .clickable {
+                    .clickable(isRipple = true) {
                         onRecordVideo()
                     },
             ) {
@@ -154,7 +154,7 @@ private fun PracticeScreen(
 @Composable
 private fun PracticeScreenPreview() {
     PracticeScreen(
-        onRecordAudio = {},
+        navigateToRecordAudio = {},
         onRecordVideo = {},
         onUploadFile = {}
     )

@@ -16,4 +16,7 @@ data object PracticeBaseRoute : Route
 sealed class PracticeGraph : Route {
     @Serializable
     data object PracticeRoute : PracticeGraph()
+
+    @Serializable
+    data object RecordAudioRoute : PracticeGraph()
 }
