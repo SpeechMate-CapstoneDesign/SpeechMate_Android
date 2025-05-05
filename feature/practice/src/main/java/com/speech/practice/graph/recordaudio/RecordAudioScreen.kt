@@ -26,15 +26,10 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,12 +39,9 @@ import com.speech.common.ui.SimpleCircle
 import com.speech.common.ui.StrokeCircle
 import com.speech.common.util.clickable
 import com.speech.designsystem.theme.DarkGray
-import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryDefault
-import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
-import com.speech.practice.graph.practice.PracticeViewModel
 
 @Composable
 internal fun RecordAudioRoute(
@@ -64,11 +56,9 @@ internal fun RecordAudioRoute(
         navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
         onRecordAudio = viewModel::recordAudio,
         onPause = {},
-        onPlay = {},
+        onResume = {},
         onStop = viewModel::stopRecordAudio,
-        onCancel = {},
-        playAudio = viewModel::playAudio,
-        stopPlayAudio = viewModel::stopPlayback,
+        onCancel = viewModel::cancelAudio,
         elapsedTime = elapsedTime
     )
 }
@@ -78,11 +68,9 @@ private fun RecordAudioScreen(
     navigateBack: () -> Unit,
     onRecordAudio: () -> Unit,
     onPause: () -> Unit,
-    onPlay: () -> Unit,
+    onResume: () -> Unit,
     onStop: () -> Unit,
     onCancel: () -> Unit,
-    playAudio : () -> Unit,
-    stopPlayAudio : () -> Unit,
     isRecording: Boolean,
     isPaused: Boolean,
     elapsedTime: String
@@ -183,7 +171,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        if (!isPaused) onPause() else onPlay()
+                        if (!isPaused) onPause() else onResume()
                     }
                 ) {
                     StrokeCircle(
@@ -260,11 +248,9 @@ private fun RecordAudioScreenPreview() {
         isPaused = true,
         onRecordAudio = {},
         onPause = {},
-        onPlay = {},
         onStop = {},
         onCancel = {},
-        playAudio = {},
-        stopPlayAudio = {},
+        onResume = {},
         elapsedTime = "00 : 00.00"
     )
 }
