@@ -1,6 +1,7 @@
 package com.speech.practice.graph.recordaudio
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -13,6 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
-    @ApplicationContext private val context : Context
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _eventChannel = Channel<RecordAudioEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
@@ -35,9 +37,17 @@ class RecordAudioViewModel @Inject constructor(
     private val _isPaused = MutableStateFlow(false)
     val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
 
+    private val _elapsedTime = MutableStateFlow(0L)
+    val elapsedTime: StateFlow<Long> = _elapsedTime.asStateFlow()
+
+    private val _timeText = MutableStateFlow("00:00 . 00")
+    val timeText: StateFlow<String> = _timeText.asStateFlow()
+
+    private var timerJob: Job? = null
+
     private var recorder: AudioRecord? = null
     private var audioFile: File? = null
-    private var recordJob : Job? = null
+    private var recordJob: Job? = null
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun recordAudio() {
@@ -56,7 +66,7 @@ class RecordAudioViewModel @Inject constructor(
         ).apply { startRecording() }
 
         _isRecording.value = true
-
+        startTimer()
         viewModelScope.launch {
             _eventChannel.send(RecordAudioEvent.RecordingStarted)
         }
@@ -94,11 +104,42 @@ class RecordAudioViewModel @Inject constructor(
         }
 
         recorder = null
+        stopTimer()
+    }
+
+    private fun startTimer() {
+        if (timerJob != null) return
+
+        _elapsedTime.value = 0L
+        timerJob = viewModelScope.launch(Dispatchers.Default) {
+            while (_isRecording.value) {
+                delay(10)
+                _elapsedTime.value += 10
+                if (_elapsedTime.value % 130L == 0L) {
+                    setTimerText(_elapsedTime.value)
+                }
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    @SuppressLint("DefaultLocale")
+    private fun setTimerText(elapsedTime: Long) {
+        val m = (elapsedTime / 1000) / 60
+        val s = (elapsedTime / 1000) % 60
+        val ms = ((elapsedTime % 1000) / 10).toInt()
+        _timeText.value = String.format("%02d : %02d . %02d", m, s, ms)
     }
 
     sealed class RecordAudioEvent {
         data object RecordingStarted : RecordAudioEvent()
         data object RecordingStopped : RecordAudioEvent()
+        data object PlaybackStarted : RecordAudioEvent()
+        data object PlaybackStopped : RecordAudioEvent()
     }
 
     companion object {

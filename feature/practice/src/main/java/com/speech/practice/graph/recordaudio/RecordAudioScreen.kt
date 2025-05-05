@@ -18,20 +18,26 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.speech.common.ui.SimpleCircle
@@ -52,13 +58,16 @@ internal fun RecordAudioRoute(
 ) {
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
     val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()
+    val elapsedTime by viewModel.timeText.collectAsStateWithLifecycle()
 
     RecordAudioScreen(
         navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
-        onRecordAudio = {},
+        onRecordAudio = viewModel::recordAudio,
         onPause = {},
-        onStop = {},
-        onCancel = {}
+        onPlay = {},
+        onStop = viewModel::stopRecordAudio,
+        onCancel = {},
+        elapsedTime = elapsedTime
     )
 }
 
@@ -67,10 +76,12 @@ private fun RecordAudioScreen(
     navigateBack: () -> Unit,
     onRecordAudio: () -> Unit,
     onPause: () -> Unit,
+    onPlay: () -> Unit,
     onStop: () -> Unit,
-    onCancel : () -> Unit,
+    onCancel: () -> Unit,
     isRecording: Boolean,
     isPaused: Boolean,
+    elapsedTime: String
 ) {
     Column(
         modifier = Modifier
@@ -104,7 +115,7 @@ private fun RecordAudioScreen(
 
         Spacer(Modifier.weight(1f))
 
-        Text("00 : 00 : 00", style = SpeechMateTheme.typography.bodyXLM, color = LightGray)
+        Text(elapsedTime, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
 
         Spacer(Modifier.weight(1f))
 
@@ -117,7 +128,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clickable(isRipple = true) {
-
+                        onCancel()
                     }
                 ) {
                     StrokeCircle(
@@ -141,7 +152,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clickable(isRipple = true) {
-
+                        onStop()
                     }
                 ) {
                     StrokeCircle(
@@ -160,7 +171,7 @@ private fun RecordAudioScreen(
                             .align(
                                 Center
                             ),
-                        colorFilter = ColorFilter.tint(Color.Red)
+                        colorFilter = ColorFilter.tint(PrimaryActive)
                     )
                 }
 
@@ -168,7 +179,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clickable(isRipple = true) {
-
+                        if (!isPaused) onPause() else onPlay()
                     }
                 ) {
                     StrokeCircle(
@@ -200,8 +211,8 @@ private fun RecordAudioScreen(
 
         if (!isRecording) {
             Box(
-                modifier = Modifier.clickable(isRipple = true) {
-
+                modifier = Modifier.clip(shape = CircleShape).clickable(isRipple = true) {
+                    onRecordAudio()
                 }
             ) {
                 SimpleCircle(
@@ -235,7 +246,9 @@ private fun RecordAudioScreenPreview() {
         isPaused = true,
         onRecordAudio = {},
         onPause = {},
+        onPlay = {},
         onStop = {},
-        onCancel = {}
+        onCancel = {},
+        elapsedTime = "00 : 00.00"
     )
 }

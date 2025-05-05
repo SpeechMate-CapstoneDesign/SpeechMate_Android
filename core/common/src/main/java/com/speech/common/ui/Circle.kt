@@ -16,7 +16,7 @@ import com.speech.designsystem.theme.PrimaryActive
 fun SimpleCircle(
     modifier: Modifier = Modifier,
     color: Color = PrimaryActive,
-    diameter: Dp = 115.dp
+    diameter: Dp = 90.dp
 ) {
     Canvas(modifier = modifier.size(diameter)) {
         val radius = size.minDimension / 2f
