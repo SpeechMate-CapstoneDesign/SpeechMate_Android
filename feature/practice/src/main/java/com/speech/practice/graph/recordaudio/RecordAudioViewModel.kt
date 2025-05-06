@@ -27,6 +27,7 @@ import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -74,7 +75,7 @@ class RecordAudioViewModel @Inject constructor(
 
         audioFile = File(
             context.filesDir,
-            "record_\\${System.currentTimeMillis()}.wav"
+            "record_${System.currentTimeMillis()}.wav"
         )
 
         _isRecording.value = true
@@ -202,12 +203,12 @@ class RecordAudioViewModel @Inject constructor(
         player = null
     }
 
-    @SuppressLint("DefaultLocale")
+
     private fun setTimerText(elapsedTime: Long) {
         val m = (elapsedTime / 1000) / 60
         val s = (elapsedTime / 1000) % 60
         val ms = ((elapsedTime % 1000) / 10).toInt()
-        _timeText.value = String.format("%02d : %02d . %02d", m, s, ms)
+        _timeText.value = String.format(Locale.US,"%02d : %02d . %02d", m, s, ms)
     }
 
     private fun writeWavHeader(file: File, totalAudioLen: Int) {
