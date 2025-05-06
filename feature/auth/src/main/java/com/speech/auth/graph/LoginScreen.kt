@@ -27,6 +27,7 @@ import com.speech.auth.R
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.auth.graph.LoginViewModel.LoginEvent
+import com.speech.common.event.SpeechMateEvent
 import com.speech.common.util.clickable
 import com.speech.designsystem.theme.PrimaryLighter
 
@@ -46,14 +47,16 @@ internal fun LoginRoute(
 
     LoginScreen(
         loginKakao = {},
-        loginFailure = {}
+        onLoginFailure = { viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다.")) },
+        navigateToPractice = navigateToPractice
     )
 }
 
 @Composable
 private fun LoginScreen(
+    navigateToPractice: () -> Unit,
     loginKakao: () -> Unit,
-    loginFailure: () -> Unit
+    onLoginFailure: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -73,10 +76,10 @@ private fun LoginScreen(
             painter = painterResource(com.speech.designsystem.R.drawable.kakao_login),
             contentDescription = "카카오로 로그인하기",
             modifier = Modifier.clickable {
-                loginKakao(context, onSuccess = {
-                    idToken -> Log.d("kakao auth", idToken)
-
-                }, onFailure = {})
+                loginKakao(context, onSuccess = { idToken ->
+                    Log.d("kakao auth", idToken)
+                    navigateToPractice()
+                }, onFailure = { onLoginFailure() })
             }
         )
 
@@ -108,8 +111,6 @@ private fun loginKakao(
                     loginWithKakaoAccount(context, callback = callback)
                 } else if (token != null) {
                     onSuccess(token.idToken!!)
-                    Log.d("idToken", token.idToken!!)
-
                 }
             }
         } else {
@@ -124,6 +125,7 @@ private fun loginKakao(
 private fun LoginScreenPreview() {
     LoginScreen(
         loginKakao = {},
-        loginFailure = {}
+        onLoginFailure = {},
+        navigateToPractice = {}
     )
 }

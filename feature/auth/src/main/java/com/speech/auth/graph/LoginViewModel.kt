@@ -1,13 +1,16 @@
 package com.speech.auth.graph
 
 import androidx.lifecycle.ViewModel
+import com.speech.common.event.EventHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    val eventHelper: EventHelper
+) : ViewModel() {
     private val _eventChannel = Channel<LoginEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
