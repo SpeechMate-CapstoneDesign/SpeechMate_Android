@@ -191,9 +191,16 @@ class RecordAudioViewModel @Inject constructor(
         audioFile?.takeIf { it.exists() }?.let { file ->
             player?.release()
             player = MediaPlayer().apply {
-                setDataSource(file.absolutePath)
-                prepare()
-                start()
+                try {
+                    setDataSource(file.absolutePath)
+                    prepare()
+                    start()
+                } catch(e: Exception) {
+                    Log.e("RecordAudioError", "Error playing audio ${e}")
+                    release()
+                    player = null
+                }
+
             }
         }
     }
