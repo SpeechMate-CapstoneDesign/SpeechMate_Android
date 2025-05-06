@@ -71,7 +71,7 @@ private fun RecordAudioScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp),
+            .padding(start = 10.dp, end = 20.dp, top = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -178,7 +178,7 @@ private fun RecordAudioScreen(
                         painter = if (!isPaused) painterResource(R.drawable.pause_audio) else painterResource(
                             R.drawable.play_audio
                         ),
-                        contentDescription = "일시 정지",
+                        contentDescription = if(!isPaused) "일시 정지" else "재개",
                         modifier = Modifier
                             .size(20.dp)
                             .align(
@@ -216,15 +216,15 @@ private fun RecordAudioScreen(
             }
         }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
-                onEvent(RecordAudioEvent.PlaybackStarted)
-            })
-            Spacer(Modifier.width(30.dp))
-            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
-                onEvent(RecordAudioEvent.PlaybackStopped)
-            })
-        }
+//        Row(modifier = Modifier.fillMaxWidth()) {
+//            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
+//                onEvent(RecordAudioEvent.PlaybackStarted)
+//            })
+//            Spacer(Modifier.width(30.dp))
+//            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
+//                onEvent(RecordAudioEvent.PlaybackStopped)
+//            })
+//        }
 
 
         Spacer(Modifier.height(60.dp))

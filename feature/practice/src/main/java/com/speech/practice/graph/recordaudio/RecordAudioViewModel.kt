@@ -7,6 +7,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,8 +33,8 @@ import javax.inject.Inject
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    private val _eventChannel = Channel<RecordAudioEvent>()
-    val eventChannel = _eventChannel.receiveAsFlow()
+//    private val _eventChannel = Channel<RecordAudioEvent>()
+//    val eventChannel = _eventChannel.receiveAsFlow()
 
     private val _isRecording = MutableStateFlow(false)
     val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
@@ -49,6 +50,7 @@ class RecordAudioViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var recordJob: Job? = null
 
+    private var totalBytes = 0
     private var recorder: AudioRecord? = null
     private var audioFile: File? = null
     private var player: MediaPlayer? = null
@@ -66,33 +68,58 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private fun recordAudio() {
         if (_isRecording.value) return
-        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
 
         audioFile = File(
             context.filesDir,
             "record_\\${System.currentTimeMillis()}.wav"
         )
 
+        _isRecording.value = true
+        startTimer()
+
+        startRecordingLoop(true)
+    }
+
+    private fun pauseAudio() {
+        if (!_isRecording.value || _isPaused.value) return
+        _isPaused.value = true
+
+        recorder?.apply { stop(); release() }
+        recorder = null
+
+        stopTimer()
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private fun resumeAudio() {
+        if (!_isRecording.value || !_isPaused.value) return
+        _isPaused.value = false
+
+        startTimer()
+        startRecordingLoop(false)
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private fun startRecordingLoop(isFirstSegment : Boolean) {
+        recordJob?.cancel()
+
+        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
         recorder = AudioRecord(
             MediaRecorder.AudioSource.MIC,
             SAMPLE_RATE,
             CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
         ).apply { startRecording() }
 
-        _isRecording.value = true
-        startTimer()
-
-        viewModelScope.launch(Dispatchers.IO) {
-            var totalBytes = 0
-            FileOutputStream(audioFile!!).use { fos ->
-                fos.write(ByteArray(44))
+        recordJob = viewModelScope.launch(Dispatchers.IO) {
+            FileOutputStream(audioFile!!, !isFirstSegment).use { fos ->
+                if (isFirstSegment) {
+                    fos.write(ByteArray(44)) // WAV 헤더
+                }
                 val buffer = ByteArray(bufferSize)
-
-                while (_isRecording.value) {
+                while (_isRecording.value && !_isPaused.value) {
                     val read = recorder?.read(buffer, 0, buffer.size) ?: 0
                     if (read > 0) {
                         fos.write(buffer, 0, read)
@@ -100,46 +127,27 @@ class RecordAudioViewModel @Inject constructor(
                     }
                 }
             }
-
-            writeWavHeader(audioFile!!, totalBytes)
         }
-    }
-
-    private fun pauseAudio() {
-        if (!_isRecording.value || _isPaused.value) return
-        _isPaused.value = true
-        recorder?.apply { stop(); release() }
-        recorder = null
-        stopTimer()
-    }
-
-    private fun resumeAudio() {
-        if (!_isRecording.value || !_isPaused.value) return
-        val bufferSize = AudioRecord.getMinBufferSize(
-            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT
-        )
-        recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
-        ).apply { startRecording() }
-        _isPaused.value = false
-        startTimer()
-        startRecordingLoop(bufferSize)
-
     }
 
     private fun stopRecordAudio() {
         if (!_isRecording.value) return
         _isRecording.value = false
+        _isPaused.value = false
+
         recordJob?.cancel()
 
         recorder?.apply {
             stop()
             release()
         }
-
         recorder = null
+
+        _elapsedTime.value = 0L
+        setTimerText(_elapsedTime.value)
         stopTimer()
+
+        audioFile?.let { writeWavHeader(it, totalBytes) }
     }
 
     private fun cancelAudio() {
@@ -153,19 +161,15 @@ class RecordAudioViewModel @Inject constructor(
         _isPaused.value = false
 
         recordJob?.cancel()
-        timerJob?.cancel()
-
         recorder?.apply { stop(); release() }
         recorder = null
 
         audioFile?.delete()
-
     }
 
     private fun startTimer() {
         if (timerJob != null) return
 
-        _elapsedTime.value = 0L
         timerJob = viewModelScope.launch(Dispatchers.Default) {
             while (_isRecording.value) {
                 delay(10)
