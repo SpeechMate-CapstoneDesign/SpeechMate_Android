@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("speechmate.android.application")
   //  alias(libs.plugins.firebase.crashlytics)
@@ -7,7 +10,7 @@ plugins {
 
 
 android {
-    namespace = "com.example.speechmate"
+    namespace = "com.speech.speechmate"
 
     defaultConfig {
         targetSdk = 35
@@ -17,6 +20,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
+
+    defaultConfig {
+        val properties = Properties().apply {
+            load(FileInputStream(rootProject.file("local.properties")))
+        }
+
+        buildConfigField(
+            "String",
+            "KAKAO_NATIVE_APP_KEY",
+            properties["KAKAO_NATIVE_APP_KEY"] as String
+        )
+
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = properties["KAKAO_NATIVE_APP_KEY"] as String
+    }
+
 
     buildFeatures {
         buildConfig = true

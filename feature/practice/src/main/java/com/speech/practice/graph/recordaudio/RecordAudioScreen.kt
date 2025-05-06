@@ -46,8 +46,8 @@ import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordAudioEve
 
 @Composable
 internal fun RecordAudioRoute(
+    viewModel: RecordAudioViewModel = hiltViewModel(),
     navigateBack: () -> Unit,
-    viewModel: RecordAudioViewModel = hiltViewModel()
 ) {
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
     val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()

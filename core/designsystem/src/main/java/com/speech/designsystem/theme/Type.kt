@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.speech.designsystem.R
-import org.w3c.dom.Text
+
 
 val SpoqaBold = FontFamily(
     Font(
@@ -26,7 +26,12 @@ val PretendardMedium = FontFamily(
 
 @Immutable
 data class SpeechMateTypography(
-    val headingMB : TextStyle = TextStyle(
+    val headingXLB: TextStyle = TextStyle(
+        fontFamily = SpoqaBold,
+        fontSize = 36.sp,
+        lineHeight = 44.sp
+    ),
+    val headingMB: TextStyle = TextStyle(
         fontFamily = SpoqaBold,
         fontSize = 24.sp,
         lineHeight = 32.sp

@@ -4,7 +4,7 @@ import androidx.navigation.NavDestination
 import kotlin.reflect.KClass
 
 private val HIDDEN_BOTTOM_BAR_ROUTES = setOf(
-    LoginRoute::class,
+    AuthGraph.LoginRoute::class,
 )
 
 fun NavDestination?.shouldHideBottomBar(): Boolean =
