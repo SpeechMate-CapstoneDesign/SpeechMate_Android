@@ -8,3 +8,7 @@ android {
     namespace = "com.speech.common"
 }
 
+dependencies {
+    implementation(projects.core.designsystem)
+}
+
