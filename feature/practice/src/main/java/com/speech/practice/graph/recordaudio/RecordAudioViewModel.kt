@@ -53,9 +53,22 @@ class RecordAudioViewModel @Inject constructor(
     private var audioFile: File? = null
     private var player: MediaPlayer? = null
 
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    fun onEvent(event : RecordAudioEvent) {
+        when(event) {
+            is RecordAudioEvent.RecordingStarted -> recordAudio()
+            is RecordAudioEvent.RecordingStopped -> stopRecordAudio()
+            is RecordAudioEvent.RecordingCanceled -> cancelAudio()
+            is RecordAudioEvent.RecordingPaused -> pauseAudio()
+            is RecordAudioEvent.RecordingResumed -> resumeAudio()
+            is RecordAudioEvent.PlaybackStarted -> playAudio()
+            is RecordAudioEvent.PlaybackStopped -> stopPlayAudio()
+        }
+    }
+
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun recordAudio() {
+    private fun recordAudio() {
         if (_isRecording.value) return
         val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
 
@@ -92,30 +105,30 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-//    fun pauseAudio() {
-//        if (!_isRecording.value || _isPaused.value) return
-//        _isPaused.value = true
-//        recorder?.apply { stop(); release() }
-//        recorder = null
-//        stopTimer()
-//    }
-//
-//    fun resumeAudio() {
-//        if (!_isRecording.value || !_isPaused.value) return
-//        val bufferSize = AudioRecord.getMinBufferSize(
-//            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT
-//        )
-//        recorder = AudioRecord(
-//            MediaRecorder.AudioSource.MIC,
-//            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
-//        ).apply { startRecording() }
-//        _isPaused.value = false
-//        startTimer()
-//        startRecordingLoop(bufferSize)
-//
-//    }
+    private fun pauseAudio() {
+        if (!_isRecording.value || _isPaused.value) return
+        _isPaused.value = true
+        recorder?.apply { stop(); release() }
+        recorder = null
+        stopTimer()
+    }
 
-    fun stopRecordAudio() {
+    private fun resumeAudio() {
+        if (!_isRecording.value || !_isPaused.value) return
+        val bufferSize = AudioRecord.getMinBufferSize(
+            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT
+        )
+        recorder = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
+        ).apply { startRecording() }
+        _isPaused.value = false
+        startTimer()
+        startRecordingLoop(bufferSize)
+
+    }
+
+    private fun stopRecordAudio() {
         if (!_isRecording.value) return
         _isRecording.value = false
         recordJob?.cancel()
@@ -129,7 +142,7 @@ class RecordAudioViewModel @Inject constructor(
         stopTimer()
     }
 
-    fun cancelAudio() {
+    private fun cancelAudio() {
         if (!_isRecording.value) return
 
         _elapsedTime.value = 0L
@@ -169,23 +182,21 @@ class RecordAudioViewModel @Inject constructor(
         timerJob = null
     }
 
-//    fun playAudio() {
-//        audioFile?.takeIf { it.exists() }?.let { file ->
-//            player?.release()
-//            player = MediaPlayer().apply {
-//                setDataSource(file.absolutePath)
-//                prepare()
-//                start()
-//            }
-//            viewModelScope.launch { _eventChannel.send(RecordAudioEvent.PlaybackStarted) }
-//        }
-//    }
-//
-//    fun stopPlayback() {
-//        player?.apply { stop(); release() }
-//        player = null
-//        viewModelScope.launch { _eventChannel.send(RecordAudioEvent.PlaybackStopped) }
-//    }
+    private fun playAudio() {
+        audioFile?.takeIf { it.exists() }?.let { file ->
+            player?.release()
+            player = MediaPlayer().apply {
+                setDataSource(file.absolutePath)
+                prepare()
+                start()
+            }
+        }
+    }
+
+    private fun stopPlayAudio() {
+        player?.apply { stop(); release() }
+        player = null
+    }
 
     @SuppressLint("DefaultLocale")
     private fun setTimerText(elapsedTime: Long) {
@@ -221,6 +232,13 @@ class RecordAudioViewModel @Inject constructor(
 
 
     sealed class RecordAudioEvent {
+        data object RecordingStarted : RecordAudioEvent()
+        data object RecordingPaused : RecordAudioEvent()
+        data object RecordingResumed : RecordAudioEvent()
+        data object RecordingStopped : RecordAudioEvent()
+        data object RecordingCanceled : RecordAudioEvent()
+        data object PlaybackStarted : RecordAudioEvent()
+        data object PlaybackStopped : RecordAudioEvent()
     }
 
     companion object {

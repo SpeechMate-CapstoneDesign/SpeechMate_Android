@@ -42,6 +42,7 @@ import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
+import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordAudioEvent
 
 @Composable
 internal fun RecordAudioRoute(
@@ -54,11 +55,7 @@ internal fun RecordAudioRoute(
 
     RecordAudioScreen(
         navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
-        onRecordAudio = viewModel::recordAudio,
-        onPause = {},
-        onResume = {},
-        onStop = viewModel::stopRecordAudio,
-        onCancel = viewModel::cancelAudio,
+        onEvent = viewModel::onEvent,
         elapsedTime = elapsedTime
     )
 }
@@ -66,11 +63,7 @@ internal fun RecordAudioRoute(
 @Composable
 private fun RecordAudioScreen(
     navigateBack: () -> Unit,
-    onRecordAudio: () -> Unit,
-    onPause: () -> Unit,
-    onResume: () -> Unit,
-    onStop: () -> Unit,
-    onCancel: () -> Unit,
+    onEvent : (RecordAudioEvent) -> Unit,
     isRecording: Boolean,
     isPaused: Boolean,
     elapsedTime: String
@@ -120,7 +113,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        onCancel()
+                        onEvent(RecordAudioEvent.RecordingCanceled)
                     }
                 ) {
                     StrokeCircle(
@@ -144,7 +137,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        onStop()
+                       onEvent(RecordAudioEvent.RecordingStopped)
                     }
                 ) {
                     StrokeCircle(
@@ -171,7 +164,7 @@ private fun RecordAudioScreen(
 
                 Box(
                     modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        if (!isPaused) onPause() else onResume()
+                        if (!isPaused) onEvent(RecordAudioEvent.RecordingPaused) else onEvent(RecordAudioEvent.RecordingResumed)
                     }
                 ) {
                     StrokeCircle(
@@ -204,7 +197,7 @@ private fun RecordAudioScreen(
         if (!isRecording) {
             Box(
                 modifier = Modifier.clip(shape = CircleShape).clickable(isRipple = true) {
-                    onRecordAudio()
+                    onEvent(RecordAudioEvent.RecordingStarted)
                 }
             ) {
                 SimpleCircle(
@@ -223,15 +216,15 @@ private fun RecordAudioScreen(
             }
         }
 
-//        Row(modifier = Modifier.fillMaxWidth()) {
-//            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
-//                playAudio()
-//            })
-//            Spacer(Modifier.width(30.dp))
-//            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
-//                stopPlayAudio()
-//            })
-//        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
+                onEvent(RecordAudioEvent.PlaybackStarted)
+            })
+            Spacer(Modifier.width(30.dp))
+            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
+                onEvent(RecordAudioEvent.PlaybackStopped)
+            })
+        }
 
 
         Spacer(Modifier.height(60.dp))
@@ -246,11 +239,7 @@ private fun RecordAudioScreenPreview() {
         navigateBack = {},
         isRecording = true,
         isPaused = true,
-        onRecordAudio = {},
-        onPause = {},
-        onStop = {},
-        onCancel = {},
-        onResume = {},
+        onEvent = {},
         elapsedTime = "00 : 00.00"
     )
 }
