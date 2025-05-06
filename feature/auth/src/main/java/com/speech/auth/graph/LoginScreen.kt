@@ -23,13 +23,10 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-import com.speech.auth.R
-import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.auth.graph.LoginViewModel.LoginEvent
 import com.speech.common.event.SpeechMateEvent
 import com.speech.common.util.clickable
-import com.speech.designsystem.theme.PrimaryLighter
 
 @Composable
 internal fun LoginRoute(
@@ -40,7 +37,9 @@ internal fun LoginRoute(
         viewModel.eventChannel.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> navigateToPractice()
-                is LoginEvent.LoginFailure -> {}
+                is LoginEvent.LoginFailure -> {
+                    viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
+                }
             }
         }
     }
