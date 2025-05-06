@@ -2,6 +2,7 @@ package com.speech.main
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,23 +15,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.kakao.sdk.common.util.Utility
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
-private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
-private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ActivityCompat.requestPermissions(
-            this,
-            permissions,
-            REQUEST_RECORD_AUDIO_PERMISSION
-        )
+        var keyHash = Utility.getKeyHash(this)
+        Log.d("kakao keyHash", keyHash)
 
         enableEdgeToEdge()
 
