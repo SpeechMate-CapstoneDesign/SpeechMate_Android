@@ -71,7 +71,7 @@ private fun RecordAudioScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 10.dp, end = 20.dp, top = 20.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -82,18 +82,7 @@ private fun RecordAudioScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
                     contentDescription = "뒤로 가기",
-                    modifier = Modifier.size(50.dp)
-                )
-            }
-
-            IconButton(
-                onClick = { navigateBack() },
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.setting_ic),
-                    contentDescription = "설정",
-                    modifier = Modifier.size(50.dp)
+                    modifier = Modifier.size(60.dp)
                 )
             }
         }
