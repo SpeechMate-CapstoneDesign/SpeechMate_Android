@@ -5,7 +5,12 @@ import kotlinx.serialization.Serializable
 sealed interface Route
 
 @Serializable
-data object LoginRoute : Route
+data object AuthBaseRoute : Route
+
+sealed class AuthGraph : Route {
+    @Serializable
+    data object LoginRoute : AuthGraph()
+}
 
 @Serializable
 data object OnBoardingRoute : Route

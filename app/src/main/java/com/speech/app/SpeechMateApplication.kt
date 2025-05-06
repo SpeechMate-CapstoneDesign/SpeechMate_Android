@@ -9,6 +9,7 @@ import dagger.hilt.android.HiltAndroidApp
 class SpeechMateApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
         KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
     }
 }
