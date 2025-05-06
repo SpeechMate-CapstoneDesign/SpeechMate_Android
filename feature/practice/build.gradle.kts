@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "com.speech.home"
+    namespace = "com.speech.practice"
 }
