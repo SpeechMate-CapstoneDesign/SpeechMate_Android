@@ -7,8 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.speech.navigation.PracticeBaseRoute
 import com.speech.navigation.PracticeGraph
+import com.speech.practice.graph.playaudio.PlayAudioRoute
 import com.speech.practice.graph.practice.PracticeRoute
 import com.speech.practice.graph.recordaudio.RecordAudioRoute
+import java.io.File
 
 fun NavController.navigateToPractice(navOptions: NavOptions? = null) {
     navigate(PracticeGraph.PracticeRoute, navOptions)
@@ -18,9 +20,15 @@ fun NavController.navigateToRecordAudio(navOptions: NavOptions? = null) {
     navigate(PracticeGraph.RecordAudioRoute, navOptions)
 }
 
+fun NavController.navigateToPlayAudio(audioFilePath : String, navOptions: NavOptions? = null) {
+    navigate(PracticeGraph.PlayAudioRoute(audioFilePath), navOptions)
+}
+
+
 fun NavGraphBuilder.practiceNavGraph(
     navigateBack : () -> Unit,
-    navigateToRecordAudio : () -> Unit
+    navigateToRecordAudio : () -> Unit,
+    navigateToPlayAudio : (String) -> Unit
 ) {
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {
@@ -31,6 +39,12 @@ fun NavGraphBuilder.practiceNavGraph(
 
         composable<PracticeGraph.RecordAudioRoute> {
             RecordAudioRoute(
+                navigateBack = navigateBack
+            )
+        }
+
+        composable<PracticeGraph.PlayAudioRoute> {
+            PlayAudioRoute (
                 navigateBack = navigateBack
             )
         }

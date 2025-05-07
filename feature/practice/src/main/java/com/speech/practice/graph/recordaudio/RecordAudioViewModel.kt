@@ -34,8 +34,8 @@ import javax.inject.Inject
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-//    private val _eventChannel = Channel<RecordAudioEvent>()
-//    val eventChannel = _eventChannel.receiveAsFlow()
+    private val _eventChannel = Channel<RecordAudioEvent>(Channel.BUFFERED)
+    val eventChannel = _eventChannel.receiveAsFlow()
 
     private val _isRecording = MutableStateFlow(false)
     val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
@@ -54,18 +54,16 @@ class RecordAudioViewModel @Inject constructor(
     private var totalBytes = 0
     private var recorder: AudioRecord? = null
     private var audioFile: File? = null
-    private var player: MediaPlayer? = null
+
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun onEvent(event : RecordAudioEvent) {
-        when(event) {
+    fun onEvent(event: RecordAudioEvent) {
+        when (event) {
             is RecordAudioEvent.RecordingStarted -> recordAudio()
             is RecordAudioEvent.RecordingStopped -> stopRecordAudio()
             is RecordAudioEvent.RecordingCanceled -> cancelAudio()
             is RecordAudioEvent.RecordingPaused -> pauseAudio()
             is RecordAudioEvent.RecordingResumed -> resumeAudio()
-            is RecordAudioEvent.PlaybackStarted -> playAudio()
-            is RecordAudioEvent.PlaybackStopped -> stopPlayAudio()
         }
     }
 
@@ -104,7 +102,7 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    private fun startRecordingLoop(isFirstSegment : Boolean) {
+    private fun startRecordingLoop(isFirstSegment: Boolean) {
         recordJob?.cancel()
 
         val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
@@ -187,35 +185,12 @@ class RecordAudioViewModel @Inject constructor(
         timerJob = null
     }
 
-    private fun playAudio() {
-        audioFile?.takeIf { it.exists() }?.let { file ->
-            player?.release()
-            player = MediaPlayer().apply {
-                try {
-                    setDataSource(file.absolutePath)
-                    prepare()
-                    start()
-                } catch(e: Exception) {
-                    Log.e("RecordAudioError", "Error playing audio ${e}")
-                    release()
-                    player = null
-                }
-
-            }
-        }
-    }
-
-    private fun stopPlayAudio() {
-        player?.apply { stop(); release() }
-        player = null
-    }
-
 
     private fun setTimerText(elapsedTime: Long) {
         val m = (elapsedTime / 1000) / 60
         val s = (elapsedTime / 1000) % 60
         val ms = ((elapsedTime % 1000) / 10).toInt()
-        _timeText.value = String.format(Locale.US,"%02d : %02d . %02d", m, s, ms)
+        _timeText.value = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
     }
 
     private fun writeWavHeader(file: File, totalAudioLen: Int) {
@@ -249,8 +224,6 @@ class RecordAudioViewModel @Inject constructor(
         data object RecordingResumed : RecordAudioEvent()
         data object RecordingStopped : RecordAudioEvent()
         data object RecordingCanceled : RecordAudioEvent()
-        data object PlaybackStarted : RecordAudioEvent()
-        data object PlaybackStopped : RecordAudioEvent()
     }
 
     companion object {

@@ -35,7 +35,7 @@ internal fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
 ) {
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         viewModel.eventChannel.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> navigateToPractice()
