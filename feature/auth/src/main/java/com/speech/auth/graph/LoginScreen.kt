@@ -76,7 +76,7 @@ private fun LoginScreen(
         Spacer(Modifier.height(30.dp))
 
         Image(
-            painter = painterResource(com.speech.designsystem.R.drawable.kakao_login),
+            painter = painterResource(R.drawable.kakao_login),
             contentDescription = "카카오로 로그인하기",
             modifier = Modifier.clickable {
                 loginKakao(context, onSuccess = { idToken ->

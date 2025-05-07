@@ -7,6 +7,7 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.Navigation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,9 @@ class RecordAudioViewModel @Inject constructor(
 ) : ViewModel() {
     private val _eventChannel = Channel<RecordAudioEvent>(Channel.BUFFERED)
 
+    private val _navigationChannel = Channel<NavigationEvent>(Channel.BUFFERED)
+    val navigationChannel = _navigationChannel.receiveAsFlow()
+
     private val _recordingState = MutableStateFlow<RecordingState>(RecordingState.Ready)
     val recordingState: StateFlow<RecordingState> = _recordingState.asStateFlow()
 
@@ -47,7 +51,7 @@ class RecordAudioViewModel @Inject constructor(
     private var recordJob: Job? = null
 
     private var totalBytes = 0
-    private  var recorder: AudioRecord? = null
+    private var recorder: AudioRecord? = null
     private lateinit var audioFile: File
 
     init {
@@ -66,6 +70,14 @@ class RecordAudioViewModel @Inject constructor(
 
     fun onEvent(event: RecordAudioEvent) = viewModelScope.launch {
         _eventChannel.send(event)
+    }
+
+    fun onNavigationEvent(event: NavigationEvent) = viewModelScope.launch {
+        _navigationChannel.send(event)
+    }
+
+    fun navigateToPlayAudio() = viewModelScope.launch {
+        _navigationChannel.send(NavigationEvent.NavigateToPlayAudio(audioFile.path))
     }
 
     private fun setRecordingState(recordingState: RecordingState) {
@@ -152,7 +164,6 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     private fun cancelAudio() {
-        if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
         setRecordingState(RecordingState.Ready)
 
         _elapsedTime.value = 0L
@@ -229,6 +240,11 @@ class RecordAudioViewModel @Inject constructor(
         data object RecordingResumed : RecordAudioEvent()
         data object RecordingStopped : RecordAudioEvent()
         data object RecordingCanceled : RecordAudioEvent()
+    }
+
+    sealed class NavigationEvent {
+        data object NavigateBack : NavigationEvent()
+        data class NavigateToPlayAudio(val audioFilePath: String) : NavigationEvent()
     }
 
     companion object {
