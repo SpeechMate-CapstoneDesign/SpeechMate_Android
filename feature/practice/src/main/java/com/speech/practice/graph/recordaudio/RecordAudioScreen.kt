@@ -205,15 +205,15 @@ private fun RecordAudioScreen(
             }
         }
 
-//        Row(modifier = Modifier.fillMaxWidth()) {
-//            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
-//                onEvent(RecordAudioEvent.PlaybackStarted)
-//            })
-//            Spacer(Modifier.width(30.dp))
-//            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
-//                onEvent(RecordAudioEvent.PlaybackStopped)
-//            })
-//        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
+                onEvent(RecordAudioEvent.PlaybackStarted)
+            })
+            Spacer(Modifier.width(30.dp))
+            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
+                onEvent(RecordAudioEvent.PlaybackStopped)
+            })
+        }
 
 
         Spacer(Modifier.height(60.dp))

@@ -2,7 +2,7 @@ package com.speech.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryLighter = Color(0xFFE3F2FD)
+// val PrimaryLighter = Color(0xFFE3F2FD)
 val PrimaryDefault = Color(0xFFBBDEFB)
 val PrimaryActive = Color(0xFF42A5F5)
 
