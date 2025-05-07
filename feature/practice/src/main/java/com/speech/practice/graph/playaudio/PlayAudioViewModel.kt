@@ -1,12 +1,14 @@
 package com.speech.practice.graph.playaudio
 
+import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -16,14 +18,14 @@ import java.io.File
 
 @HiltViewModel
 class PlayAudioViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _eventChannel = Channel<PlayAudioEvent>(Channel.BUFFERED)
 
     private val audioFilePath: String = requireNotNull(savedStateHandle["audioFilePath"])
-    private val audioFile: File = File(audioFilePath)
+    private val audioFile = File(audioFilePath)
 
-    private var player: MediaPlayer? = null
+    private lateinit var player: MediaPlayer
 
     init {
         _eventChannel.receiveAsFlow()
@@ -40,24 +42,21 @@ class PlayAudioViewModel @Inject constructor(
 
     private fun playAudio() {
         audioFile.let { file ->
-            player?.release()
             player = MediaPlayer().apply {
                 try {
                     setDataSource(file.absolutePath)
                     prepare()
                     start()
                 } catch(e: Exception) {
-                    Log.e("RecordAudioError", "Error playing audio ${e}")
+                    Log.e("PlayAudioException", "Error playing audio ${e}")
                     release()
-                    player = null
                 }
             }
         }
     }
 
     private fun stopPlayAudio() {
-        player?.apply { stop(); release() }
-        player = null
+        player.apply { stop(); release() }
     }
 
     sealed class PlayAudioEvent {

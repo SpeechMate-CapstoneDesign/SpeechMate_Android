@@ -11,6 +11,8 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +22,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
@@ -30,12 +34,12 @@ import java.nio.ByteOrder
 import java.util.Locale
 import javax.inject.Inject
 
+@SuppressLint("MissingPermission")
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _eventChannel = Channel<RecordAudioEvent>(Channel.BUFFERED)
-    val eventChannel = _eventChannel.receiveAsFlow()
 
     private val _isRecording = MutableStateFlow(false)
     val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
@@ -52,22 +56,27 @@ class RecordAudioViewModel @Inject constructor(
     private var recordJob: Job? = null
 
     private var totalBytes = 0
-    private var recorder: AudioRecord? = null
-    private var audioFile: File? = null
+    private lateinit var recorder: AudioRecord
+    private lateinit var audioFile: File
 
-
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    fun onEvent(event: RecordAudioEvent) {
-        when (event) {
-            is RecordAudioEvent.RecordingStarted -> recordAudio()
-            is RecordAudioEvent.RecordingStopped -> stopRecordAudio()
-            is RecordAudioEvent.RecordingCanceled -> cancelAudio()
-            is RecordAudioEvent.RecordingPaused -> pauseAudio()
-            is RecordAudioEvent.RecordingResumed -> resumeAudio()
-        }
+    init {
+        _eventChannel.receiveAsFlow()
+            .onEach { event ->
+                when (event) {
+                    is RecordAudioEvent.RecordingStarted -> recordAudio()
+                    is RecordAudioEvent.RecordingStopped -> stopRecordAudio()
+                    is RecordAudioEvent.RecordingCanceled -> cancelAudio()
+                    is RecordAudioEvent.RecordingPaused -> pauseAudio()
+                    is RecordAudioEvent.RecordingResumed -> resumeAudio()
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    fun onEvent(event: RecordAudioEvent) = viewModelScope.launch {
+        _eventChannel.send(event)
+    }
+
     private fun recordAudio() {
         if (_isRecording.value) return
 
@@ -86,13 +95,11 @@ class RecordAudioViewModel @Inject constructor(
         if (!_isRecording.value || _isPaused.value) return
         _isPaused.value = true
 
-        recorder?.apply { stop(); release() }
-        recorder = null
+        recorder.apply { stop(); release() }
 
         stopTimer()
     }
 
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private fun resumeAudio() {
         if (!_isRecording.value || !_isPaused.value) return
         _isPaused.value = false
@@ -101,7 +108,6 @@ class RecordAudioViewModel @Inject constructor(
         startRecordingLoop(false)
     }
 
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private fun startRecordingLoop(isFirstSegment: Boolean) {
         recordJob?.cancel()
 
@@ -113,13 +119,13 @@ class RecordAudioViewModel @Inject constructor(
         ).apply { startRecording() }
 
         recordJob = viewModelScope.launch(Dispatchers.IO) {
-            FileOutputStream(audioFile!!, !isFirstSegment).use { fos ->
+            FileOutputStream(audioFile, !isFirstSegment).use { fos ->
                 if (isFirstSegment) {
                     fos.write(ByteArray(44)) // WAV 헤더
                 }
                 val buffer = ByteArray(bufferSize)
                 while (_isRecording.value && !_isPaused.value) {
-                    val read = recorder?.read(buffer, 0, buffer.size) ?: 0
+                    val read = recorder.read(buffer, 0, buffer.size) ?: 0
                     if (read > 0) {
                         fos.write(buffer, 0, read)
                         totalBytes += read
@@ -136,17 +142,16 @@ class RecordAudioViewModel @Inject constructor(
 
         recordJob?.cancel()
 
-        recorder?.apply {
+        recorder.apply {
             stop()
             release()
         }
-        recorder = null
 
         _elapsedTime.value = 0L
         setTimerText(_elapsedTime.value)
         stopTimer()
 
-        audioFile?.let { writeWavHeader(it, totalBytes) }
+        audioFile.let { writeWavHeader(it, totalBytes) }
     }
 
     private fun cancelAudio() {
@@ -160,10 +165,9 @@ class RecordAudioViewModel @Inject constructor(
         _isPaused.value = false
 
         recordJob?.cancel()
-        recorder?.apply { stop(); release() }
-        recorder = null
+        recorder.apply { stop(); release() }
 
-        audioFile?.delete()
+        audioFile.delete()
     }
 
     private fun startTimer() {
