@@ -1,18 +1,12 @@
 package com.speech.practice.graph.recordaudio
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.util.Log
-import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -41,11 +35,8 @@ class RecordAudioViewModel @Inject constructor(
 ) : ViewModel() {
     private val _eventChannel = Channel<RecordAudioEvent>(Channel.BUFFERED)
 
-    private val _isRecording = MutableStateFlow(false)
-    val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
-
-    private val _isPaused = MutableStateFlow(false)
-    val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
+    private val _recordingState = MutableStateFlow<RecordingState>(RecordingState.Ready)
+    val recordingState: StateFlow<RecordingState> = _recordingState.asStateFlow()
 
     private val _elapsedTime = MutableStateFlow(0L)
 
@@ -56,7 +47,7 @@ class RecordAudioViewModel @Inject constructor(
     private var recordJob: Job? = null
 
     private var totalBytes = 0
-    private lateinit var recorder: AudioRecord
+    private  var recorder: AudioRecord? = null
     private lateinit var audioFile: File
 
     init {
@@ -77,32 +68,37 @@ class RecordAudioViewModel @Inject constructor(
         _eventChannel.send(event)
     }
 
+    private fun setRecordingState(recordingState: RecordingState) {
+        _recordingState.value = recordingState
+    }
+
     private fun recordAudio() {
-        if (_isRecording.value) return
+        if (_recordingState.value != RecordingState.Ready) return
+        setRecordingState(RecordingState.Recording)
 
         audioFile = File(
             context.filesDir,
             "record_${System.currentTimeMillis()}.wav"
         )
 
-        _isRecording.value = true
         startTimer()
 
         startRecordingLoop(true)
     }
 
     private fun pauseAudio() {
-        if (!_isRecording.value || _isPaused.value) return
-        _isPaused.value = true
+        if (_recordingState.value != RecordingState.Recording) return
+        setRecordingState(RecordingState.Paused)
 
-        recorder.apply { stop(); release() }
+        recorder?.apply { stop(); release() } // AudioRecrod에는 Pause기능이 따로 없기 때문에 recorder 해제
+        recorder = null
 
         stopTimer()
     }
 
     private fun resumeAudio() {
-        if (!_isRecording.value || !_isPaused.value) return
-        _isPaused.value = false
+        if (recordingState.value != RecordingState.Paused) return
+        setRecordingState(RecordingState.Recording)
 
         startTimer()
         startRecordingLoop(false)
@@ -124,8 +120,8 @@ class RecordAudioViewModel @Inject constructor(
                     fos.write(ByteArray(44)) // WAV 헤더
                 }
                 val buffer = ByteArray(bufferSize)
-                while (_isRecording.value && !_isPaused.value) {
-                    val read = recorder.read(buffer, 0, buffer.size) ?: 0
+                while (_recordingState.value == RecordingState.Recording) {
+                    val read = recorder!!.read(buffer, 0, buffer.size)
                     if (read > 0) {
                         fos.write(buffer, 0, read)
                         totalBytes += read
@@ -136,16 +132,17 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     private fun stopRecordAudio() {
-        if (!_isRecording.value) return
-        _isRecording.value = false
-        _isPaused.value = false
+        if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
+        setRecordingState(RecordingState.Completed)
 
         recordJob?.cancel()
 
-        recorder.apply {
+        recorder?.apply {
             stop()
             release()
         }
+
+        recorder = null
 
         _elapsedTime.value = 0L
         setTimerText(_elapsedTime.value)
@@ -155,17 +152,16 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     private fun cancelAudio() {
-        if (!_isRecording.value) return
+        if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
+        setRecordingState(RecordingState.Ready)
 
         _elapsedTime.value = 0L
         setTimerText(_elapsedTime.value)
         stopTimer()
 
-        _isRecording.value = false
-        _isPaused.value = false
-
         recordJob?.cancel()
-        recorder.apply { stop(); release() }
+        recorder?.apply { stop(); release() }
+        recorder = null
 
         audioFile.delete()
     }
@@ -174,7 +170,7 @@ class RecordAudioViewModel @Inject constructor(
         if (timerJob != null) return
 
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (_isRecording.value) {
+            while (_recordingState.value == RecordingState.Recording) {
                 delay(10)
                 _elapsedTime.value += 10
                 if (_elapsedTime.value % 130L == 0L) {
@@ -188,7 +184,6 @@ class RecordAudioViewModel @Inject constructor(
         timerJob?.cancel()
         timerJob = null
     }
-
 
     private fun setTimerText(elapsedTime: Long) {
         val m = (elapsedTime / 1000) / 60
@@ -221,6 +216,12 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
+    sealed class RecordingState {
+        data object Ready : RecordingState()
+        data object Recording : RecordingState()
+        data object Paused : RecordingState()
+        data object Completed : RecordingState()
+    }
 
     sealed class RecordAudioEvent {
         data object RecordingStarted : RecordAudioEvent()

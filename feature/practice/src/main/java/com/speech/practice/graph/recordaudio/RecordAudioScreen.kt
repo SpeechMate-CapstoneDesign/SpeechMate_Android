@@ -43,18 +43,20 @@ import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordAudioEvent
+import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordingState
 
 @Composable
 internal fun RecordAudioRoute(
     viewModel: RecordAudioViewModel = hiltViewModel(),
+    navigateToPlayAudio : (String) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
-    val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()
+    val recordingState by viewModel.recordingState.collectAsStateWithLifecycle()
     val elapsedTime by viewModel.timeText.collectAsStateWithLifecycle()
 
     RecordAudioScreen(
-        navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
+        navigateBack = navigateBack,
+        recordingState = recordingState,
         onEvent = viewModel::onEvent,
         elapsedTime = elapsedTime
     )
@@ -63,9 +65,8 @@ internal fun RecordAudioRoute(
 @Composable
 private fun RecordAudioScreen(
     navigateBack: () -> Unit,
-    onEvent : (RecordAudioEvent) -> Unit,
-    isRecording: Boolean,
-    isPaused: Boolean,
+    onEvent: (RecordAudioEvent) -> Unit,
+    recordingState: RecordingState,
     elapsedTime: String
 ) {
     Column(
@@ -93,7 +94,7 @@ private fun RecordAudioScreen(
 
         Spacer(Modifier.weight(1f))
 
-        if (isRecording) {
+        if (recordingState == RecordingState.Recording || recordingState == RecordingState.Paused) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -101,9 +102,11 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.weight(1f))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        onEvent(RecordAudioEvent.RecordingCanceled)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(isRipple = true) {
+                            onEvent(RecordAudioEvent.RecordingCanceled)
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -125,9 +128,11 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                       onEvent(RecordAudioEvent.RecordingStopped)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(isRipple = true) {
+                            onEvent(RecordAudioEvent.RecordingStopped)
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -152,9 +157,13 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        if (!isPaused) onEvent(RecordAudioEvent.RecordingPaused) else onEvent(RecordAudioEvent.RecordingResumed)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(isRipple = true) {
+                            if (recordingState == RecordingState.Recording) onEvent(RecordAudioEvent.RecordingPaused) else onEvent(
+                                RecordAudioEvent.RecordingResumed
+                            )
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -164,10 +173,10 @@ private fun RecordAudioScreen(
                     )
 
                     Image(
-                        painter = if (!isPaused) painterResource(R.drawable.pause_audio) else painterResource(
+                        painter = if (recordingState == RecordingState.Recording) painterResource(R.drawable.pause_audio) else painterResource(
                             R.drawable.play_audio
                         ),
-                        contentDescription = if(!isPaused) "일시 정지" else "재개",
+                        contentDescription = if (recordingState == RecordingState.Recording) "일시 정지" else "재개",
                         modifier = Modifier
                             .size(20.dp)
                             .align(
@@ -183,11 +192,13 @@ private fun RecordAudioScreen(
         }
 
 
-        if (!isRecording) {
+        if (recordingState == RecordingState.Ready) {
             Box(
-                modifier = Modifier.clip(shape = CircleShape).clickable(isRipple = true) {
-                    onEvent(RecordAudioEvent.RecordingStarted)
-                }
+                modifier = Modifier
+                    .clip(shape = CircleShape)
+                    .clickable(isRipple = true) {
+                        onEvent(RecordAudioEvent.RecordingStarted)
+                    }
             ) {
                 SimpleCircle(
                     modifier = Modifier
@@ -215,8 +226,7 @@ private fun RecordAudioScreen(
 private fun RecordAudioScreenPreview() {
     RecordAudioScreen(
         navigateBack = {},
-        isRecording = true,
-        isPaused = true,
+        recordingState = RecordingState.Ready,
         onEvent = {},
         elapsedTime = "00 : 00.00"
     )
