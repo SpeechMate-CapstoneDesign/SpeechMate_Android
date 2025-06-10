@@ -156,7 +156,6 @@ class RecordAudioViewModel @Inject constructor(
 
         recorder = null
 
-        _elapsedTime.value = 0L
         setTimerText(_elapsedTime.value)
         stopTimer()
 
