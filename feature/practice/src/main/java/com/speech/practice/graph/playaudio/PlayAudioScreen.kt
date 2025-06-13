@@ -21,7 +21,7 @@ internal fun PlayAudioRoute(
 
 @Composable
 private fun PlayAudioScreen(
-    onEvent : (PlayAudioEvent) -> Unit
+    onEvent : (PlayAudioEvent) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
