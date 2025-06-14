@@ -65,7 +65,6 @@ internal fun RecordAudioRoute(
     val recordingState by viewModel.recordingState.collectAsStateWithLifecycle()
     val elapsedTime by viewModel.timeText.collectAsStateWithLifecycle()
 
-
     LaunchedEffect(Unit) {
         viewModel.navigationChannel.collect { event ->
             when (event) {
@@ -325,7 +324,7 @@ private fun RecordAudioScreenPreview() {
     RecordAudioScreen(
         navigateBack = {},
         navigateToPlayAudio = {},
-        recordingState = RecordingState.Completed,
+        recordingState = RecordingState.Recording,
         onEvent = {},
         elapsedTime = "00 : 00.00"
     )
