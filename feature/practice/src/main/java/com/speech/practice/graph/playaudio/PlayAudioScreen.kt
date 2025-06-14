@@ -1,6 +1,10 @@
 package com.speech.practice.graph.playaudio
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,19 +14,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +50,9 @@ import com.speech.common.ui.StrokeCircle
 import com.speech.common.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.DarkGray
+import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.audioWaveForm
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayingAudioState
 
@@ -48,13 +62,18 @@ internal fun PlayAudioRoute(
     navigateBack: () -> Unit,
 ) {
     val playingAudioState by viewModel.playingAudioState.collectAsStateWithLifecycle()
-    val currentTime by viewModel.currentTimeText.collectAsStateWithLifecycle()
+    val currentTimeText by viewModel.currentTimeText.collectAsStateWithLifecycle()
+    val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
     val amplitudes by viewModel.amplitudes.collectAsStateWithLifecycle()
+
+    val duration = viewModel.duration
 
     PlayAudioScreen(
         playingAudioState = playingAudioState,
+        currentTimeText = currentTimeText,
+        durationText = viewModel.durationText,
         currentTime = currentTime,
-        totalTime = viewModel.totalTimeText,
+        duration = viewModel.duration,
         amplitudes = amplitudes,
         onEvent = viewModel::onEvent
     )
@@ -63,41 +82,34 @@ internal fun PlayAudioRoute(
 @Composable
 private fun PlayAudioScreen(
     playingAudioState: PlayingAudioState,
-    currentTime: String,
-    totalTime : String,
-    amplitudes : List<Int>,
+    currentTimeText: String,
+    durationText: String,
+    currentTime: Long,
+    duration: Long,
+    amplitudes: List<Int>,
     onEvent: (PlayAudioEvent) -> Unit,
 ) {
-    val waveformProgress = remember { mutableStateOf(0f) }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(0.7f))
 
-        Text(currentTime, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
+        Text(currentTimeText, style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Light))
 
         Spacer(Modifier.height(10.dp))
 
-        Text("총 발표 시간 : $totalTime", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Light))
+        Text(
+            "총 발표 시간 : $durationText",
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Light)
+        )
 
-        Spacer(Modifier.height(25.dp))
+        Spacer(Modifier.height(50.dp))
 
-        AudioWaveform(
+        AudioWaveFormBox(
             amplitudes = amplitudes,
-            progress = waveformProgress.value,
-            onProgressChange = { waveformProgress.value = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
-            waveformAlignment = WaveformAlignment.Center,  // Center, Top, Bottom
-            amplitudeType = AmplitudeType.Avg,            // Avg or Peak
-            spikeWidth = 4.dp,                            // 바 하나의 너비
-            spikePadding = 2.dp,                          // 마진
-            spikeRadius = 1.dp,
-            waveformBrush = SolidColor(Color.LightGray),
-            progressBrush = SolidColor(PrimaryDefault)
+            currentTime = currentTime,
+            duration = duration,
         )
 
         Spacer(Modifier.weight(1f))
@@ -112,8 +124,8 @@ private fun PlayAudioScreen(
             Box(
                 modifier = Modifier
                     .clickable() {
-                        if(playingAudioState == PlayingAudioState.Stopped) onEvent(PlayAudioEvent.PlayAudioStarted)
-                        if(playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioStopped)
+                        if (playingAudioState == PlayingAudioState.Stopped) onEvent(PlayAudioEvent.PlayAudioStarted)
+                        if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioStopped)
                     }
             ) {
                 StrokeCircle(
@@ -142,18 +154,139 @@ private fun PlayAudioScreen(
         }
 
         Spacer(Modifier.height(40.dp))
-
     }
 }
+
+
+@SuppressLint("DefaultLocale", "ConfigurationScreenWidthHeight")
+@Composable
+private fun AudioWaveFormBox(
+    amplitudes: List<Int>,
+    currentTime: Long,
+    duration: Long,
+) {
+    val density = LocalDensity.current
+    val scrollState = rememberScrollState()
+
+    // 화면 너비
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidthPx = with(density) { screenWidthDp.toPx() }
+
+    // 최소 6초 이상 보장
+    val seconds = (duration / 1000).coerceAtLeast(8)
+    val totalScreens = seconds / 8f
+
+    // 전체 wave 영역 너비
+    val waveformWidthPx = screenWidthPx * totalScreens
+    val waveformWidthDp = with(density) { waveformWidthPx.toDp() }
+
+    // 진행도 (0f ~ 1f)
+    val progress = remember(currentTime, duration) {
+        if (duration > 0) currentTime.toFloat() / duration else 0f
+    }
+
+    // 기준선 위치
+    val currentPositionPx = waveformWidthPx * progress
+
+    // 기준선에 따라 자동 스크롤
+    LaunchedEffect(currentPositionPx) {
+        scrollState.scrollTo((currentPositionPx - screenWidthPx / 2).coerceAtLeast(0f).toInt())
+    }
+
+    // 화면 전체는 스크롤 가능
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scrollState)
+    ) {
+        // 실제 콘텐츠 너비는 전체 waveform 길이
+        Box(
+            modifier = Modifier
+                .width(waveformWidthDp)
+                .height(300.dp)
+                .background(audioWaveForm)
+                .padding(horizontal = 50.dp)
+        ) {
+            // 눈금 및 시간 텍스트
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val tickHeight = 20.dp.toPx()
+                val tickInterval = 1000L
+                val spacePerMs = waveformWidthPx / duration.toFloat()
+                val maxDuration = duration.coerceAtLeast(8000L)
+
+                for (i in 0..maxDuration step tickInterval) {
+                    val x = i * spacePerMs
+                    val timeInSec = i / 1000
+
+                    // 눈금선
+                    drawLine(
+                        color = Color.Gray,
+                        start = Offset(x, 0f),
+                        end = Offset(x, tickHeight),
+                        strokeWidth = 1f
+                    )
+
+                    // 눈금 텍스트는 2초 단위
+                    if (i.toInt() % 2000 == 0) {
+                        drawContext.canvas.nativeCanvas.drawText(
+                            String.format("%02d:%02d", timeInSec / 60, timeInSec % 60),
+                            x,
+                            tickHeight - 30.dp.toPx(),
+                            android.graphics.Paint().apply {
+                                color = android.graphics.Color.BLACK
+                                textSize = 30f
+                                textAlign = android.graphics.Paint.Align.CENTER
+                                isAntiAlias = true
+                            }
+                        )
+                    }
+                }
+            }
+
+            // 오디오 파형 시각화
+            val waveformProgress = remember { mutableFloatStateOf(0f) }
+
+            AudioWaveform(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .align(Center),
+                amplitudes = amplitudes,
+                progress = waveformProgress.floatValue,
+                onProgressChange = { waveformProgress.floatValue = it },
+                waveformAlignment = WaveformAlignment.Center,
+                amplitudeType = AmplitudeType.Avg,
+                spikeWidth = 4.dp,
+                spikePadding = 2.dp,
+                spikeRadius = 1.dp,
+                waveformBrush = SolidColor(Color.LightGray),
+                progressBrush = SolidColor(Color.LightGray),
+            )
+
+            // 기준선 (진행 위치)
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawLine(
+                    color = PrimaryActive,
+                    start = Offset(currentPositionPx, 0f),
+                    end = Offset(currentPositionPx, size.height),
+                    strokeWidth = 4f
+                )
+            }
+        }
+    }
+}
+
 
 @Preview
 @Composable
 private fun PlayAudioScreenPreview() {
     PlayAudioScreen(
-        currentTime = "00 : 00 . 00",
-        totalTime = "1분 43초",
+        currentTime = 0L,
+        currentTimeText = "00 : 00 . 00",
+        duration = 0L,
+        durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Stopped,
-        amplitudes = listOf(10,20,50,20,10),
+        amplitudes = listOf(10, 20, 50, 20, 10),
         onEvent = {}
     )
 }

@@ -37,11 +37,13 @@ class PlayAudioViewModel @Inject constructor(
     val playingAudioState: StateFlow<PlayingAudioState> = _playingAudioState.asStateFlow()
 
     private val _currentTime = MutableStateFlow(0L)
+    val currentTime = _currentTime.asStateFlow()
 
     private val _currentTimeText = MutableStateFlow("00:00 . 00")
     val currentTimeText = _currentTimeText.asStateFlow()
 
-    var totalTimeText: String = "0분"
+    var duration: Long = 0L
+    var durationText: String = "0분"
 
     private var timerJob: Job? = null
 
@@ -56,7 +58,7 @@ class PlayAudioViewModel @Inject constructor(
 
     init {
         loadAmplitudes()
-        setTotalTime(_audioFilePath)
+        setDuration(_audioFilePath)
 
         _eventChannel.receiveAsFlow()
             .onEach { event ->
@@ -106,14 +108,14 @@ class PlayAudioViewModel @Inject constructor(
     }
 
 
-    private fun setTotalTime(audioFilePath: String) {
+    private fun setDuration(audioFilePath: String) {
         try {
             MediaPlayer().apply {
                 setDataSource(audioFilePath)
                 prepare()
             }.let { mp ->
-                val duration = mp.duration
-                totalTimeText = getFormattedTotalTime(duration.toLong())
+                duration = mp.duration.toLong()
+                durationText = getFormattedTotalTime(duration)
             }
         } catch (e: Exception) {
             Log.e("MediaInit", "Failed to get duration: $e")
@@ -173,9 +175,7 @@ class PlayAudioViewModel @Inject constructor(
         if (timerJob != null) return
 
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            val totalDuration = player.duration.toLong()
-
-            if (_currentTime.value >= totalDuration) {
+            if (_currentTime.value >= duration) {
                 _currentTime.value = 0L
             }
 
@@ -183,9 +183,9 @@ class PlayAudioViewModel @Inject constructor(
                 delay(10)
                 _currentTime.value += 10
 
-                if (_currentTime.value >= totalDuration) {
-                    _currentTime.value = totalDuration
-                    _currentTimeText.value = getFormattedTime(totalDuration)
+                if (_currentTime.value >= duration) {
+                    _currentTime.value = duration
+                    _currentTimeText.value = getFormattedTime(duration)
                     onEvent(PlayAudioEvent.PlayAudioStopped)
                     break
                 }
