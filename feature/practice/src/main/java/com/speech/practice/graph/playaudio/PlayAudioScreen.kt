@@ -104,7 +104,7 @@ private fun PlayAudioScreen(
             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Light)
         )
 
-        Spacer(Modifier.height(50.dp))
+        Spacer(Modifier.height(60.dp))
 
         AudioWaveFormBox(
             amplitudes = amplitudes,
@@ -124,8 +124,8 @@ private fun PlayAudioScreen(
             Box(
                 modifier = Modifier
                     .clickable() {
-                        if (playingAudioState == PlayingAudioState.Stopped) onEvent(PlayAudioEvent.PlayAudioStarted)
-                        if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioStopped)
+                        if (playingAudioState == PlayingAudioState.Paused || playingAudioState == PlayingAudioState.Ready) onEvent(PlayAudioEvent.PlayAudioStarted)
+                        if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioPaused)
                     }
             ) {
                 StrokeCircle(
@@ -172,7 +172,7 @@ private fun AudioWaveFormBox(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val screenWidthPx = with(density) { screenWidthDp.toPx() }
 
-    // 최소 6초 이상 보장
+    // 최소 8초 이상 보장
     val seconds = (duration / 1000).coerceAtLeast(8)
     val totalScreens = seconds / 8f
 
@@ -285,7 +285,7 @@ private fun PlayAudioScreenPreview() {
         currentTimeText = "00 : 00 . 00",
         duration = 0L,
         durationText = "1분 43초",
-        playingAudioState = PlayingAudioState.Stopped,
+        playingAudioState = PlayingAudioState.Paused,
         amplitudes = listOf(10, 20, 50, 20, 10),
         onEvent = {}
     )

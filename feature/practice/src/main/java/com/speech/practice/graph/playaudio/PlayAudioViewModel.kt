@@ -33,7 +33,7 @@ class PlayAudioViewModel @Inject constructor(
 
     private lateinit var player: MediaPlayer
 
-    private val _playingAudioState = MutableStateFlow<PlayingAudioState>(PlayingAudioState.Stopped)
+    private val _playingAudioState = MutableStateFlow<PlayingAudioState>(PlayingAudioState.Ready)
     val playingAudioState: StateFlow<PlayingAudioState> = _playingAudioState.asStateFlow()
 
     private val _currentTime = MutableStateFlow(0L)
@@ -64,13 +64,18 @@ class PlayAudioViewModel @Inject constructor(
             .onEach { event ->
                 when (event) {
                     is PlayAudioEvent.PlayAudioStarted -> {
+                        if (::player.isInitialized && _playingAudioState.value == PlayingAudioState.Paused) {
+                            onResume()
+                        } else {
+                            playAudio()
+                        }
+
                         setPlayingAudioState(PlayingAudioState.Playing)
-                        playAudio()
                     }
 
-                    is PlayAudioEvent.PlayAudioStopped -> {
-                        setPlayingAudioState(PlayingAudioState.Stopped)
-                        stopPlayAudio()
+                    is PlayAudioEvent.PlayAudioPaused -> {
+                        setPlayingAudioState(PlayingAudioState.Paused)
+                        onPause()
                     }
                 }
             }
@@ -107,7 +112,6 @@ class PlayAudioViewModel @Inject constructor(
         return amplitudes
     }
 
-
     private fun setDuration(audioFilePath: String) {
         try {
             MediaPlayer().apply {
@@ -122,12 +126,13 @@ class PlayAudioViewModel @Inject constructor(
         }
     }
 
-
     private fun setPlayingAudioState(playingAudioState: PlayingAudioState) {
         _playingAudioState.value = playingAudioState
     }
 
     private fun playAudio() {
+        Log.d("playerLogic", "onPlayAudio")
+
         _audioFile.let { file ->
             player = MediaPlayer().apply {
                 try {
@@ -147,6 +152,20 @@ class PlayAudioViewModel @Inject constructor(
     private fun stopPlayAudio() {
         player.apply { stop(); release() }
         stopTimer()
+    }
+
+    private fun onPause() {
+        player.pause()
+        setPlayingAudioState(PlayingAudioState.Paused)
+        stopTimer()
+    }
+
+    private fun onResume() {
+        Log.d("playerLogic", "onResume")
+        player.seekTo(_currentTime.value.toInt())
+        player.start()
+        setPlayingAudioState(PlayingAudioState.Playing)
+        startTimer()
     }
 
     private fun getFormattedTotalTime(time: Long): String {
@@ -186,7 +205,9 @@ class PlayAudioViewModel @Inject constructor(
                 if (_currentTime.value >= duration) {
                     _currentTime.value = duration
                     _currentTimeText.value = getFormattedTime(duration)
-                    onEvent(PlayAudioEvent.PlayAudioStopped)
+
+                    stopPlayAudio()
+                    setPlayingAudioState(PlayingAudioState.Ready)
                     break
                 }
 
@@ -203,13 +224,13 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     sealed class PlayingAudioState {
+        data object Ready : PlayingAudioState()
         data object Playing : PlayingAudioState()
-        data object Stopped : PlayingAudioState()
+        data object Paused : PlayingAudioState()
     }
 
     sealed class PlayAudioEvent {
         data object PlayAudioStarted : PlayAudioEvent()
-        data object PlayAudioStopped : PlayAudioEvent()
+        data object PlayAudioPaused : PlayAudioEvent()
     }
-
 }
