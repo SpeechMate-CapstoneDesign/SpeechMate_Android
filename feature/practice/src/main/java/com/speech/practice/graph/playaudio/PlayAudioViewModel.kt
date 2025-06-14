@@ -77,6 +77,8 @@ class PlayAudioViewModel @Inject constructor(
                         setPlayingAudioState(PlayingAudioState.Paused)
                         onPause()
                     }
+
+                    is PlayAudioEvent.SeekTo -> seekTo(event.time.toLong())
                 }
             }
             .launchIn(viewModelScope)
@@ -168,6 +170,24 @@ class PlayAudioViewModel @Inject constructor(
         startTimer()
     }
 
+    fun seekTo(time: Long) {
+        val newTime = time.coerceIn(0, player.duration.toLong())
+        _currentTime.value = newTime
+        _currentTimeText.value = getFormattedTime(newTime)
+
+        if (::player.isInitialized) {
+            player.seekTo(newTime.toInt())
+        }
+    }
+
+    fun seekForward() {
+        seekTo(_currentTime.value + SEEK_INTERVAL)
+    }
+
+    fun seekBackward() {
+        seekTo(_currentTime.value - SEEK_INTERVAL)
+    }
+
     private fun getFormattedTotalTime(time: Long): String {
         val totalSeconds = time / 1000
         val hours = totalSeconds / 3600
@@ -232,5 +252,10 @@ class PlayAudioViewModel @Inject constructor(
     sealed class PlayAudioEvent {
         data object PlayAudioStarted : PlayAudioEvent()
         data object PlayAudioPaused : PlayAudioEvent()
+        data class SeekTo(val time: Int) : PlayAudioEvent()
+    }
+
+    companion object {
+        private const val SEEK_INTERVAL = 3000L
     }
 }

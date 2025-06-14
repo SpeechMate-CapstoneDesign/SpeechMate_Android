@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +53,7 @@ import com.speech.designsystem.R
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.designsystem.theme.audioWaveForm
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayingAudioState
@@ -66,8 +68,6 @@ internal fun PlayAudioRoute(
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
     val amplitudes by viewModel.amplitudes.collectAsStateWithLifecycle()
 
-    val duration = viewModel.duration
-
     PlayAudioScreen(
         playingAudioState = playingAudioState,
         currentTimeText = currentTimeText,
@@ -75,7 +75,10 @@ internal fun PlayAudioRoute(
         currentTime = currentTime,
         duration = viewModel.duration,
         amplitudes = amplitudes,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        seekTo = viewModel::seekTo,
+        seekForward = viewModel::seekForward,
+        seekBackward = viewModel::seekBackward
     )
 }
 
@@ -88,6 +91,9 @@ private fun PlayAudioScreen(
     duration: Long,
     amplitudes: List<Int>,
     onEvent: (PlayAudioEvent) -> Unit,
+    seekTo: (Long) -> Unit,
+    seekForward : () -> Unit,
+    seekBackward : () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -117,9 +123,29 @@ private fun PlayAudioScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 50.dp)
+                .padding(horizontal = 50.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.weight(1f))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.seekbackward),
+                    contentDescription = if (playingAudioState == PlayingAudioState.Playing) "일시 정지" else "재개",
+                    modifier = Modifier.size(24.dp).clickable {
+                        seekBackward()
+                    }
+                )
+
+                Spacer(Modifier.height(2.dp))
+
+                Text("-3초", style = SpeechMateTheme.typography.bodySM)
+            }
+
+
+            Spacer(Modifier.weight(8f))
 
             Box(
                 modifier = Modifier
@@ -148,6 +174,24 @@ private fun PlayAudioScreen(
                         ),
                     colorFilter = ColorFilter.tint(DarkGray)
                 )
+            }
+
+            Spacer(Modifier.weight(8f))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.seekforward),
+                    contentDescription = if (playingAudioState == PlayingAudioState.Playing) "일시 정지" else "재개",
+                    modifier = Modifier.size(24.dp).clickable {
+                        seekForward()
+                    }
+                )
+
+                Spacer(Modifier.height(2.dp))
+
+                Text("+3초", style = SpeechMateTheme.typography.bodySM)
             }
 
             Spacer(Modifier.weight(1f))
@@ -287,6 +331,9 @@ private fun PlayAudioScreenPreview() {
         durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Paused,
         amplitudes = listOf(10, 20, 50, 20, 10),
-        onEvent = {}
+        onEvent = {},
+        seekTo = {},
+        seekForward = {},
+        seekBackward = {}
     )
 }
