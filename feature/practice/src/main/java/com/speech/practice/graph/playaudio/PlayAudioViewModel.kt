@@ -46,7 +46,7 @@ class PlayAudioViewModel @Inject constructor(
     private var timerJob: Job? = null
 
     init {
-        getTotalTime(_audioFilePath)
+        setTotalTime(_audioFilePath)
 
         _eventChannel.receiveAsFlow()
             .onEach { event ->
@@ -67,7 +67,7 @@ class PlayAudioViewModel @Inject constructor(
 
     fun onEvent(event: PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
 
-    private fun getTotalTime(audioFilePath: String) {
+    private fun setTotalTime(audioFilePath: String) {
         try {
             MediaPlayer().apply {
                 setDataSource(audioFilePath)
@@ -136,6 +136,10 @@ class PlayAudioViewModel @Inject constructor(
         timerJob = viewModelScope.launch(Dispatchers.Default) {
             val totalDuration = player.duration.toLong()
 
+            if (_currentTime.value >= totalDuration) {
+                _currentTime.value = 0L
+            }
+
             while (_playingAudioState.value == PlayingAudioState.Playing) {
                 delay(10)
                 _currentTime.value += 10
@@ -143,7 +147,7 @@ class PlayAudioViewModel @Inject constructor(
                 if (_currentTime.value >= totalDuration) {
                     _currentTime.value = totalDuration
                     _currentTimeText.value = getFormattedTime(totalDuration)
-                    stopPlayAudio()
+                    onEvent(PlayAudioEvent.PlayAudioStopped)
                     break
                 }
 
