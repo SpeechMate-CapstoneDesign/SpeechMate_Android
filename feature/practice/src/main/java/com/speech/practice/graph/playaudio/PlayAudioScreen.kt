@@ -15,10 +15,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.linc.audiowaveform.AudioWaveform
+import com.linc.audiowaveform.model.AmplitudeType
+import com.linc.audiowaveform.model.WaveformAlignment
 import com.speech.common.ui.StrokeCircle
 import com.speech.common.util.clickable
 import com.speech.designsystem.R
@@ -42,11 +49,13 @@ internal fun PlayAudioRoute(
 ) {
     val playingAudioState by viewModel.playingAudioState.collectAsStateWithLifecycle()
     val currentTime by viewModel.currentTimeText.collectAsStateWithLifecycle()
+    val amplitudes by viewModel.amplitudes.collectAsStateWithLifecycle()
 
     PlayAudioScreen(
         playingAudioState = playingAudioState,
         currentTime = currentTime,
         totalTime = viewModel.totalTimeText,
+        amplitudes = amplitudes,
         onEvent = viewModel::onEvent
     )
 }
@@ -56,8 +65,11 @@ private fun PlayAudioScreen(
     playingAudioState: PlayingAudioState,
     currentTime: String,
     totalTime : String,
+    amplitudes : List<Int>,
     onEvent: (PlayAudioEvent) -> Unit,
 ) {
+    val waveformProgress = remember { mutableStateOf(0f) }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -69,6 +81,24 @@ private fun PlayAudioScreen(
         Spacer(Modifier.height(10.dp))
 
         Text("총 발표 시간 : $totalTime", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Light))
+
+        Spacer(Modifier.height(25.dp))
+
+        AudioWaveform(
+            amplitudes = amplitudes,
+            progress = waveformProgress.value,
+            onProgressChange = { waveformProgress.value = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            waveformAlignment = WaveformAlignment.Center,  // Center, Top, Bottom
+            amplitudeType = AmplitudeType.Avg,            // Avg or Peak
+            spikeWidth = 4.dp,                            // 바 하나의 너비
+            spikePadding = 2.dp,                          // 마진
+            spikeRadius = 1.dp,
+            waveformBrush = SolidColor(Color.LightGray),
+            progressBrush = SolidColor(PrimaryDefault)
+        )
 
         Spacer(Modifier.weight(1f))
 
@@ -123,6 +153,7 @@ private fun PlayAudioScreenPreview() {
         currentTime = "00 : 00 . 00",
         totalTime = "1분 43초",
         playingAudioState = PlayingAudioState.Stopped,
+        amplitudes = listOf(10,20,50,20,10),
         onEvent = {}
     )
 }

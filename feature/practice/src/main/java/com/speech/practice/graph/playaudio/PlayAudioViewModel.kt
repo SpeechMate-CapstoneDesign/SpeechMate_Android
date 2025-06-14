@@ -45,7 +45,17 @@ class PlayAudioViewModel @Inject constructor(
 
     private var timerJob: Job? = null
 
+    private val _amplitudes = MutableStateFlow<List<Int>>(emptyList())
+    val amplitudes: StateFlow<List<Int>> = _amplitudes.asStateFlow()
+
+    private fun loadAmplitudes() = viewModelScope.launch(Dispatchers.IO) {
+        val file = File(_audioFilePath)
+        val amps = extractAmplitudesFromWav(file)
+        _amplitudes.value = amps
+    }
+
     init {
+        loadAmplitudes()
         setTotalTime(_audioFilePath)
 
         _eventChannel.receiveAsFlow()
@@ -66,6 +76,35 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     fun onEvent(event: PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
+
+    private fun extractAmplitudesFromWav(file: File, sampleCount: Int = 100): List<Int> {
+        val input = file.inputStream().buffered()
+        val header = ByteArray(44)
+        input.read(header)
+
+        val data = input.readBytes()
+        input.close()
+
+        val amplitudes = mutableListOf<Int>()
+        val totalSamples = data.size / 2
+        val step = totalSamples / sampleCount
+
+        for (i in 0 until sampleCount) {
+            val idx = i * step * 2
+            if (idx + 1 >= data.size) break
+
+            val low = data[idx].toInt() and 0xFF
+            val high = data[idx + 1].toInt()
+            val sample = (high shl 8) or low
+
+            val normalized = (sample / 32768f).coerceIn(-1f, 1f)
+            val amplitudeInt = (kotlin.math.abs(normalized) * 100).toInt()
+            amplitudes.add(amplitudeInt)
+        }
+
+        return amplitudes
+    }
+
 
     private fun setTotalTime(audioFilePath: String) {
         try {
