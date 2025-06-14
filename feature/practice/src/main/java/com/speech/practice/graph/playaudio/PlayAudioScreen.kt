@@ -41,11 +41,12 @@ internal fun PlayAudioRoute(
     navigateBack: () -> Unit,
 ) {
     val playingAudioState by viewModel.playingAudioState.collectAsStateWithLifecycle()
-    val currentTime by viewModel.timeText.collectAsStateWithLifecycle()
+    val currentTime by viewModel.currentTimeText.collectAsStateWithLifecycle()
 
     PlayAudioScreen(
         playingAudioState = playingAudioState,
         currentTime = currentTime,
+        totalTime = viewModel.totalTimeText,
         onEvent = viewModel::onEvent
     )
 }
@@ -54,6 +55,7 @@ internal fun PlayAudioRoute(
 private fun PlayAudioScreen(
     playingAudioState: PlayingAudioState,
     currentTime: String,
+    totalTime : String,
     onEvent: (PlayAudioEvent) -> Unit,
 ) {
     Column(
@@ -63,6 +65,10 @@ private fun PlayAudioScreen(
         Spacer(Modifier.weight(1f))
 
         Text(currentTime, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
+
+        Spacer(Modifier.height(10.dp))
+
+        Text("총 발표 시간 : $totalTime", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Light))
 
         Spacer(Modifier.weight(1f))
 
@@ -115,6 +121,7 @@ private fun PlayAudioScreen(
 private fun PlayAudioScreenPreview() {
     PlayAudioScreen(
         currentTime = "00 : 00 . 00",
+        totalTime = "1분 43초",
         playingAudioState = PlayingAudioState.Stopped,
         onEvent = {}
     )

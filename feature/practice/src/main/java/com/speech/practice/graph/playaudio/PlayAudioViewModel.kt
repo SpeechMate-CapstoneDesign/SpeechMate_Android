@@ -28,8 +28,8 @@ class PlayAudioViewModel @Inject constructor(
 ) : ViewModel() {
     private val _eventChannel = Channel<PlayAudioEvent>(Channel.BUFFERED)
 
-    private val audioFilePath: String = requireNotNull(savedStateHandle["audioFilePath"])
-    private val audioFile = File(audioFilePath)
+    private val _audioFilePath: String = requireNotNull(savedStateHandle["audioFilePath"])
+    private val _audioFile = File(_audioFilePath)
 
     private lateinit var player: MediaPlayer
 
@@ -38,12 +38,16 @@ class PlayAudioViewModel @Inject constructor(
 
     private val _currentTime = MutableStateFlow(0L)
 
-    private val _timeText = MutableStateFlow("00:00 . 00")
-    val timeText: StateFlow<String> = _timeText.asStateFlow()
+    private val _currentTimeText = MutableStateFlow("00:00 . 00")
+    val currentTimeText = _currentTimeText.asStateFlow()
+
+    var totalTimeText: String = "0분"
 
     private var timerJob: Job? = null
 
     init {
+        getTotalTime(_audioFilePath)
+
         _eventChannel.receiveAsFlow()
             .onEach { event ->
                 when (event) {
@@ -51,6 +55,7 @@ class PlayAudioViewModel @Inject constructor(
                         setPlayingAudioState(PlayingAudioState.Playing)
                         playAudio()
                     }
+
                     is PlayAudioEvent.PlayAudioStopped -> {
                         setPlayingAudioState(PlayingAudioState.Stopped)
                         stopPlayAudio()
@@ -60,14 +65,29 @@ class PlayAudioViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onEvent(event : PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
+    fun onEvent(event: PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
+
+    private fun getTotalTime(audioFilePath: String) {
+        try {
+            MediaPlayer().apply {
+                setDataSource(audioFilePath)
+                prepare()
+            }.let { mp ->
+                val duration = mp.duration
+                totalTimeText = getFormattedTotalTime(duration.toLong())
+            }
+        } catch (e: Exception) {
+            Log.e("MediaInit", "Failed to get duration: $e")
+        }
+    }
+
 
     private fun setPlayingAudioState(playingAudioState: PlayingAudioState) {
         _playingAudioState.value = playingAudioState
     }
 
     private fun playAudio() {
-        audioFile.let { file ->
+        _audioFile.let { file ->
             player = MediaPlayer().apply {
                 try {
                     setDataSource(file.absolutePath)
@@ -75,7 +95,7 @@ class PlayAudioViewModel @Inject constructor(
                     start()
 
                     startTimer()
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     Log.e("PlayAudioException", "Error playing audio ${e}")
                     release()
                 }
@@ -88,12 +108,28 @@ class PlayAudioViewModel @Inject constructor(
         stopTimer()
     }
 
-    private fun setTimerText(currentTime: Long) {
-        val m = (currentTime / 1000) / 60
-        val s = (currentTime / 1000) % 60
-        val ms = ((currentTime % 1000) / 10).toInt()
-        _timeText.value = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+    private fun getFormattedTotalTime(time: Long): String {
+        val totalSeconds = time / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        val parts = mutableListOf<String>()
+        if (hours > 0) parts.add("${hours}시간")
+        if (minutes > 0) parts.add("${minutes}분")
+        if (seconds > 0 || parts.isEmpty()) parts.add("${seconds}초")
+
+        return parts.joinToString(" ")
     }
+
+
+    private fun getFormattedTime(time: Long): String {
+        val m = (time / 1000) / 60
+        val s = (time / 1000) % 60
+        val ms = ((time % 1000) / 10).toInt()
+        return String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+    }
+
 
     private fun startTimer() {
         if (timerJob != null) return
@@ -103,7 +139,7 @@ class PlayAudioViewModel @Inject constructor(
                 delay(10)
                 _currentTime.value += 10
                 if (_currentTime.value % 130L == 0L) {
-                    setTimerText(_currentTime.value)
+                    _currentTimeText.value = getFormattedTime(_currentTime.value)
                 }
             }
         }
