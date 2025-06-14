@@ -122,11 +122,10 @@ private fun PlayAudioScreen(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 50.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(50.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -145,7 +144,7 @@ private fun PlayAudioScreen(
             }
 
 
-            Spacer(Modifier.weight(8f))
+            Spacer(Modifier.weight(1f))
 
             Box(
                 modifier = Modifier
@@ -176,7 +175,7 @@ private fun PlayAudioScreen(
                 )
             }
 
-            Spacer(Modifier.weight(8f))
+            Spacer(Modifier.weight(1f))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -194,7 +193,7 @@ private fun PlayAudioScreen(
                 Text("+3초", style = SpeechMateTheme.typography.bodySM)
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(50.dp))
         }
 
         Spacer(Modifier.height(40.dp))
