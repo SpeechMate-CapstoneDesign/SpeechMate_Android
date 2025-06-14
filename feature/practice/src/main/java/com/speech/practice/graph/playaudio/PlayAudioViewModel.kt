@@ -130,14 +130,23 @@ class PlayAudioViewModel @Inject constructor(
         return String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
     }
 
-
     private fun startTimer() {
         if (timerJob != null) return
 
         timerJob = viewModelScope.launch(Dispatchers.Default) {
+            val totalDuration = player.duration.toLong()
+
             while (_playingAudioState.value == PlayingAudioState.Playing) {
                 delay(10)
                 _currentTime.value += 10
+
+                if (_currentTime.value >= totalDuration) {
+                    _currentTime.value = totalDuration
+                    _currentTimeText.value = getFormattedTime(totalDuration)
+                    stopPlayAudio()
+                    break
+                }
+
                 if (_currentTime.value % 130L == 0L) {
                     _currentTimeText.value = getFormattedTime(_currentTime.value)
                 }
