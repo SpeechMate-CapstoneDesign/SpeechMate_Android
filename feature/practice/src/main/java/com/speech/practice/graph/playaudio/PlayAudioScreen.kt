@@ -227,12 +227,14 @@ private fun AudioWaveFormBox(
     val screenWidthPx = with(density) { screenWidthDp.toPx() }
 
     // 최소 8초 이상 보장
-    val seconds = (duration / 1000).coerceAtLeast(8)
-    val totalScreens = seconds / 8f
+    val seconds = (duration / 1000).toInt().coerceAtLeast(8)
 
     // 전체 wave 영역 너비
-    val waveformWidthPx = screenWidthPx * totalScreens
+    val waveformWidthPx = screenWidthPx * seconds / 8
     val waveformWidthDp = with(density) { waveformWidthPx.toDp() }
+
+    val minDuration = 8000L // 최소 6초는 화면에 보여짐
+    val adjustedDuration = duration.coerceAtLeast(minDuration)
 
     // 화면 전체는 스크롤 가능
     Box(
@@ -243,7 +245,7 @@ private fun AudioWaveFormBox(
         // 실제 콘텐츠 너비는 전체 waveform 길이
         Box(
             modifier = Modifier
-                .width(waveformWidthDp)
+                .width(waveformWidthDp + 100.dp)
                 .height(300.dp)
                 .background(audioWaveForm)
                 .padding(horizontal = 50.dp)
@@ -251,10 +253,8 @@ private fun AudioWaveFormBox(
             // 눈금 및 시간 텍스트
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val tickHeight = 20.dp.toPx()
-                val tickInterval = 1000L
-                val minDuration = 8000L
-                val adjustedDuration = duration.coerceAtLeast(minDuration)
-                val spacePerMs = waveformWidthPx / duration.toFloat()
+                val tickInterval = 500L
+                val spacePerMs = waveformWidthPx / adjustedDuration.toFloat()
 
                 for (i in 0..adjustedDuration step tickInterval) {
                     val x = i * spacePerMs
@@ -289,7 +289,7 @@ private fun AudioWaveFormBox(
             val progress = remember { mutableFloatStateOf(0f) }
 
             LaunchedEffect(currentTime) {
-                progress.floatValue = currentTime.toFloat() / duration
+                progress.floatValue = currentTime.toFloat() / adjustedDuration
             }
 
             // 기준선 위치
@@ -317,7 +317,7 @@ private fun AudioWaveFormBox(
                     seekTo(newTime)
                 },
                 waveformAlignment = WaveformAlignment.Center,
-                amplitudeType = AmplitudeType.Avg,
+                amplitudeType = AmplitudeType.Min,
                 spikeWidth = 2.dp,
                 spikePadding = 2.dp,
                 spikeRadius = 0.dp,
@@ -345,7 +345,7 @@ private fun PlayAudioScreenPreview() {
     PlayAudioScreen(
         currentTime = 0L,
         currentTimeText = "00 : 00 . 00",
-        duration = 0L,
+        duration = 10000L,
         durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Paused,
         amplitudes = listOf(

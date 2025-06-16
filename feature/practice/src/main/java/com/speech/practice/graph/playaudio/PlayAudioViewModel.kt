@@ -53,7 +53,6 @@ class PlayAudioViewModel @Inject constructor(
     private fun loadAmplitudes() = viewModelScope.launch(Dispatchers.IO) {
         val file = File(_audioFilePath)
         val amps = extractAmplitudesFromWav(file).map { it + DEFAULT_AMPLITUDE } // 0일 때도 기본 진폭값 추가
-
         _amplitudes.value = amps
         Log.d("SpeechMate Amplitude", amps.toString())
     }
