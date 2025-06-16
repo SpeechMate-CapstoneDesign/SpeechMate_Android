@@ -52,8 +52,10 @@ class PlayAudioViewModel @Inject constructor(
 
     private fun loadAmplitudes() = viewModelScope.launch(Dispatchers.IO) {
         val file = File(_audioFilePath)
-        val amps = extractAmplitudesFromWav(file)
+        val amps = extractAmplitudesFromWav(file).map { it + DEFAULT_AMPLITUDE } // 0일 때도 기본 진폭값 추가
+
         _amplitudes.value = amps
+        Log.d("SpeechMate Amplitude", amps.toString())
     }
 
     init {
@@ -133,8 +135,6 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     private fun playAudio() {
-        Log.d("playerLogic", "onPlayAudio")
-
         _audioFile.let { file ->
             player = MediaPlayer().apply {
                 try {
@@ -152,6 +152,7 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     private fun stopPlayAudio() {
+        setPlayingAudioState(PlayingAudioState.Ready)
         player.apply { stop(); release() }
         stopTimer()
     }
@@ -163,7 +164,6 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     private fun onResume() {
-        Log.d("playerLogic", "onResume")
         player.seekTo(_currentTime.value.toInt())
         player.start()
         setPlayingAudioState(PlayingAudioState.Playing)
@@ -171,12 +171,18 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     fun seekTo(time: Long) {
-        val newTime = time.coerceIn(0, player.duration.toLong())
+        stopTimer()
+
+        val newTime = time.coerceIn(0, duration)
         _currentTime.value = newTime
         _currentTimeText.value = getFormattedTime(newTime)
 
-        if (::player.isInitialized) {
+        if (::player.isInitialized ) {
             player.seekTo(newTime.toInt())
+
+            if (_playingAudioState.value == PlayingAudioState.Playing) {
+                startTimer()
+            }
         }
     }
 
@@ -201,7 +207,6 @@ class PlayAudioViewModel @Inject constructor(
 
         return parts.joinToString(" ")
     }
-
 
     private fun getFormattedTime(time: Long): String {
         val m = (time / 1000) / 60
@@ -257,5 +262,6 @@ class PlayAudioViewModel @Inject constructor(
 
     companion object {
         private const val SEEK_INTERVAL = 3000L
+        private const val DEFAULT_AMPLITUDE = 30
     }
 }

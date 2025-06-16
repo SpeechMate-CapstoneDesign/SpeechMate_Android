@@ -1,6 +1,7 @@
 package com.speech.practice.graph.playaudio
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,8 +95,8 @@ private fun PlayAudioScreen(
     amplitudes: List<Int>,
     onEvent: (PlayAudioEvent) -> Unit,
     seekTo: (Long) -> Unit,
-    seekForward : () -> Unit,
-    seekBackward : () -> Unit
+    seekForward: () -> Unit,
+    seekBackward: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -116,6 +119,7 @@ private fun PlayAudioScreen(
             amplitudes = amplitudes,
             currentTime = currentTime,
             duration = duration,
+            seekTo = seekTo
         )
 
         Spacer(Modifier.weight(1f))
@@ -133,9 +137,11 @@ private fun PlayAudioScreen(
                 Image(
                     painter = painterResource(R.drawable.seekbackward),
                     contentDescription = if (playingAudioState == PlayingAudioState.Playing) "일시 정지" else "재개",
-                    modifier = Modifier.size(24.dp).clickable {
-                        seekBackward()
-                    }
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            seekBackward()
+                        }
                 )
 
                 Spacer(Modifier.height(2.dp))
@@ -149,7 +155,9 @@ private fun PlayAudioScreen(
             Box(
                 modifier = Modifier
                     .clickable() {
-                        if (playingAudioState == PlayingAudioState.Paused || playingAudioState == PlayingAudioState.Ready) onEvent(PlayAudioEvent.PlayAudioStarted)
+                        if (playingAudioState == PlayingAudioState.Paused || playingAudioState == PlayingAudioState.Ready) onEvent(
+                            PlayAudioEvent.PlayAudioStarted
+                        )
                         if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioPaused)
                     }
             ) {
@@ -183,9 +191,11 @@ private fun PlayAudioScreen(
                 Image(
                     painter = painterResource(R.drawable.seekforward),
                     contentDescription = if (playingAudioState == PlayingAudioState.Playing) "일시 정지" else "재개",
-                    modifier = Modifier.size(24.dp).clickable {
-                        seekForward()
-                    }
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            seekForward()
+                        }
                 )
 
                 Spacer(Modifier.height(2.dp))
@@ -207,6 +217,7 @@ private fun AudioWaveFormBox(
     amplitudes: List<Int>,
     currentTime: Long,
     duration: Long,
+    seekTo: (Long) -> Unit
 ) {
     val density = LocalDensity.current
     val scrollState = rememberScrollState()
@@ -222,19 +233,6 @@ private fun AudioWaveFormBox(
     // 전체 wave 영역 너비
     val waveformWidthPx = screenWidthPx * totalScreens
     val waveformWidthDp = with(density) { waveformWidthPx.toDp() }
-
-    // 진행도 (0f ~ 1f)
-    val progress = remember(currentTime, duration) {
-        if (duration > 0) currentTime.toFloat() / duration else 0f
-    }
-
-    // 기준선 위치
-    val currentPositionPx = waveformWidthPx * progress
-
-    // 기준선에 따라 자동 스크롤
-    LaunchedEffect(currentPositionPx) {
-        scrollState.scrollTo((currentPositionPx - screenWidthPx / 2).coerceAtLeast(0f).toInt())
-    }
 
     // 화면 전체는 스크롤 가능
     Box(
@@ -254,10 +252,11 @@ private fun AudioWaveFormBox(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val tickHeight = 20.dp.toPx()
                 val tickInterval = 1000L
+                val minDuration = 8000L
+                val adjustedDuration = duration.coerceAtLeast(minDuration)
                 val spacePerMs = waveformWidthPx / duration.toFloat()
-                val maxDuration = duration.coerceAtLeast(8000L)
 
-                for (i in 0..maxDuration step tickInterval) {
+                for (i in 0..adjustedDuration step tickInterval) {
                     val x = i * spacePerMs
                     val timeInSec = i / 1000
 
@@ -286,22 +285,42 @@ private fun AudioWaveFormBox(
                 }
             }
 
-            // 오디오 파형 시각화
-            val waveformProgress = remember { mutableFloatStateOf(0f) }
+            // 진행도 (0 ~ 1f)
+            val progress = remember { mutableFloatStateOf(0f) }
+
+            LaunchedEffect(currentTime) {
+                progress.floatValue = currentTime.toFloat() / duration
+            }
+
+            // 기준선 위치
+            val standardLinePosition = waveformWidthPx * progress.floatValue
+
+            // 기준선 따라 자동 스크롤
+            LaunchedEffect(standardLinePosition) {
+                scrollState.scrollTo(
+                    (standardLinePosition - screenWidthPx / 2).coerceAtLeast(0f).toInt()
+                )
+            }
 
             AudioWaveform(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .requiredHeight(200.dp)
                     .align(Center),
                 amplitudes = amplitudes,
-                progress = waveformProgress.floatValue,
-                onProgressChange = { waveformProgress.floatValue = it },
+                progress = progress.floatValue,
+                onProgressChange = { newProgress ->
+                    progress.floatValue = newProgress
+                },
+                onProgressChangeFinished = {
+                    val newTime = (progress.floatValue * duration).toLong()
+                    seekTo(newTime)
+                },
                 waveformAlignment = WaveformAlignment.Center,
                 amplitudeType = AmplitudeType.Avg,
-                spikeWidth = 4.dp,
+                spikeWidth = 2.dp,
                 spikePadding = 2.dp,
-                spikeRadius = 1.dp,
+                spikeRadius = 0.dp,
                 waveformBrush = SolidColor(Color.LightGray),
                 progressBrush = SolidColor(Color.LightGray),
             )
@@ -310,8 +329,8 @@ private fun AudioWaveFormBox(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawLine(
                     color = PrimaryActive,
-                    start = Offset(currentPositionPx, 0f),
-                    end = Offset(currentPositionPx, size.height),
+                    start = Offset(standardLinePosition, 0f),
+                    end = Offset(standardLinePosition, size.height),
                     strokeWidth = 4f
                 )
             }
@@ -329,7 +348,12 @@ private fun PlayAudioScreenPreview() {
         duration = 0L,
         durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Paused,
-        amplitudes = listOf(10, 20, 50, 20, 10),
+        amplitudes = listOf(
+            0,
+            0,
+            0,
+            10, 20, 30, 40
+        ),
         onEvent = {},
         seekTo = {},
         seekForward = {},
