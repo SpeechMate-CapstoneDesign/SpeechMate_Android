@@ -146,10 +146,10 @@ class RecordAudioViewModel @Inject constructor(
     private fun finishRecordAudio() {
         if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
 
-        if(_elapsedTime.value < MIN_DURATION) {
-            onEvent(RecordAudioEvent.RecordingPaused)
-            return
-        }
+//        if(_elapsedTime.value < MIN_DURATION) {
+//            onEvent(RecordAudioEvent.RecordingPaused)
+//            return
+//        }
 
         setRecordingState(RecordingState.Completed)
 

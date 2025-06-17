@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -242,13 +244,32 @@ private fun AudioWaveFormBox(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val screenWidthPx = with(density) { screenWidthDp.toPx() }
 
-    // 최소 8초 이상 보장
+    // 최소 1분 이상 보장
     val seconds = (duration / 1000).toInt().coerceAtLeast(60)
 
     // 전체 wave 영역 너비
     val waveformWidthPx = screenWidthPx * seconds / 8
     val waveformWidthDp = with(density) { waveformWidthPx.toDp() }
 
+
+    // 진행도 (0 ~ 1f)
+    val progress = remember { mutableFloatStateOf(0f) }
+    val isDragging = remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(currentTime, !isDragging.value) {
+        if(!isDragging.value) progress.floatValue = currentTime.toFloat() / duration
+    }
+
+    // 기준선 위치
+    val standardLinePosition = waveformWidthPx * progress.floatValue
+
+    // 기준선 따라 자동 스크롤
+    LaunchedEffect(standardLinePosition, !isDragging.value) {
+        if(!isDragging.value) scrollState.scrollTo(
+            (standardLinePosition - screenWidthPx / 2).coerceAtLeast(0f).toInt()
+        )
+    }
 
     // 화면 전체는 스크롤 가능
     Box(
@@ -262,7 +283,25 @@ private fun AudioWaveFormBox(
                 .width(waveformWidthDp + 100.dp) // 마지막 위치 보정
                 .height(300.dp)
                 .background(audioWaveForm)
-                .padding(horizontal = 50.dp)
+                .padding(horizontal = 50.dp).pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragStart = { isDragging.value = true },
+                    onHorizontalDrag = { change, dragAmount ->
+                        val newProgress =
+                            (progress.floatValue + dragAmount / waveformWidthPx).coerceIn(
+                                0f,
+                                1f
+                            )
+                        progress.floatValue = newProgress
+                    },
+                    onDragEnd = {
+                        isDragging.value = false
+                        val newTime = (progress.floatValue * duration).toLong()
+                        seekTo(newTime)
+
+                    }
+                )
+            },
         ) {
             // 눈금 및 시간 텍스트
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -299,36 +338,14 @@ private fun AudioWaveFormBox(
                 }
             }
 
-            // 진행도 (0 ~ 1f)
-            val progress = remember { mutableFloatStateOf(0f) }
-
-            LaunchedEffect(currentTime) {
-                progress.floatValue = currentTime.toFloat() / duration
-            }
-
-            // 기준선 위치
-            val standardLinePosition = waveformWidthPx * progress.floatValue
-
-            // 기준선 따라 자동 스크롤
-            LaunchedEffect(standardLinePosition) {
-                scrollState.scrollTo(
-                    (standardLinePosition - screenWidthPx / 2).coerceAtLeast(0f).toInt()
-                )
-            }
-
             AudioWaveform(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Center),
                 amplitudes = amplitudes,
                 progress = progress.floatValue,
-                onProgressChange = { newProgress ->
-                    progress.floatValue = newProgress
-                },
-                onProgressChangeFinished = {
-                    val newTime = (progress.floatValue * duration).toLong()
-                    seekTo(newTime)
-                },
+                onProgressChange = {},
+                onProgressChangeFinished = {},
                 waveformAlignment = WaveformAlignment.Center,
                 amplitudeType = AmplitudeType.Min,
                 spikeWidth = 2.dp,
