@@ -59,7 +59,7 @@ class RecordAudioViewModel @Inject constructor(
             .onEach { event ->
                 when (event) {
                     is RecordAudioEvent.RecordingStarted -> recordAudio()
-                    is RecordAudioEvent.RecordingStopped -> stopRecordAudio()
+                    is RecordAudioEvent.RecordingFinished -> finishRecordAudio()
                     is RecordAudioEvent.RecordingCanceled -> cancelAudio()
                     is RecordAudioEvent.RecordingPaused -> pauseAudio()
                     is RecordAudioEvent.RecordingResumed -> resumeAudio()
@@ -143,8 +143,14 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-    private fun stopRecordAudio() {
+    private fun finishRecordAudio() {
         if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
+
+        if(_elapsedTime.value < MIN_DURATION) {
+            onEvent(RecordAudioEvent.RecordingPaused)
+            return
+        }
+
         setRecordingState(RecordingState.Completed)
 
         recordJob?.cancel()
@@ -237,7 +243,7 @@ class RecordAudioViewModel @Inject constructor(
         data object RecordingStarted : RecordAudioEvent()
         data object RecordingPaused : RecordAudioEvent()
         data object RecordingResumed : RecordAudioEvent()
-        data object RecordingStopped : RecordAudioEvent()
+        data object RecordingFinished : RecordAudioEvent()
         data object RecordingCanceled : RecordAudioEvent()
     }
 
@@ -250,6 +256,7 @@ class RecordAudioViewModel @Inject constructor(
         private const val SAMPLE_RATE = 16000
         private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+        private const val MIN_DURATION = 60000L // 최소 발표시간 1분
     }
 
 }

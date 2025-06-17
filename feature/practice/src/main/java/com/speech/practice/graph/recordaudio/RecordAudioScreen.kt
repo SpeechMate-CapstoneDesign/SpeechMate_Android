@@ -155,7 +155,7 @@ private fun RecordAudioScreen(
                 Box(
                     modifier = Modifier
                         .clickable() {
-                            onEvent(RecordAudioEvent.RecordingStopped)
+                            onEvent(RecordAudioEvent.RecordingFinished)
                         }
                 ) {
                     StrokeCircle(
