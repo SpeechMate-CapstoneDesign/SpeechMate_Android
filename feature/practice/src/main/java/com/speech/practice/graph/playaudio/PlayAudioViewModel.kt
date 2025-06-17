@@ -177,6 +177,11 @@ class PlayAudioViewModel @Inject constructor(
         _currentTime.value = newTime
         _currentTimeText.value = getFormattedTime(newTime)
 
+        if(_currentTime.value == _audioDruation.value) {
+            stopTimer()
+            setPlayingAudioState(PlayingAudioState.Paused)
+        }
+
         if (::player.isInitialized) {
             player.seekTo(newTime.toInt())
 
