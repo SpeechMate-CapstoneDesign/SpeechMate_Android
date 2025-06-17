@@ -261,7 +261,7 @@ private fun AudioWaveFormBox(
         // 실제 콘텐츠 너비는 전체 waveform 길이
         Box(
             modifier = Modifier
-                .width(waveformWidthDp + 100.dp)
+                .width(waveformWidthDp + 100.dp) // 마지막 위치 보정
                 .height(300.dp)
                 .background(audioWaveForm)
                 .padding(horizontal = 50.dp)
@@ -321,7 +321,6 @@ private fun AudioWaveFormBox(
             AudioWaveform(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .requiredHeight(200.dp)
                     .align(Center),
                 amplitudes = amplitudes,
                 progress = progress.floatValue,
@@ -365,7 +364,15 @@ private fun PlayAudioScreenPreview() {
         durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Paused,
         amplitudes = listOf(
-            10, 20, 0, 0, 0, 0, 30, 40
+            10, 12, 15, 18, 22, 26, 20, 18, 15, 13,
+            12, 14, 16, 18, 21, 25, 30, 27, 22, 18,
+            14, 11, 10, 10, 11, 13, 15, 17, 19, 21,
+            23, 20, 17, 14, 11, 10, 10, 10, 15, 20,
+            25, 30, 28, 24, 20, 16, 13, 11, 10, 10,
+            12, 14, 18, 22, 26, 29, 27, 23, 19, 15,
+            12, 10, 10, 10, 13, 16, 19, 22, 24, 26,
+            23, 20, 17, 14, 11, 10, 10, 10, 15, 18,
+            21, 25, 28, 30, 27, 23, 18, 14, 11, 10
         ),
         onEvent = {},
         seekTo = {},

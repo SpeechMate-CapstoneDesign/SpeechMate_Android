@@ -274,6 +274,6 @@ class PlayAudioViewModel @Inject constructor(
 
     companion object {
         private const val SEEK_INTERVAL = 3000L
-        private const val DEFAULT_AMPLITUDE = 30
+        private const val DEFAULT_AMPLITUDE = 10
     }
 }
