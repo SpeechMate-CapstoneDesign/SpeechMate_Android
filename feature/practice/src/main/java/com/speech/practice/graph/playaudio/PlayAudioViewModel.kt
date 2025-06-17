@@ -87,7 +87,7 @@ class PlayAudioViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onEvent(event: PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
+    internal fun onEvent(event: PlayAudioEvent) = viewModelScope.launch { _eventChannel.send(event) }
 
     private fun extractAmplitudesFromWav(file: File, sampleCount: Int = 100): List<Int> {
         val input = file.inputStream().buffered()
@@ -170,7 +170,7 @@ class PlayAudioViewModel @Inject constructor(
         startTimer()
     }
 
-    fun seekTo(time: Long) {
+    internal fun seekTo(time: Long) {
         stopTimer()
 
         val newTime = time.coerceIn(0, _audioDruation.value)
@@ -191,15 +191,15 @@ class PlayAudioViewModel @Inject constructor(
         }
     }
 
-    fun seekForward() {
+    internal fun seekForward() {
         seekTo(_currentTime.value + SEEK_INTERVAL)
     }
 
-    fun seekBackward() {
+    internal fun seekBackward() {
         seekTo(_currentTime.value - SEEK_INTERVAL)
     }
 
-    private fun stopPlayAudio() {
+    internal fun stopPlayAudio() {
         setPlayingAudioState(PlayingAudioState.Ready)
         player.apply { stop(); release() }
         stopTimer()
