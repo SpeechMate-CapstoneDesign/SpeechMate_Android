@@ -153,9 +153,11 @@ class PlayAudioViewModel @Inject constructor(
 
 
     private fun onPause() {
-        player.pause()
-        setPlayingAudioState(PlayingAudioState.Paused)
-        stopTimer()
+        if(_playingAudioState.value == PlayingAudioState.Playing) {
+            player.pause()
+            setPlayingAudioState(PlayingAudioState.Paused)
+            stopTimer()
+        }
     }
 
     private fun onResume() {

@@ -243,14 +243,12 @@ private fun AudioWaveFormBox(
     val screenWidthPx = with(density) { screenWidthDp.toPx() }
 
     // 최소 8초 이상 보장
-    val seconds = (duration / 1000).toInt().coerceAtLeast(8)
+    val seconds = (duration / 1000).toInt().coerceAtLeast(60)
 
     // 전체 wave 영역 너비
     val waveformWidthPx = screenWidthPx * seconds / 8
     val waveformWidthDp = with(density) { waveformWidthPx.toDp() }
 
-    val minDuration = 8000L // 최소 6초는 화면에 보여짐
-    val adjustedDuration = duration.coerceAtLeast(minDuration)
 
     // 화면 전체는 스크롤 가능
     Box(
@@ -270,9 +268,9 @@ private fun AudioWaveFormBox(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val tickHeight = 20.dp.toPx()
                 val tickInterval = 500L
-                val spacePerMs = waveformWidthPx / adjustedDuration.toFloat()
+                val spacePerMs = waveformWidthPx / duration.toFloat()
 
-                for (i in 0..adjustedDuration step tickInterval) {
+                for (i in 0..duration step tickInterval) {
                     val x = i * spacePerMs
                     val timeInSec = i / 1000
 
@@ -305,7 +303,7 @@ private fun AudioWaveFormBox(
             val progress = remember { mutableFloatStateOf(0f) }
 
             LaunchedEffect(currentTime) {
-                progress.floatValue = currentTime.toFloat() / adjustedDuration
+                progress.floatValue = currentTime.toFloat() / duration
             }
 
             // 기준선 위치
