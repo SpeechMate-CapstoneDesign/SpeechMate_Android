@@ -60,6 +60,7 @@ import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.designsystem.theme.audioWaveForm
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayingAudioState
+import kotlin.math.max
 
 @Composable
 internal fun PlayAudioRoute(
@@ -350,10 +351,7 @@ private fun PlayAudioScreenPreview() {
         durationText = "1분 43초",
         playingAudioState = PlayingAudioState.Paused,
         amplitudes = listOf(
-            0,
-            0,
-            0,
-            10, 20, 30, 40
+            10, 20, 0, 0, 0, 0, 30, 40
         ),
         onEvent = {},
         seekTo = {},

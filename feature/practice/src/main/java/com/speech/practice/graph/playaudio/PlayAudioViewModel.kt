@@ -177,7 +177,7 @@ class PlayAudioViewModel @Inject constructor(
         _currentTime.value = newTime
         _currentTimeText.value = getFormattedTime(newTime)
 
-        if (::player.isInitialized ) {
+        if (::player.isInitialized) {
             player.seekTo(newTime.toInt())
 
             if (_playingAudioState.value == PlayingAudioState.Playing) {
@@ -192,6 +192,12 @@ class PlayAudioViewModel @Inject constructor(
 
     fun seekBackward() {
         seekTo(_currentTime.value - SEEK_INTERVAL)
+    }
+
+    private fun stopPlayAudio() {
+        setPlayingAudioState(PlayingAudioState.Ready)
+        player.apply { stop(); release() }
+        stopTimer()
     }
 
     private fun getFormattedTotalTime(time: Long): String {
@@ -216,9 +222,9 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     private fun startTimer() {
-        if (timerJob != null) return
-
         timerJob = viewModelScope.launch(Dispatchers.Default) {
+            var lastUpdateTime = _currentTime.value
+
             if (_currentTime.value >= _audioDruation.value) {
                 _currentTime.value = 0L
             }
@@ -235,7 +241,9 @@ class PlayAudioViewModel @Inject constructor(
                     break
                 }
 
-                if (_currentTime.value % 130L == 0L) {
+                // 타이머 텍스트가 업데이트되는 속도 조절
+                if (_currentTime.value - lastUpdateTime >= 130L) {
+                     lastUpdateTime = _currentTime.value
                     _currentTimeText.value = getFormattedTime(_currentTime.value)
                 }
             }
