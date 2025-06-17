@@ -66,6 +66,7 @@ internal fun PlayAudioRoute(
     viewModel: PlayAudioViewModel = hiltViewModel(),
     navigateBack: () -> Unit,
 ) {
+    val audioDuration by viewModel.audioDuration.collectAsStateWithLifecycle()
     val playingAudioState by viewModel.playingAudioState.collectAsStateWithLifecycle()
     val currentTimeText by viewModel.currentTimeText.collectAsStateWithLifecycle()
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
@@ -76,7 +77,7 @@ internal fun PlayAudioRoute(
         currentTimeText = currentTimeText,
         durationText = viewModel.durationText,
         currentTime = currentTime,
-        duration = viewModel.duration,
+        duration = audioDuration,
         amplitudes = amplitudes,
         onEvent = viewModel::onEvent,
         seekTo = viewModel::seekTo,

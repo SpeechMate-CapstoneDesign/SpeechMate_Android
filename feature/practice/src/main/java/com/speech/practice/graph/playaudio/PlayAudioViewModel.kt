@@ -42,7 +42,9 @@ class PlayAudioViewModel @Inject constructor(
     private val _currentTimeText = MutableStateFlow("00:00 . 00")
     val currentTimeText = _currentTimeText.asStateFlow()
 
-    var duration: Long = 0L
+    private val _audioDruation = MutableStateFlow(0L)
+    val audioDuration: StateFlow<Long> = _audioDruation.asStateFlow()
+
     var durationText: String = "0분"
 
     private var timerJob: Job? = null
@@ -121,8 +123,8 @@ class PlayAudioViewModel @Inject constructor(
                 setDataSource(audioFilePath)
                 prepare()
             }.let { mp ->
-                duration = mp.duration.toLong()
-                durationText = getFormattedTotalTime(duration)
+                _audioDruation.value = mp.duration.toLong()
+                durationText = getFormattedTotalTime(_audioDruation.value)
             }
         } catch (e: Exception) {
             Log.e("MediaInit", "Failed to get duration: $e")
@@ -140,7 +142,6 @@ class PlayAudioViewModel @Inject constructor(
                     setDataSource(file.absolutePath)
                     prepare()
                     start()
-
                     startTimer()
                 } catch (e: Exception) {
                     Log.e("PlayAudioException", "Error playing audio ${e}")
@@ -150,11 +151,6 @@ class PlayAudioViewModel @Inject constructor(
         }
     }
 
-    private fun stopPlayAudio() {
-        setPlayingAudioState(PlayingAudioState.Ready)
-        player.apply { stop(); release() }
-        stopTimer()
-    }
 
     private fun onPause() {
         player.pause()
@@ -163,7 +159,12 @@ class PlayAudioViewModel @Inject constructor(
     }
 
     private fun onResume() {
-        player.seekTo(_currentTime.value.toInt())
+        if(_currentTime.value == _audioDruation.value) {
+            seekTo(0)
+        } else {
+            player.seekTo(_currentTime.value.toInt())
+        }
+
         player.start()
         setPlayingAudioState(PlayingAudioState.Playing)
         startTimer()
@@ -172,7 +173,7 @@ class PlayAudioViewModel @Inject constructor(
     fun seekTo(time: Long) {
         stopTimer()
 
-        val newTime = time.coerceIn(0, duration)
+        val newTime = time.coerceIn(0, _audioDruation.value)
         _currentTime.value = newTime
         _currentTimeText.value = getFormattedTime(newTime)
 
@@ -218,7 +219,7 @@ class PlayAudioViewModel @Inject constructor(
         if (timerJob != null) return
 
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            if (_currentTime.value >= duration) {
+            if (_currentTime.value >= _audioDruation.value) {
                 _currentTime.value = 0L
             }
 
@@ -226,12 +227,11 @@ class PlayAudioViewModel @Inject constructor(
                 delay(10)
                 _currentTime.value += 10
 
-                if (_currentTime.value >= duration) {
-                    _currentTime.value = duration
-                    _currentTimeText.value = getFormattedTime(duration)
+                if (_currentTime.value >= _audioDruation.value) {
+                    _currentTime.value = _audioDruation.value
+                    _currentTimeText.value = getFormattedTime(_audioDruation.value)
 
-                    stopPlayAudio()
-                    setPlayingAudioState(PlayingAudioState.Ready)
+                    setPlayingAudioState(PlayingAudioState.Paused)
                     break
                 }
 
