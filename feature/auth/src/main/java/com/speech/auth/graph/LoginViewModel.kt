@@ -9,9 +9,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    val eventHelper: EventHelper
+    internal val eventHelper: EventHelper
 ) : ViewModel() {
-    private val _eventChannel = Channel<LoginEvent>()
+    private val _eventChannel = Channel<LoginEvent>(Channel.BUFFERED)
     val eventChannel = _eventChannel.receiveAsFlow()
 
     sealed class LoginEvent {

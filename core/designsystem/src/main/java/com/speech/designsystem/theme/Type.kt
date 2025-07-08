@@ -24,6 +24,13 @@ val PretendardMedium = FontFamily(
     )
 )
 
+val PretendardSemiBold = FontFamily(
+    Font(
+        resId = R.font.pretendard_semi_bold,
+        weight = FontWeight.SemiBold
+    )
+)
+
 @Immutable
 data class SpeechMateTypography(
     val headingXLB: TextStyle = TextStyle(
@@ -45,5 +52,15 @@ data class SpeechMateTypography(
         fontFamily = PretendardMedium,
         fontSize = 20.sp,
         lineHeight = 24.sp
-    )
+    ),
+    val bodySM: TextStyle = TextStyle(
+        fontFamily = PretendardMedium,
+        fontSize = 14.sp,
+        lineHeight = 18.sp
+    ),
+    val bodyMSB: TextStyle = TextStyle(
+        fontFamily = PretendardSemiBold,
+        fontSize = 20.sp,
+        lineHeight = 24.sp
+    ),
 )

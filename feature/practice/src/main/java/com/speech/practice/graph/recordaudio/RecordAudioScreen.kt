@@ -1,6 +1,8 @@
 package com.speech.practice.graph.recordaudio
 
+import android.hardware.lights.Light
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
@@ -20,12 +23,15 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -35,38 +41,58 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.speech.common.event.SpeechMateEvent
 import com.speech.common.ui.SimpleCircle
 import com.speech.common.ui.StrokeCircle
+import com.speech.common.ui.StrokeRoundRectangle
 import com.speech.common.util.clickable
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
+import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordAudioEvent
+import com.speech.practice.graph.recordaudio.RecordAudioViewModel.NavigationEvent
+import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordingState
 
 @Composable
 internal fun RecordAudioRoute(
     viewModel: RecordAudioViewModel = hiltViewModel(),
+    navigateToPlayAudio: (String) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
-    val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()
+    val recordingState by viewModel.recordingState.collectAsStateWithLifecycle()
     val elapsedTime by viewModel.timeText.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationChannel.collect { event ->
+            when (event) {
+                is NavigationEvent.NavigateBack -> navigateBack()
+                is NavigationEvent.NavigateToPlayAudio -> {
+                    navigateToPlayAudio(event.audioFilePath)
+                }
+            }
+        }
+    }
+
     RecordAudioScreen(
-        navigateBack = navigateBack, isRecording = isRecording, isPaused = isPaused,
+        recordingState = recordingState,
+        elapsedTime = elapsedTime,
         onEvent = viewModel::onEvent,
-        elapsedTime = elapsedTime
+        navigateBack = { viewModel.onNavigationEvent(NavigationEvent.NavigateBack) },
+        navigateToPlayAudio = viewModel::navigateToPlayAudio
+
     )
 }
 
 @Composable
 private fun RecordAudioScreen(
+    onEvent: (RecordAudioEvent) -> Unit,
     navigateBack: () -> Unit,
-    onEvent : (RecordAudioEvent) -> Unit,
-    isRecording: Boolean,
-    isPaused: Boolean,
-    elapsedTime: String
+    navigateToPlayAudio: () -> Unit,
+    recordingState: RecordingState,
+    elapsedTime: String,
 ) {
     Column(
         modifier = Modifier
@@ -93,7 +119,7 @@ private fun RecordAudioScreen(
 
         Spacer(Modifier.weight(1f))
 
-        if (isRecording) {
+        if (recordingState == RecordingState.Recording || recordingState == RecordingState.Paused) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -101,9 +127,11 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.weight(1f))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        onEvent(RecordAudioEvent.RecordingCanceled)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(isRipple = true) {
+                            onEvent(RecordAudioEvent.RecordingCanceled)
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -125,9 +153,10 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                       onEvent(RecordAudioEvent.RecordingStopped)
-                    }
+                    modifier = Modifier
+                        .clickable() {
+                            onEvent(RecordAudioEvent.RecordingFinished)
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -152,9 +181,13 @@ private fun RecordAudioScreen(
                 Spacer(Modifier.width(30.dp))
 
                 Box(
-                    modifier = Modifier.clip(CircleShape).clickable(isRipple = true) {
-                        if (!isPaused) onEvent(RecordAudioEvent.RecordingPaused) else onEvent(RecordAudioEvent.RecordingResumed)
-                    }
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable(isRipple = true) {
+                            if (recordingState == RecordingState.Recording) onEvent(RecordAudioEvent.RecordingPaused) else onEvent(
+                                RecordAudioEvent.RecordingResumed
+                            )
+                        }
                 ) {
                     StrokeCircle(
                         color = PrimaryDefault,
@@ -164,10 +197,10 @@ private fun RecordAudioScreen(
                     )
 
                     Image(
-                        painter = if (!isPaused) painterResource(R.drawable.pause_audio) else painterResource(
+                        painter = if (recordingState == RecordingState.Recording) painterResource(R.drawable.pause_audio) else painterResource(
                             R.drawable.play_audio
                         ),
-                        contentDescription = if(!isPaused) "일시 정지" else "재개",
+                        contentDescription = if (recordingState == RecordingState.Recording) "일시 정지" else "재개",
                         modifier = Modifier
                             .size(20.dp)
                             .align(
@@ -178,16 +211,19 @@ private fun RecordAudioScreen(
                 }
 
                 Spacer(Modifier.weight(1f))
-
             }
+
+            Spacer(Modifier.height(60.dp))
         }
 
 
-        if (!isRecording) {
+        if (recordingState == RecordingState.Ready) {
             Box(
-                modifier = Modifier.clip(shape = CircleShape).clickable(isRipple = true) {
-                    onEvent(RecordAudioEvent.RecordingStarted)
-                }
+                modifier = Modifier
+                    .clip(shape = CircleShape)
+                    .clickable(isRipple = true) {
+                        onEvent(RecordAudioEvent.RecordingStarted)
+                    }
             ) {
                 SimpleCircle(
                     modifier = Modifier
@@ -203,21 +239,82 @@ private fun RecordAudioScreen(
                     )
                 )
             }
+
+            Spacer(Modifier.height(60.dp))
         }
 
-//        Row(modifier = Modifier.fillMaxWidth()) {
-//            Image(painter = painterResource(R.drawable.play_audio), contentDescription = null, modifier = Modifier.clickable {
-//                onEvent(RecordAudioEvent.PlaybackStarted)
-//            })
-//            Spacer(Modifier.width(30.dp))
-//            Image(painter = painterResource(R.drawable.stop_audio), contentDescription = null, modifier = Modifier.clickable {
-//                onEvent(RecordAudioEvent.PlaybackStopped)
-//            })
-//        }
+        if (recordingState == RecordingState.Completed) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 60.dp)
+                    .clip(shape = RoundedCornerShape(12.dp))
+                    .background(PrimaryActive)
+                    .clickable() {
+                        navigateToPlayAudio()
+                    }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .align(Center),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.feedback),
+                        contentDescription = "피드백 받기",
+                        modifier = Modifier
+                            .size(24.dp),
+                        colorFilter = ColorFilter.tint(Color.White)
+                    )
 
+                    Spacer(Modifier.width(8.dp))
 
-        Spacer(Modifier.height(60.dp))
+                    Text(
+                        "피드백 받기", style = SpeechMateTheme.typography.bodyMSB, color = Color.White
+                    )
+                }
 
+            }
+
+            Spacer(Modifier.height(30.dp))
+
+            Box(
+                modifier = Modifier
+                    .clickable() {
+                        onEvent(RecordAudioEvent.RecordingCanceled)
+                    },
+            ) {
+                StrokeRoundRectangle(
+                    modifier = Modifier
+                        .align(Center)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .align(Center),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.michrophone),
+                        contentDescription = "재녹음",
+                        modifier = Modifier
+                            .size(24.dp),
+                        colorFilter = ColorFilter.tint(PrimaryActive)
+                    )
+
+                    Spacer(Modifier.width(6.dp))
+
+                    Text(
+                        "재녹음", style = SpeechMateTheme.typography.bodyMM, color = PrimaryActive
+                    )
+                }
+
+            }
+
+            Spacer(Modifier.weight(1f))
+        }
     }
 }
 
@@ -226,8 +323,8 @@ private fun RecordAudioScreen(
 private fun RecordAudioScreenPreview() {
     RecordAudioScreen(
         navigateBack = {},
-        isRecording = true,
-        isPaused = true,
+        navigateToPlayAudio = {},
+        recordingState = RecordingState.Recording,
         onEvent = {},
         elapsedTime = "00 : 00.00"
     )

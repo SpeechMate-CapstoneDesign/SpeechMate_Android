@@ -5,3 +5,8 @@ plugins {
 android {
     namespace = "com.speech.practice"
 }
+
+dependencies {
+    implementation(libs.audio.waveform)
+}
+

@@ -10,6 +10,8 @@ import androidx.navigation.navOptions
 import com.speech.auth.navigation.authNavGraph
 import com.speech.navigation.AuthBaseRoute
 import com.speech.navigation.PracticeBaseRoute
+import com.speech.navigation.PracticeGraph
+import com.speech.practice.navigation.navigateToPlayAudio
 import com.speech.practice.navigation.navigateToPractice
 import com.speech.practice.navigation.navigateToRecordAudio
 
@@ -21,14 +23,17 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AuthBaseRoute,
+        startDestination = PracticeBaseRoute,
         modifier = modifier,
     ) {
         val currentRoute = navController.currentDestination?.route
 
         practiceNavGraph(
             navigateBack = { navigateBack(navController) },
-            navigateToRecordAudio = { navController.navigateToRecordAudio() }
+            navigateToRecordAudio = { navController.navigateToRecordAudio() },
+            navigateToPlayAudio = { audioFilePath -> navController.navigateToPlayAudio(audioFilePath, navOptions {
+                popUpTo<PracticeGraph.PracticeRoute>()
+            })}
         )
 
         authNavGraph(

@@ -37,8 +37,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val keyHash = Utility.getKeyHash(this)
-//        Log.d("kakao keyHash", keyHash)
+        val keyHash = Utility.getKeyHash(this)
+        Log.d("kakao keyHash", keyHash)
 
         enableEdgeToEdge()
 
