@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +24,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.auth.graph.LoginViewModel.LoginEvent
 import com.speech.common.event.SpeechMateEvent
@@ -33,7 +35,7 @@ internal fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
 ) {
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         viewModel.eventChannel.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> navigateToPractice()
@@ -67,12 +69,14 @@ private fun LoginScreen(
     ) {
         Spacer(Modifier.weight(1f))
 
+        Image(painter = painterResource(R.drawable.app_icon), contentDescription = "앱 아이콘", modifier = Modifier.size(250.dp))
+
         Text("SpeechMate", style = SpeechMateTheme.typography.headingXLB)
 
         Spacer(Modifier.height(30.dp))
 
         Image(
-            painter = painterResource(com.speech.designsystem.R.drawable.kakao_login),
+            painter = painterResource(R.drawable.kakao_login),
             contentDescription = "카카오로 로그인하기",
             modifier = Modifier.clickable {
                 loginKakao(context, onSuccess = { idToken ->
@@ -82,7 +86,7 @@ private fun LoginScreen(
             }
         )
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(2f))
     }
 }
 

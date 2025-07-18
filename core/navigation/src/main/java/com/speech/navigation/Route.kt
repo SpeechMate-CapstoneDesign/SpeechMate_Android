@@ -1,6 +1,7 @@
 package com.speech.navigation
 
 import kotlinx.serialization.Serializable
+import java.io.File
 
 sealed interface Route
 
@@ -24,4 +25,7 @@ sealed class PracticeGraph : Route {
 
     @Serializable
     data object RecordAudioRoute : PracticeGraph()
+
+    @Serializable
+    data class PlayAudioRoute(val audioFilePath : String) : PracticeGraph()
 }

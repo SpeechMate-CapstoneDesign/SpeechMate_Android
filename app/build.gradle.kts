@@ -3,8 +3,8 @@ import java.util.Properties
 
 plugins {
     id("speechmate.android.application")
-  //  alias(libs.plugins.firebase.crashlytics)
-   // alias(libs.plugins.google.services)
+    //  alias(libs.plugins.firebase.crashlytics)
+    // alias(libs.plugins.google.services)
 }
 
 
@@ -32,7 +32,7 @@ android {
             properties["KAKAO_NATIVE_APP_KEY"] as String
         )
 
-        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = properties["KAKAO_NATIVE_APP_KEY"] as String
+        manifestPlaceholders["KAKAO_REDIRECT_URI"] = properties["KAKAO_REDIRECT_URI"] as String
     }
 
 
@@ -43,11 +43,12 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.designsystem)
+    implementation(projects.core.data)
+    implementation(projects.core.domain)
+
     implementation(projects.feature.main)
 
     implementation(libs.kakao.user)
 
-//    implementation(projects.core.designsystem)
-//    implementation(projects.core.data)
-//    implementation(projects.core.domain)
 }
