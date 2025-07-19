@@ -39,5 +39,8 @@ include(":core:domain")
 include(":core:common")
 include(":core:network")
 include(":core:navigation")
+include(":core:datastore")
+
 include(":feature:practice")
 include(":feature:auth")
+

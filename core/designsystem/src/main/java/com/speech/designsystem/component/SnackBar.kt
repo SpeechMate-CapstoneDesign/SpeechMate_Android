@@ -41,11 +41,12 @@ fun SpeechMateSnackBar(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 28.dp)
             .padding(bottom = 36.dp)
-            .wrapContentSize()
             .clip(RoundedCornerShape(8.dp))
             .background(PrimaryActive)
-            .padding(start = 20.dp, end = 80.dp, top = 8.dp, bottom = 8.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
     ) {
         Text(
             text = message,

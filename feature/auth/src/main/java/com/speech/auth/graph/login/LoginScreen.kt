@@ -1,9 +1,8 @@
-package com.speech.auth.graph
+package com.speech.auth.graph.login
 
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +25,7 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
-import com.speech.auth.graph.LoginViewModel.LoginEvent
+import com.speech.auth.graph.login.LoginViewModel.LoginEvent
 import com.speech.common.event.SpeechMateEvent
 import com.speech.common.util.clickable
 
@@ -38,7 +37,14 @@ internal fun LoginRoute(
     LaunchedEffect(Unit) {
         viewModel.eventChannel.collect { event ->
             when (event) {
-                is LoginEvent.LoginSuccess -> navigateToPractice()
+                is LoginEvent.NavigateToSignUp -> {
+                    navigateToPractice()
+                }
+
+                is LoginEvent.NavigateToPractice -> {
+                    navigateToPractice()
+                }
+
                 is LoginEvent.LoginFailure -> {
                     viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
                 }
@@ -47,16 +53,14 @@ internal fun LoginRoute(
     }
 
     LoginScreen(
-        loginKakao = {},
+        loginKakao = viewModel::loginKakao,
         onLoginFailure = { viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다.")) },
-        navigateToPractice = navigateToPractice
     )
 }
 
 @Composable
-private fun LoginScreen(
-    navigateToPractice: () -> Unit,
-    loginKakao: () -> Unit,
+fun LoginScreen(
+    loginKakao: (String) -> Unit,
     onLoginFailure: () -> Unit
 ) {
     val context = LocalContext.current
@@ -69,7 +73,11 @@ private fun LoginScreen(
     ) {
         Spacer(Modifier.weight(1f))
 
-        Image(painter = painterResource(R.drawable.app_icon), contentDescription = "앱 아이콘", modifier = Modifier.size(250.dp))
+        Image(
+            painter = painterResource(R.drawable.app_icon),
+            contentDescription = "앱 아이콘",
+            modifier = Modifier.size(250.dp)
+        )
 
         Text("SpeechMate", style = SpeechMateTheme.typography.headingXLB)
 
@@ -77,11 +85,11 @@ private fun LoginScreen(
 
         Image(
             painter = painterResource(R.drawable.kakao_login),
-            contentDescription = "카카오로 로그인하기",
+            contentDescription = "카카오 로그인",
             modifier = Modifier.clickable {
                 loginKakao(context, onSuccess = { idToken ->
-                    Log.d("kakao auth", idToken)
-                    navigateToPractice()
+                    Log.d("idToken", idToken)
+                    loginKakao(idToken)
                 }, onFailure = { onLoginFailure() })
             }
         )
@@ -129,6 +137,5 @@ private fun LoginScreenPreview() {
     LoginScreen(
         loginKakao = {},
         onLoginFailure = {},
-        navigateToPractice = {}
     )
 }
