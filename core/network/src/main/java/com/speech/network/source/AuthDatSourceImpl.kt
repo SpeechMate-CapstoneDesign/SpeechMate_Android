@@ -8,7 +8,7 @@ import com.speech.network.model.auth.SignupKakaoRequest
 import com.speech.network.model.auth.SignupKakaoResponse
 import javax.inject.Inject
 
-class AuthDatSourceImpl @Inject constructor(
+class AuthDataSourceImpl @Inject constructor(
     private val speechMateApi: SpeechMateApi
 ) : AuthDataSource {
     override suspend fun loginKakao(idToken: String): Result<LoginKakaoResponse> =
