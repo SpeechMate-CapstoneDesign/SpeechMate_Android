@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.speech.auth.navigation.authNavGraph
+import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.navigation.AuthBaseRoute
 import com.speech.navigation.PracticeBaseRoute
 import com.speech.navigation.PracticeGraph
@@ -46,6 +47,9 @@ fun AppNavHost(
                         }
                     }
                 )
+            },
+            navigateToOnBoarding = { idToken ->
+                navController.navigateToOnBoarding(idToken)
             }
         )
     }

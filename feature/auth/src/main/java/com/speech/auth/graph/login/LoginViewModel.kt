@@ -21,7 +21,7 @@ class LoginViewModel @Inject constructor(
     fun loginKakao(idToken: String) = viewModelScope.launch {
         authRepository.loginKakao(idToken).onSuccess { isNewUser ->
             if (isNewUser) {
-                _eventChannel.send(LoginEvent.NavigateToSignUp)
+                _eventChannel.send(LoginEvent.NavigateToOnBoarding(idToken))
             } else {
                 _eventChannel.send(LoginEvent.NavigateToPractice)
             }
@@ -31,7 +31,7 @@ class LoginViewModel @Inject constructor(
     }
 
     sealed class LoginEvent {
-        data object NavigateToSignUp : LoginEvent()
+        data class NavigateToOnBoarding(val idToken: String) : LoginEvent()
         data object NavigateToPractice : LoginEvent()
         data object LoginFailure : LoginEvent()
     }
