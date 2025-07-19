@@ -76,7 +76,7 @@ jobs:
         id: create
         uses: atlassian/gajira-create@v3
         with:
-          project: WT
+          project: SM
           issuetype: Sub-task
           summary: '${{ github.event.issue.title }}'
           description: '${{ steps.md2jira.outputs.output-text }}'
