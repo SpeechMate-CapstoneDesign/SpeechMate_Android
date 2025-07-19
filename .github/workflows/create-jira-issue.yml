@@ -72,7 +72,7 @@ jobs:
 
     
       - name: Create Jira Issue
-        if: startsWith(steps.issue-parser.outputs.issueparser_parentKey, 'WT-')
+        if: startsWith(steps.issue-parser.outputs.issueparser_parentKey, 'SM-')
         id: create
         uses: atlassian/gajira-create@v3
         with:
