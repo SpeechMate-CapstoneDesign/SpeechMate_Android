@@ -3,7 +3,6 @@ package com.speech.auth.graph
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,7 +53,7 @@ internal fun LoginRoute(
 }
 
 @Composable
-private fun LoginScreen(
+fun LoginScreen(
     navigateToPractice: () -> Unit,
     loginKakao: () -> Unit,
     onLoginFailure: () -> Unit
@@ -114,6 +113,7 @@ private fun loginKakao(
                     loginWithKakaoAccount(context, callback = callback)
                 } else if (token != null) {
                     onSuccess(token.idToken!!)
+                    Log.d("idToken", token.idToken!!)
                 }
             }
         } else {

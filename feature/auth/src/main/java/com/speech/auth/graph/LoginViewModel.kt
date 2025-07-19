@@ -18,5 +18,4 @@ class LoginViewModel @Inject constructor(
         data object LoginSuccess : LoginEvent()
         data object LoginFailure : LoginEvent()
     }
-
 }
