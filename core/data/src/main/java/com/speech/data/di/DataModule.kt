@@ -1,7 +1,9 @@
 package com.speech.data.di
 
-import com.speech.data.repository.auth.AuthRepositoryImpl
+import com.speech.data.repository.AuthRepositoryImpl
+import com.speech.data.repository.TokenManagerImpl
 import com.speech.domain.repository.AuthRepository
+import com.speech.network.token.TokenManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,4 +18,11 @@ abstract class DataModule {
     abstract fun bindsAuthRepository(
         authRepositoryImpl: AuthRepositoryImpl
     ): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindsTokenManager(
+        tokenManagerImpl: TokenManagerImpl,
+    ): TokenManager
+
 }

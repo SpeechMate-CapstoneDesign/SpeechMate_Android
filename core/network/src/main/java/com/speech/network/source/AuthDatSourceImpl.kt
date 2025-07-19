@@ -12,7 +12,7 @@ class AuthDatSourceImpl @Inject constructor(
     private val speechMateApi: SpeechMateApi
 ) : AuthDataSource {
     override suspend fun loginKakao(idToken: String): Result<LoginKakaoResponse> =
-        speechMateApi.loginKakao(LoginKakaoRequest(idToken, "kakao"))
+        speechMateApi.loginKakao(LoginKakaoRequest(idToken, "KAKAO"))
 
     override suspend fun signupKakao(idToken: String, skill: String): Result<SignupKakaoResponse> =
         speechMateApi.signupKakao(SignupKakaoRequest(idToken, OnBoardingDto(skill)))

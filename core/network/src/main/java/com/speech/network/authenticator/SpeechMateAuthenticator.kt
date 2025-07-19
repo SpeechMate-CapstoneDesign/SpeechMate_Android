@@ -24,7 +24,6 @@ class SpeechMateAuthenticator @Inject constructor(
     override fun authenticate(route: Route?, response: Response): Request? {
         val originRequest = response.request
 
-        Log.d("SpeechMateAuthenticate", originRequest.toString())
 
 //        if (originRequest.header("Authorization")
 //                .isNullOrEmpty() && !originRequest.url.encodedPath.contains("/api/v1/token/expiration")
@@ -63,19 +62,19 @@ class SpeechMateAuthenticator @Inject constructor(
 //            joinAll(accessTokenJob, refreshTokenJob)
 //        }
 
-        if (originRequest.url.encodedPath.contains("/api/v1/token/expiration")) {
-            val newAccessToken = runBlocking {
-                tokenManager.getAccessToken()
-            }
-
-            val mediaType = "application/json; charset=utf-8".toMediaType()
-            val newBody = "{\"token\":\"$newAccessToken\"}".toRequestBody(mediaType)
-
-            return originRequest.newBuilder()
-                .header(RETRY_HEADER, (retryCount + 1).toString())
-                .method("POST", newBody)
-                .build()
-        }
+//        if (originRequest.url.encodedPath.contains("/api/v1/token/expiration")) {
+//            val newAccessToken = runBlocking {
+//                tokenManager.getAccessToken()
+//            }
+//
+//            val mediaType = "application/json; charset=utf-8".toMediaType()
+//            val newBody = "{\"token\":\"$newAccessToken\"}".toRequestBody(mediaType)
+//
+//            return originRequest.newBuilder()
+//                .header(RETRY_HEADER, (retryCount + 1).toString())
+//                .method("POST", newBody)
+//                .build()
+//        }
 
         val newRequest = originRequest.newBuilder()
 //            .header(RETRY_HEADER, (retryCount + 1).toString())

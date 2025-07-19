@@ -1,9 +1,8 @@
-package com.speech.data.repository.auth
+package com.speech.data.repository
 
 import com.speech.common.util.suspendRunCatching
 import com.speech.datastore.datasource.LocalTokenDataSource
 import com.speech.domain.repository.AuthRepository
-import com.speech.network.api.SpeechMateApi
 import com.speech.network.source.AuthDataSource
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
