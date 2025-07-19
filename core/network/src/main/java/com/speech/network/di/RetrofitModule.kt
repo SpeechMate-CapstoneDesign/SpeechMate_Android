@@ -1,5 +1,6 @@
 package com.speech.network.di
 
+import com.speech.network.BuildConfig
 import com.speech.network.adapter.SpeechMateCallAdapterFactory
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.authenticator.SpeechMateAuthenticator
@@ -47,7 +48,7 @@ object RetrofitModule {
         .client(okHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .addCallAdapterFactory(callAdapterFactory)
-        .baseUrl(_root_ide_package_.com.speech.network.BuildConfig.SPEECHMATE_BASE_URL)
+        .baseUrl(BuildConfig.SPEECHMATE_BASE_URL)
         .build()
         .create(SpeechMateApi::class.java)
 }

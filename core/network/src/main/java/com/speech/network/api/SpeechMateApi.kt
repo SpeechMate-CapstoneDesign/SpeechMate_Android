@@ -10,8 +10,8 @@ import retrofit2.http.POST
 interface SpeechMateApi {
     // Auth
     @POST("/api/auth/oauth/kakao/login")
-    fun loginKakao(@Body loginKakaoRequest: LoginKakaoRequest) : Result<LoginKakaoResponse>
+    suspend fun loginKakao(@Body loginKakaoRequest: LoginKakaoRequest) : Result<LoginKakaoResponse>
 
     @POST("/api/auth/oauth/kakao/signup")
-    fun signupKakao(@Body signUpKakaoRequest: SignupKakaoRequest) : Result<SignupKakaoResponse>
+    suspend fun signupKakao(@Body signUpKakaoRequest: SignupKakaoRequest) : Result<SignupKakaoResponse>
 }
