@@ -11,10 +11,12 @@ data object AuthBaseRoute : Route
 sealed class AuthGraph : Route {
     @Serializable
     data object LoginRoute : AuthGraph()
+
+    @Serializable
+    data class OnBoardingRoute(val idToken : String) : AuthGraph()
 }
 
-@Serializable
-data object OnBoardingRoute : Route
+
 
 @Serializable
 data object PracticeBaseRoute : Route

@@ -33,12 +33,13 @@ import com.speech.common.util.clickable
 internal fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
+    navigateToOnBoarding: (String) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.eventChannel.collect { event ->
             when (event) {
-                is LoginEvent.NavigateToSignUp -> {
-                    navigateToPractice()
+                is LoginEvent.NavigateToOnBoarding -> {
+                    navigateToOnBoarding(event.idToken)
                 }
 
                 is LoginEvent.NavigateToPractice -> {
@@ -46,6 +47,7 @@ internal fun LoginRoute(
                 }
 
                 is LoginEvent.LoginFailure -> {
+                    navigateToOnBoarding("")
                     viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
                 }
             }

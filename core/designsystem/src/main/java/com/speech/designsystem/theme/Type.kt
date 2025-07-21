@@ -43,6 +43,11 @@ data class SpeechMateTypography(
         fontSize = 24.sp,
         lineHeight = 32.sp
     ),
+    val headingSB: TextStyle = TextStyle(
+        fontFamily = SpoqaBold,
+        fontSize = 18.sp,
+        lineHeight = 22.sp
+    ),
     val bodyXLM: TextStyle = TextStyle(
         fontFamily = PretendardMedium,
         fontSize = 50.sp,
@@ -52,6 +57,11 @@ data class SpeechMateTypography(
         fontFamily = PretendardMedium,
         fontSize = 20.sp,
         lineHeight = 24.sp
+    ),
+    val bodyXMM: TextStyle = TextStyle(
+        fontFamily = PretendardMedium,
+        fontSize = 18.sp,
+        lineHeight = 22.sp
     ),
     val bodySM: TextStyle = TextStyle(
         fontFamily = PretendardMedium,
