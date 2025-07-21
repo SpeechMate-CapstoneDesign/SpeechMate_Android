@@ -11,9 +11,9 @@ data class LoginKakaoResponse(
 
 @Serializable
 data class LoginKakaoData(
-    val access: String,
-    val refresh: String,
-    val accessExpiredAt: String,
-    val refreshExpiredAt: String,
+    val access: String? = null,
+    val refresh: String? = null,
+    val accessExpiredAt: String? = null,
+    val refreshExpiredAt: String? = null,
     val newUser: Boolean
 )

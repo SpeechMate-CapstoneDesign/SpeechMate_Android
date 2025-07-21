@@ -23,7 +23,7 @@ fun NavGraphBuilder.authNavGraph(
     navigateToPractice: () -> Unit,
     navigateToOnBoarding: (String) -> Unit
 ) {
-    navigation<AuthBaseRoute>(startDestination = AuthGraph.OnBoardingRoute("")) {
+    navigation<AuthBaseRoute>(startDestination = AuthGraph.LoginRoute) {
         composable<AuthGraph.LoginRoute> {
             LoginRoute(
                 navigateToPractice = navigateToPractice,

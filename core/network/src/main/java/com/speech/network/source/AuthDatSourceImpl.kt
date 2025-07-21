@@ -4,8 +4,9 @@ import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
 import com.speech.network.model.auth.OnBoardingDto
-import com.speech.network.model.auth.SignupKakaoRequest
-import com.speech.network.model.auth.SignupKakaoResponse
+import com.speech.network.model.auth.SignUpKakaoRequest
+import com.speech.network.model.auth.SignUpKakaoResponse
+
 import javax.inject.Inject
 
 class AuthDataSourceImpl @Inject constructor(
@@ -14,8 +15,8 @@ class AuthDataSourceImpl @Inject constructor(
     override suspend fun loginKakao(idToken: String): Result<LoginKakaoResponse> =
         speechMateApi.loginKakao(LoginKakaoRequest(idToken, KAKAO_PROVIDER))
 
-    override suspend fun signupKakao(idToken: String, skill: String): Result<SignupKakaoResponse> =
-        speechMateApi.signupKakao(SignupKakaoRequest(idToken, OnBoardingDto(skill)))
+    override suspend fun signupKakao(idToken: String, skill: String): Result<SignUpKakaoResponse> =
+        speechMateApi.signupKakao(SignUpKakaoRequest(idToken, OnBoardingDto(skill)))
 
     companion object {
         private const val KAKAO_PROVIDER = "KAKAO"

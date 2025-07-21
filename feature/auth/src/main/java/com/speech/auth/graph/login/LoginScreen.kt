@@ -47,7 +47,6 @@ internal fun LoginRoute(
                 }
 
                 is LoginEvent.LoginFailure -> {
-                    navigateToOnBoarding("")
                     viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
                 }
             }
