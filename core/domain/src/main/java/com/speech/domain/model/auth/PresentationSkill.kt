@@ -8,7 +8,6 @@ enum class VerbalSkill(val label: String) {
     APPROPRIATE_PACE("적절한 속도로 말하기"),
     CLEAR_PRONUNCIATION("발음 명확히 하기"),
     REDUCE_FILLER_WORDS("간투어(\"음\", \"어\" 등) 줄이기"),
-    OTHER("기타(직접 입력)")
 }
 
 // 비언어적 발표 목표
@@ -18,5 +17,4 @@ enum class NonVerbalSkill(val label: String) {
     REDUCE_UNNECESSARY_HAND_GESTURES("불필요한 손동작 줄이기"),
     REDUCE_UNNECESSARY_HEAD_MOVEMENT("불필요한 머리 움직임 줄이기"),
     CONTROL_ARM_MOVEMENTS("팔동작 절제하기"),
-    OTHER("기타(직접 입력)")
 }
