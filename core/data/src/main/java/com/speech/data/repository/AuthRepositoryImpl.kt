@@ -39,5 +39,4 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signupKakao(idToken: String, skill: String): Result<Unit> {
         TODO("Not yet implemented")
     }
-
 }

@@ -2,8 +2,10 @@ package com.speech.network.api
 
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
-import com.speech.network.model.auth.SignupKakaoRequest
-import com.speech.network.model.auth.SignupKakaoResponse
+import com.speech.network.model.auth.ReissueTokenRequest
+import com.speech.network.model.auth.ReissueTokenResponse
+import com.speech.network.model.auth.SignUpKakaoRequest
+import com.speech.network.model.auth.SignUpKakaoResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -13,5 +15,8 @@ interface SpeechMateApi {
     suspend fun loginKakao(@Body loginKakaoRequest: LoginKakaoRequest) : Result<LoginKakaoResponse>
 
     @POST("/api/auth/oauth/kakao/signup")
-    suspend fun signupKakao(@Body signUpKakaoRequest: SignupKakaoRequest) : Result<SignupKakaoResponse>
+    suspend fun signupKakao(@Body signUpKakaoRequest: SignUpKakaoRequest) : Result<SignUpKakaoResponse>
+
+    @POST("/api/auth/reissue")
+    suspend fun reissueToken(@Body reissueTokenRequest: ReissueTokenRequest) : Result<ReissueTokenResponse>
 }
