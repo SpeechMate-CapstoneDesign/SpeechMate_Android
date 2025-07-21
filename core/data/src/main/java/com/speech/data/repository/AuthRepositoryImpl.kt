@@ -21,11 +21,11 @@ class AuthRepositoryImpl @Inject constructor(
         } else {
             coroutineScope {
                 val accessTokenJob = launch {
-                    response.data.access.let { localTokenDataSource.setAccessToken(it) }
+                    response.data.access?.let { localTokenDataSource.setAccessToken(it) }
                 }
 
                 val refreshTokenJob = launch {
-                    response.data.refresh.let { localTokenDataSource.setRefreshToken(it) }
+                    response.data.refresh?.let { localTokenDataSource.setRefreshToken(it) }
                 }
 
                 joinAll(accessTokenJob, refreshTokenJob)
