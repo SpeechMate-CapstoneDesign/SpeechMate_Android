@@ -24,7 +24,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AuthBaseRoute,
+        startDestination = PracticeBaseRoute,
         modifier = modifier,
     ) {
         val currentRoute = navController.currentDestination?.route

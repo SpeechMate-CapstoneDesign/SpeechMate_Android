@@ -6,6 +6,7 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.net.Uri
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,12 +32,13 @@ class PracticeViewModel @Inject constructor(
     private val _eventChannel = Channel<PracticeEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
+    fun onUploadFile(uri: Uri) {
 
+    }
 
     sealed class PracticeEvent {
         data object NavigateToRecordAudio : PracticeEvent()
+        data object UploadFileSuccess : PracticeEvent()
+        data object UploadFileFailure : PracticeEvent()
     }
-
-
-
 }
