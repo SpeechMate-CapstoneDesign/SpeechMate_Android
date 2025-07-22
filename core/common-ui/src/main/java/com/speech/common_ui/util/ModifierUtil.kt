@@ -1,4 +1,4 @@
-package com.speech.common.util
+package com.speech.common_ui.util
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable

@@ -2,7 +2,7 @@ package com.speech.auth.graph.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.speech.common.event.EventHelper
+import com.speech.common_ui.event.EventHelper
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    internal val eventHelper: EventHelper,
+    internal val eventHelper: com.speech.common_ui.event.EventHelper,
 ) : ViewModel() {
     private val _eventChannel = Channel<OnBoardingEvent>(Channel.BUFFERED)
     val eventChannel = _eventChannel.receiveAsFlow()

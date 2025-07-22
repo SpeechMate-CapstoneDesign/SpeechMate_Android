@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.speech.auth.graph.onboarding.OnBoardingViewModel.OnBoardingEvent
-import com.speech.common.event.SpeechMateEvent
+import com.speech.common_ui.event.SpeechMateEvent
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
@@ -47,7 +47,7 @@ internal fun OnBoardingRoute(
         viewModel.eventChannel.collect { event ->
             when (event) {
                 OnBoardingEvent.SignupFailure -> {
-                    viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("회원가입에 실패했습니다. 다시 시도해주세요."))
+                    viewModel.eventHelper.sendEvent(com.speech.common_ui.event.SpeechMateEvent.ShowSnackBar("회원가입에 실패했습니다. 다시 시도해주세요."))
                 }
 
                 OnBoardingEvent.SignupSuccess -> {}

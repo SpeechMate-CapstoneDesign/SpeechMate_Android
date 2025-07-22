@@ -1,4 +1,4 @@
-package com.speech.common.event
+package com.speech.common_ui.event
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED

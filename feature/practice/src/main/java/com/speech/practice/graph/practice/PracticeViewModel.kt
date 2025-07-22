@@ -1,39 +1,32 @@
 package com.speech.practice.graph.practice
 
-import android.Manifest
-import android.app.Application
 import android.content.Context
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.MediaRecorder
 import android.net.Uri
-import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
+import android.provider.OpenableColumns
+import com.speech.common_ui.util.getExtension
+import com.speech.domain.repository.SpeechRepository
 
 @HiltViewModel
 class PracticeViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val speechRepository: SpeechRepository,
 ) : ViewModel() {
     private val _eventChannel = Channel<PracticeEvent>()
     val eventChannel = _eventChannel.receiveAsFlow()
 
-    fun onUploadFile(uri: Uri) {
-
+    fun onUploadFile(uri: Uri) = viewModelScope.launch {
+        val fileExtension = getExtension(context, uri)
+        if(fileExtension.isNotEmpty()) {
+            speechRepository.uploadFile(fileExtension)
+        }
     }
 
     sealed class PracticeEvent {
