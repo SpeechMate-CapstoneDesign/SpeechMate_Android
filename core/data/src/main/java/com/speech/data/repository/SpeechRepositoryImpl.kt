@@ -1,6 +1,7 @@
 package com.speech.data.repository
 
 import android.content.Context
+import android.content.Intent
 import androidx.core.net.toUri
 import com.speech.common.util.suspendRunCatching
 import com.speech.data.util.getExtension
@@ -17,8 +18,12 @@ class SpeechRepositoryImpl @Inject constructor(
     override suspend fun uploadSpeechFile(uriString: String): Result<Unit> = suspendRunCatching {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
-        val fileExtension = getExtension(contentResolver, uri)
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
 
+        val fileExtension = getExtension(contentResolver, uri)
         val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
             .getOrThrow().data
         val mimeType = when (val type = getMimeType(contentResolver, uri)) {
@@ -28,7 +33,10 @@ class SpeechRepositoryImpl @Inject constructor(
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).getOrThrow()
+
             speechDataSource.uploadSpeechCallback(key).getOrThrow()
+
+            contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 }
