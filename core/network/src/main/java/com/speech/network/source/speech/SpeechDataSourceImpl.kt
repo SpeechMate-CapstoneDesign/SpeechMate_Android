@@ -1,6 +1,5 @@
 package com.speech.network.source.speech
 
-import android.util.Log
 import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.speech.GetPresignedUrlResponse
@@ -16,12 +15,18 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun getPresignedUrl(fileExtension: String): Result<GetPresignedUrlResponse> =
         speechMateApi.getPresignedUrl(fileExtension)
 
-    override suspend fun uploadSpeechFile(url: String, speechFile: InputStream, contentType: String): Result<Unit> {
-        val mediaType = contentType.toMediaTypeOrNull() ?: throw IllegalArgumentException("Invalid media type: $contentType")
+    override suspend fun uploadSpeechFile(
+        url: String,
+        speechFile: InputStream,
+        contentType: String
+    ): Result<Unit> {
+        val mediaType = contentType.toMediaTypeOrNull()
+            ?: throw IllegalArgumentException("Invalid media type: $contentType")
         val requestBody = speechFile.readBytes().toRequestBody(mediaType)
-
-        Log.d("SpeechDataSourceImpl signature", "$mediaType")
 
         return s3Api.uploadSpeechFile(url, requestBody)
     }
+
+    override suspend fun uploadSpeechCallback(fileKey: String) =
+        speechMateApi.uploadSpeechCallback(fileKey)
 }

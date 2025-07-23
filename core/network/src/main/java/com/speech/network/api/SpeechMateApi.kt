@@ -7,12 +7,10 @@ import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
-import okhttp3.RequestBody
+import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Query
-import retrofit2.http.Url
 
 interface SpeechMateApi {
     // Auth
@@ -29,4 +27,6 @@ interface SpeechMateApi {
     @POST("/api/speech/presignedWithS3")
     suspend fun getPresignedUrl(@Query("fileExtension") fileExtension: String) : Result<GetPresignedUrlResponse>
 
+    @POST("/api/speech/s3-callback")
+    suspend fun uploadSpeechCallback(@Query("fileKey") fileKey: String) : Result<UploadSpeechCallbackResponse>
 }

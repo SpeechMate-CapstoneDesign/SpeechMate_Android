@@ -11,21 +11,25 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class SpeechRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context : Context,
+    @ApplicationContext private val context: Context,
     private val speechDataSource: SpeechDataSource
 ) : SpeechRepository {
-    override suspend fun uploadSpeechFile(uriString : String): Result<Unit> = suspendRunCatching {
+    override suspend fun uploadSpeechFile(uriString: String): Result<Unit> = suspendRunCatching {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
         val fileExtension = getExtension(contentResolver, uri)
-        val presignedUrl = speechDataSource.getPresignedUrl(fileExtension.uppercase()).getOrThrow().data.url
+
+        val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
+            .getOrThrow().data
         val mimeType = when (val type = getMimeType(contentResolver, uri)) {
             "audio/x-wav" -> "audio/wav"
             else -> type
         }
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).getOrThrow()
+            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).onSuccess {
+                speechDataSource.uploadSpeechCallback(key)
+            }
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 }
