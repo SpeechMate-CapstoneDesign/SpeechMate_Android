@@ -26,6 +26,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.auth.graph.login.LoginViewModel.LoginEvent
+import com.speech.common_ui.event.SpeechMateEvent
 import com.speech.common_ui.util.clickable
 
 
@@ -47,7 +48,7 @@ internal fun LoginRoute(
                 }
 
                 is LoginEvent.LoginFailure -> {
-                    viewModel.eventHelper.sendEvent(com.speech.common_ui.event.SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
+                    viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
                 }
             }
         }

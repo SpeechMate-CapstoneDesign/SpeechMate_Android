@@ -27,9 +27,8 @@ class SpeechRepositoryImpl @Inject constructor(
         }
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).onSuccess {
-                speechDataSource.uploadSpeechCallback(key)
-            }
+            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).getOrThrow()
+            speechDataSource.uploadSpeechCallback(key).getOrThrow()
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 }

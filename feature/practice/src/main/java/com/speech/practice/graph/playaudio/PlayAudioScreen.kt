@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
+import com.speech.common_ui.ui.StrokeCircle
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.DarkGray
@@ -171,7 +172,7 @@ private fun PlayAudioScreen(
                         if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioPaused)
                     }
             ) {
-                com.speech.common_ui.ui.StrokeCircle(
+               StrokeCircle(
                     color = PrimaryDefault,
                     diameter = 70.dp,
                     modifier = Modifier.align(

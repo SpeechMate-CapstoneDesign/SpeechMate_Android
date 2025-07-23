@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                 launch {
                     viewModel.eventHelper.eventChannel.collect { event ->
                         when (event) {
-                            is com.speech.common_ui.event.SpeechMateEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.message)
+                            is SpeechMateEvent.ShowSnackBar -> snackBarHostState.showSnackbar(event.message)
                         }
                     }
                 }

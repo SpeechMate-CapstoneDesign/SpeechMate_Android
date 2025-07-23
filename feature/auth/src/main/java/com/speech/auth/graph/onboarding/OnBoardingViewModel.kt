@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    internal val eventHelper: com.speech.common_ui.event.EventHelper,
+    internal val eventHelper: EventHelper,
 ) : ViewModel() {
     private val _eventChannel = Channel<OnBoardingEvent>(Channel.BUFFERED)
     val eventChannel = _eventChannel.receiveAsFlow()

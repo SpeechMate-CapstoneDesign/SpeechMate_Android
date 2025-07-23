@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val eventHelper: com.speech.common_ui.event.EventHelper,
+    val eventHelper: EventHelper,
 ) : ViewModel() {
 
 

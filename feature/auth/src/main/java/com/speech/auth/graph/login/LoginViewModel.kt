@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    internal val eventHelper: com.speech.common_ui.event.EventHelper,
+    internal val eventHelper: EventHelper,
 ) : ViewModel() {
     private val _eventChannel = Channel<LoginEvent>(Channel.BUFFERED)
     val eventChannel = _eventChannel.receiveAsFlow()

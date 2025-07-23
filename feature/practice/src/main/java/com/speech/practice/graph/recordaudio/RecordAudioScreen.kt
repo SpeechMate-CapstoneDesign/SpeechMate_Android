@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.speech.common_ui.ui.StrokeCircle
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
@@ -125,7 +126,7 @@ private fun RecordAudioScreen(
                             onEvent(RecordAudioEvent.RecordingCanceled)
                         }
                 ) {
-                    com.speech.common_ui.ui.StrokeCircle(
+                    StrokeCircle(
                         color = PrimaryDefault,
                         modifier = Modifier.align(
                             Center
@@ -150,7 +151,7 @@ private fun RecordAudioScreen(
                             onEvent(RecordAudioEvent.RecordingFinished)
                         }
                 ) {
-                    com.speech.common_ui.ui.StrokeCircle(
+                    StrokeCircle(
                         color = PrimaryDefault,
                         diameter = 70.dp,
                         modifier = Modifier.align(
@@ -181,7 +182,7 @@ private fun RecordAudioScreen(
                             )
                         }
                 ) {
-                    com.speech.common_ui.ui.StrokeCircle(
+                    StrokeCircle(
                         color = PrimaryDefault,
                         modifier = Modifier.align(
                             Center
