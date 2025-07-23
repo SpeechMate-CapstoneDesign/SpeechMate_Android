@@ -2,7 +2,7 @@ package com.speech.auth.graph.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.speech.common.event.EventHelper
+import com.speech.common_ui.event.EventHelper
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 import dagger.hilt.android.lifecycle.HiltViewModel

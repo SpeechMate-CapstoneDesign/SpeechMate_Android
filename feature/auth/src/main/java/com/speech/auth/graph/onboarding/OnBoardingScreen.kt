@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.speech.auth.graph.onboarding.OnBoardingViewModel.OnBoardingEvent
-import com.speech.common.event.SpeechMateEvent
+import com.speech.common_ui.event.SpeechMateEvent
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme

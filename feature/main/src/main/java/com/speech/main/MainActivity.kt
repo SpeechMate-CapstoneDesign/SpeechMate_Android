@@ -1,13 +1,10 @@
 package com.speech.main
 
-import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -16,14 +13,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.designsystem.component.SpeechMateSnackBar
 import com.example.designsystem.component.SpeechMateSnackBarHost
-import com.kakao.sdk.common.util.Utility
-import com.speech.common.event.SpeechMateEvent
+import com.speech.common_ui.event.SpeechMateEvent
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppNavHost
 import dagger.hilt.android.AndroidEntryPoint

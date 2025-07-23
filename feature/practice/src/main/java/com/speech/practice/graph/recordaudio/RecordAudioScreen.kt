@@ -1,9 +1,7 @@
 package com.speech.practice.graph.recordaudio
 
-import android.hardware.lights.Light
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +25,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -41,15 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.speech.common.event.SpeechMateEvent
-import com.speech.common.ui.SimpleCircle
-import com.speech.common.ui.StrokeCircle
-import com.speech.common.ui.StrokeRoundRectangle
-import com.speech.common.util.clickable
+import com.speech.common_ui.ui.StrokeCircle
+import com.speech.common_ui.util.clickable
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.practice.graph.recordaudio.RecordAudioViewModel.RecordAudioEvent
@@ -225,7 +218,7 @@ private fun RecordAudioScreen(
                         onEvent(RecordAudioEvent.RecordingStarted)
                     }
             ) {
-                SimpleCircle(
+                com.speech.common_ui.ui.SimpleCircle(
                     modifier = Modifier
                         .align(Center)
                         .shadow(elevation = 4.dp, shape = CircleShape)
@@ -285,7 +278,7 @@ private fun RecordAudioScreen(
                         onEvent(RecordAudioEvent.RecordingCanceled)
                     },
             ) {
-                StrokeRoundRectangle(
+                com.speech.common_ui.ui.StrokeRoundRectangle(
                     modifier = Modifier
                         .align(Center)
                 )

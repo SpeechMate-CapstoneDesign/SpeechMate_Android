@@ -1,4 +1,4 @@
-package com.speech.network.source
+package com.speech.network.source.auth
 
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.auth.LoginKakaoRequest

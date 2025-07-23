@@ -1,7 +1,6 @@
 package com.speech.practice.graph.playaudio
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,22 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -54,8 +48,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
-import com.speech.common.ui.StrokeCircle
-import com.speech.common.util.clickable
+import com.speech.common_ui.ui.StrokeCircle
+import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryActive
@@ -64,7 +58,6 @@ import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.designsystem.theme.audioWaveForm
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayAudioEvent
 import com.speech.practice.graph.playaudio.PlayAudioViewModel.PlayingAudioState
-import kotlin.math.max
 
 @Composable
 internal fun PlayAudioRoute(
@@ -179,7 +172,7 @@ private fun PlayAudioScreen(
                         if (playingAudioState == PlayingAudioState.Playing) onEvent(PlayAudioEvent.PlayAudioPaused)
                     }
             ) {
-                StrokeCircle(
+               StrokeCircle(
                     color = PrimaryDefault,
                     diameter = 70.dp,
                     modifier = Modifier.align(

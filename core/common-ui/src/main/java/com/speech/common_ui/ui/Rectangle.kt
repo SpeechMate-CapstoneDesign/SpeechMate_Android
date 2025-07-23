@@ -1,4 +1,4 @@
-package com.speech.common.ui
+package com.speech.common_ui.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth

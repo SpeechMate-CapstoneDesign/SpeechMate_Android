@@ -37,10 +37,12 @@ include(":core:designsystem")
 include(":core:data")
 include(":core:domain")
 include(":core:common")
+include(":core:common-ui")
 include(":core:network")
 include(":core:navigation")
 include(":core:datastore")
 
 include(":feature:practice")
 include(":feature:auth")
+
 

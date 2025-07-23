@@ -46,7 +46,7 @@ private class SpeechMateCall<T : Any>(
                 val body = response.body()
 
                 if (response.isSuccessful && body != null) {
-                    Log.d("speechMateResponse", "${response.raw()} body ${body}")
+                    Log.d("speechResponse", "${response.raw()} body ${body}")
                     callback.onResponse(
                         this@SpeechMateCall,
                         Response.success(Result.success(body))
@@ -69,7 +69,7 @@ private class SpeechMateCall<T : Any>(
             }
 
             override fun onFailure(call: Call<T>, throwable: Throwable) {
-                Log.d("speechMateResponseFailure", "$throwable")
+                Log.d("speechResponseFailure", "$throwable")
 
                 callback.onResponse(
                     this@SpeechMateCall,
@@ -81,7 +81,7 @@ private class SpeechMateCall<T : Any>(
 
     override fun clone(): Call<Result<T>> = SpeechMateCall(delegate.clone())
     override fun execute(): Response<Result<T>> =
-        throw NotImplementedError("TraceCall doesn't support execute()")
+        throw NotImplementedError("SpeechMateCall doesn't support execute()")
 
     override fun isExecuted(): Boolean = delegate.isExecuted
     override fun cancel() = delegate.cancel()
