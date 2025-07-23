@@ -1,7 +1,6 @@
 package com.speech.domain.repository
 
 
-
 interface SpeechRepository {
-   suspend fun uploadFile(fileExtension : String) : Result<Unit>
+   suspend fun uploadSpeechFile(uriString : String) : Result<Unit>
 }

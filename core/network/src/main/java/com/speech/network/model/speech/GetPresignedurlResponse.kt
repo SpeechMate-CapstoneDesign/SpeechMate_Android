@@ -13,5 +13,4 @@ data class GetPresignedUrlResponse(
 data class PresignedUrlData(
     val url: String,
     val key: String,
-    val speechId: Int
 )

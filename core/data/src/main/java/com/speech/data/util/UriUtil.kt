@@ -1,11 +1,11 @@
-package com.speech.common_ui.util
+package com.speech.data.util
 
 import android.content.ContentResolver
 import android.net.Uri
 import android.webkit.MimeTypeMap
 
-fun getMimeType(contentResolver: ContentResolver, uri: Uri): String? {
-    return contentResolver.getType(uri)
+fun getMimeType(contentResolver: ContentResolver, uri: Uri): String {
+    return contentResolver.getType(uri) ?: throw IllegalArgumentException("Unknown URI")
 }
 
 fun getExtension(contentResolver: ContentResolver, uri: Uri): String {

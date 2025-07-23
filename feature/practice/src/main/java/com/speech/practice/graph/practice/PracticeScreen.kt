@@ -1,6 +1,7 @@
 package com.speech.practice.graph.practice
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -46,7 +47,7 @@ internal fun PracticeRoute(
     PracticeScreen(
         navigateToRecordAudio = navigateToRecordAudio,
         onRecordVideo = {},
-        onUploadFile = viewModel::onUploadFile
+        onUploadSpeechFile = viewModel::onUploadSpeechFile
     )
 }
 
@@ -54,7 +55,7 @@ internal fun PracticeRoute(
 private fun PracticeScreen(
     navigateToRecordAudio: () -> Unit,
     onRecordVideo: () -> Unit,
-    onUploadFile: (Uri) -> Unit
+    onUploadSpeechFile: (Uri) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -140,7 +141,7 @@ private fun PracticeScreen(
 
                 Spacer(Modifier.height(30.dp))
 
-                UploadFileButton(onUploadFile = onUploadFile)
+                UploadFileButton(onUploadFile = onUploadSpeechFile)
             }
         }
     }
@@ -151,7 +152,7 @@ private fun UploadFileButton(onUploadFile: (Uri) -> Unit) {
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri: Uri? ->
-            if (uri != null) onUploadFile(uri)
+            uri?.let { onUploadFile(it) }
         }
     )
 
@@ -188,6 +189,6 @@ private fun PracticeScreenPreview() {
     PracticeScreen(
         navigateToRecordAudio = {},
         onRecordVideo = {},
-        onUploadFile = {}
+        onUploadSpeechFile = {}
     )
 }
