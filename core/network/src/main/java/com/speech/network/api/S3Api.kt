@@ -11,5 +11,5 @@ interface S3Api {
     suspend fun uploadSpeechFile(
         @Url url: String,
         @Body file: RequestBody,
-    ): Result<Unit>
+    )
 }

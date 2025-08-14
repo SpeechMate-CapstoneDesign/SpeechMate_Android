@@ -25,16 +25,15 @@ class SpeechRepositoryImpl @Inject constructor(
 
         val fileExtension = getExtension(contentResolver, uri)
         val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
-            .getOrThrow().data
         val mimeType = when (val type = getMimeType(contentResolver, uri)) {
             "audio/x-wav" -> "audio/wav"
             else -> type
         }
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType).getOrThrow()
+            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key).getOrThrow()
+            speechDataSource.uploadSpeechCallback(key)
 
             contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
