@@ -1,5 +1,6 @@
 package com.speech.network.api
 
+import com.speech.network.model.ApiResponse
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
 import com.speech.network.model.auth.ReissueTokenRequest
@@ -15,18 +16,18 @@ import retrofit2.http.Query
 interface SpeechMateApi {
     // Auth
     @POST("/api/auth/oauth/kakao/login")
-    suspend fun loginKakao(@Body loginKakaoRequest: LoginKakaoRequest) : Result<LoginKakaoResponse>
+    suspend fun loginKakao(@Body loginKakaoRequest: LoginKakaoRequest) : ApiResponse<LoginKakaoResponse>
 
     @POST("/api/auth/oauth/kakao/signup")
-    suspend fun signupKakao(@Body signUpKakaoRequest: SignUpKakaoRequest) : Result<SignUpKakaoResponse>
+    suspend fun signupKakao(@Body signUpKakaoRequest: SignUpKakaoRequest) : ApiResponse<SignUpKakaoResponse>
 
     @POST("/api/auth/reissue")
-    suspend fun reissueToken(@Body reissueTokenRequest: ReissueTokenRequest) : Result<ReissueTokenResponse>
+    suspend fun reissueToken(@Body reissueTokenRequest: ReissueTokenRequest) : ApiResponse<ReissueTokenResponse>
 
     // Speech Analysis
     @POST("/api/speech/presignedWithS3")
-    suspend fun getPresignedUrl(@Query("fileExtension") fileExtension: String) : Result<GetPresignedUrlResponse>
+    suspend fun getPresignedUrl(@Query("fileExtension") fileExtension: String) : ApiResponse<GetPresignedUrlResponse>
 
     @POST("/api/speech/s3-callback")
-    suspend fun uploadSpeechCallback(@Query("fileKey") fileKey: String) : Result<UploadSpeechCallbackResponse>
+    suspend fun uploadSpeechCallback(@Query("fileKey") fileKey: String) : ApiResponse<UploadSpeechCallbackResponse>
 }

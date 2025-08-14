@@ -2,6 +2,7 @@ package com.speech.auth.graph.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.event.EventHelper
 import com.speech.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,9 @@ class LoginViewModel @Inject constructor(
     val eventChannel = _eventChannel.receiveAsFlow()
 
     fun loginKakao(idToken: String) = viewModelScope.launch {
-        authRepository.loginKakao(idToken).onSuccess { isNewUser ->
+        suspendRunCatching {
+            authRepository.loginKakao(idToken)
+        }.onSuccess { isNewUser ->
             if (isNewUser) {
                 _eventChannel.send(LoginEvent.NavigateToOnBoarding(idToken))
             } else {

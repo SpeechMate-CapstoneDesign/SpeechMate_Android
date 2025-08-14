@@ -13,30 +13,31 @@ class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val localTokenDataSource: LocalTokenDataSource
 ) : AuthRepository {
-    override suspend fun loginKakao(idToken: String): Result<Boolean> = suspendRunCatching {
-        val response = authDataSource.loginKakao(idToken).getOrThrow()
+    override suspend fun loginKakao(idToken: String): Boolean {
+        val response = authDataSource.loginKakao(idToken)
 
-        if (response.data.newUser) {
-            response.data.newUser
+        if (response.newUser) {
+            response.newUser
         } else {
             coroutineScope {
                 val accessTokenJob = launch {
-                    response.data.access?.let { localTokenDataSource.setAccessToken(it) }
+                    response.access?.let { localTokenDataSource.setAccessToken(it) }
                 }
 
                 val refreshTokenJob = launch {
-                    response.data.refresh?.let { localTokenDataSource.setRefreshToken(it) }
+                    response.refresh?.let { localTokenDataSource.setRefreshToken(it) }
                 }
 
                 joinAll(accessTokenJob, refreshTokenJob)
             }
 
-            response.data.newUser
+           return  response.newUser
         }
 
+        return false
     }
 
-    override suspend fun signupKakao(idToken: String, skill: String): Result<Unit> {
-        TODO("Not yet implemented")
-    }
+//    override suspend fun signupKakao(idToken: String, skill: String): Result<Unit> {
+//        TODO("Not yet implemented")
+//    }
 }

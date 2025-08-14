@@ -3,6 +3,7 @@ package com.speech.network.authenticator
 import com.speech.network.api.SpeechMateApi
 
 import com.speech.network.model.auth.ReissueTokenRequest
+import com.speech.network.model.getData
 import com.speech.network.token.TokenManager
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -55,7 +56,7 @@ class SpeechMateAuthenticator @Inject constructor(
                 speechMateApi.get()
                     .reissueToken(ReissueTokenRequest(tokenManager.getRefreshToken()))
             }
-        }.getOrNull()?.data ?: return null
+        }.getData()
 
         runBlocking {
             val accessTokenJob = launch { tokenManager.setAccessToken(token.access) }
