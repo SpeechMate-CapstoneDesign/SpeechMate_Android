@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,11 +24,11 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
-import com.speech.auth.graph.login.LoginViewModel.LoginEvent
-import com.speech.common_ui.event.SpeechMateEvent
 import com.speech.common_ui.util.clickable
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -36,27 +37,32 @@ internal fun LoginRoute(
     navigateToPractice: () -> Unit,
     navigateToOnBoarding: (String) -> Unit
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
-        viewModel.eventChannel.collect { event ->
-            when (event) {
-                is LoginEvent.NavigateToOnBoarding -> {
-                    navigateToOnBoarding(event.idToken)
-                }
-
-                is LoginEvent.NavigateToPractice -> {
-                    navigateToPractice()
-                }
-
-                is LoginEvent.LoginFailure -> {
-                    viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다."))
+        viewModel.container.sideEffectFlow.collect { sideEffect ->
+            when (sideEffect) {
+                is LoginSideEffect.NavigateToPractice -> navigateToPractice()
+                is LoginSideEffect.NavigateToOnBoarding -> navigateToOnBoarding(sideEffect.idToken)
+                is LoginSideEffect.ShowSnackBar -> {
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(sideEffect.message)
+                    }
                 }
             }
         }
     }
 
+
     LoginScreen(
-        loginKakao = viewModel::loginKakao,
-        onLoginFailure = { viewModel.eventHelper.sendEvent(com.speech.common_ui.event.SpeechMateEvent.ShowSnackBar("로그인에 실패했습니다.")) },
+        loginKakao = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },
+        onLoginFailure = {
+            scope.launch {
+                snackbarHostState.showSnackbar("로그인에 실패했습니다")
+            }
+        },
     )
 }
 

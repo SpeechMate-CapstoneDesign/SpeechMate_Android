@@ -27,11 +27,10 @@ fun AppNavHost(
         startDestination = AuthBaseRoute,
         modifier = modifier,
     ) {
-        val currentRoute = navController.currentDestination?.route
 
         practiceNavGraph(
             navigateBack = { navigateBack(navController) },
-            navigateToRecordAudio = { navController.navigateToRecordAudio() },
+            navigateToRecordAudio = navController::navigateToRecordAudio,
             navigateToPlayAudio = { audioFilePath -> navController.navigateToPlayAudio(audioFilePath, navOptions {
                 popUpTo<PracticeGraph.PracticeRoute>()
             })}

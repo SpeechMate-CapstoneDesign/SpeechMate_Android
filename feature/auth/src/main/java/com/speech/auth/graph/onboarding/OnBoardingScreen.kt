@@ -17,60 +17,59 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.speech.auth.graph.onboarding.OnBoardingViewModel.OnBoardingEvent
-import com.speech.common_ui.event.SpeechMateEvent
+import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun OnBoardingRoute(
     viewModel: OnBoardingViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit
 ) {
-    val selectedVerbalSkills by viewModel.selectedVerbalSkills.collectAsStateWithLifecycle()
-    val selectedNonVerbalSkills by viewModel.selectedNonVerbalSkills.collectAsStateWithLifecycle()
-    val signUpAvailability by viewModel.signUpAvailability.collectAsStateWithLifecycle()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
+    val onboardingState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
-    // 이벤트 처리
     LaunchedEffect(Unit) {
-        viewModel.eventChannel.collect { event ->
-            when (event) {
-                OnBoardingEvent.SignupFailure -> {
-                    viewModel.eventHelper.sendEvent(SpeechMateEvent.ShowSnackBar("회원가입에 실패했습니다. 다시 시도해주세요."))
+        viewModel.container.sideEffectFlow.collect { sideEffect ->
+            when (sideEffect) {
+                is OnBoardingSideEffect.ShowSnackBar -> {
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(sideEffect.message)
+                    }
                 }
 
-                OnBoardingEvent.SignupSuccess -> {}
+                is OnBoardingSideEffect.NavigateToPractice -> {
+                    navigateToPractice()
+                }
             }
         }
     }
 
     OnBoardingScreen(
-        selectedVerbalSkills = selectedVerbalSkills,
-        selectedNonVerbalSkills = selectedNonVerbalSkills,
-        signUpAvailability = signUpAvailability,
+        state = onboardingState,
         onVerbalSkillClick = viewModel::toggleVerbalSkill,
         onNonVerbalSkillClick = viewModel::toggleNonVerbalSkill,
         signUp = viewModel::signUp
     )
 }
 
-
 @Composable
 fun OnBoardingScreen(
-    selectedVerbalSkills: List<VerbalSkill>,
-    selectedNonVerbalSkills: List<NonVerbalSkill>,
-    signUpAvailability: Boolean,
+    state: OnBoardingState,
     onVerbalSkillClick: (VerbalSkill) -> Unit,
     onNonVerbalSkillClick: (NonVerbalSkill) -> Unit,
     signUp: () -> Unit
@@ -108,7 +107,7 @@ fun OnBoardingScreen(
             VerbalSkill.entries.forEach { skill ->
                 VerbalSkillButton(
                     verbalSkill = skill,
-                    isSelected = selectedVerbalSkills.contains(skill),
+                    isSelected = state.selectedVerbalSkills.contains(skill),
                     onClick = { onVerbalSkillClick(skill) })
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -125,7 +124,7 @@ fun OnBoardingScreen(
             NonVerbalSkill.entries.forEach { skill ->
                 NonVerbalSkillButton(
                     nonVerbalSkill = skill,
-                    isSelected = selectedNonVerbalSkills.contains(skill),
+                    isSelected = state.selectedNonVerbalSkills.contains(skill),
                     onClick = { onNonVerbalSkillClick(skill) })
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -137,9 +136,9 @@ fun OnBoardingScreen(
                 onClick = {
                     signUp()
                 },
-                enabled = signUpAvailability,
+                enabled = state.signUpAvailable,
                 colors = ButtonDefaults.buttonColors(
-                    if (signUpAvailability) PrimaryActive else PrimaryDefault
+                    if (state.signUpAvailable) PrimaryActive else PrimaryDefault
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -202,14 +201,11 @@ private fun NonVerbalSkillButton(
     }
 }
 
-
 @Preview
 @Composable
 private fun OnBoardingScreenPreview() {
     OnBoardingScreen(
-        signUpAvailability = true,
-        selectedVerbalSkills = emptyList(),
-        selectedNonVerbalSkills = emptyList(),
+        state = OnBoardingState(signUpAvailable = true),
         onVerbalSkillClick = {},
         onNonVerbalSkillClick = {},
         signUp = {},

@@ -9,7 +9,9 @@ android {
 
 dependencies {
     implementation(projects.feature.auth)
-   implementation(projects.feature.practice)
+    implementation(projects.feature.practice)
+
+    implementation(projects.core.commonUi)
 
     implementation(libs.kakao.user)
 
