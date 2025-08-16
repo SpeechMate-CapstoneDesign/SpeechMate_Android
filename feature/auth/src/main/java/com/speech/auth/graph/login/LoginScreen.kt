@@ -54,7 +54,7 @@ internal fun LoginRoute(
     }
 
     LoginScreen(
-        loginKakao = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },
+        onLoginKakaoClick = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },
         onLoginFailure = {
             scope.launch {
                 snackbarHostState.showSnackbar("로그인에 실패했습니다")
@@ -65,7 +65,7 @@ internal fun LoginRoute(
 
 @Composable
 fun LoginScreen(
-    loginKakao: (String) -> Unit,
+    onLoginKakaoClick: (String) -> Unit,
     onLoginFailure: () -> Unit
 ) {
     val context = LocalContext.current
@@ -93,8 +93,7 @@ fun LoginScreen(
             contentDescription = "카카오 로그인",
             modifier = Modifier.clickable {
                 loginKakao(context, onSuccess = { idToken ->
-                    Log.d("idToken", idToken)
-                    loginKakao(idToken)
+                    onLoginKakaoClick(idToken)
                 }, onFailure = { onLoginFailure() })
             }
         )
@@ -140,7 +139,7 @@ private fun loginKakao(
 @Composable
 private fun LoginScreenPreview() {
     LoginScreen(
-        loginKakao = {},
+        onLoginKakaoClick = {},
         onLoginFailure = {},
     )
 }
