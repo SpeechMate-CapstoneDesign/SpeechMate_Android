@@ -1,12 +1,9 @@
 package com.speech.auth.graph.onboarding
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
@@ -18,7 +15,7 @@ class OnBoardingViewModel @Inject constructor() : ViewModel(),
 
     override val container = container<OnBoardingState, OnBoardingSideEffect>(OnBoardingState())
 
-    fun onIntent(event: OnBoardingIntent) = viewModelScope.launch {
+    fun onIntent(event: OnBoardingIntent) = intent {
         when (event) {
             is OnBoardingIntent.ToggleVerbalSkill -> toggleVerbalSkill(event.verbalSkill)
             is OnBoardingIntent.ToggleNonVerbalSkill -> toggleNonVerbalSkill(event.nonVerbalSkill)

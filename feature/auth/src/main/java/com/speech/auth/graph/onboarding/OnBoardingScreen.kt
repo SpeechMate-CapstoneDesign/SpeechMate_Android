@@ -32,6 +32,8 @@ import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun OnBoardingRoute(
@@ -40,29 +42,27 @@ internal fun OnBoardingRoute(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
-    val onboardingState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val onboardingState by viewModel.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.container.sideEffectFlow.collect { sideEffect ->
-            when (sideEffect) {
-                is OnBoardingSideEffect.ShowSnackBar -> {
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(sideEffect.message)
-                    }
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            is OnBoardingSideEffect.ShowSnackBar -> {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(sideEffect.message)
                 }
+            }
 
-                is OnBoardingSideEffect.NavigateToPractice -> {
-                    navigateToPractice()
-                }
+            is OnBoardingSideEffect.NavigateToPractice -> {
+                navigateToPractice()
             }
         }
     }
 
     OnBoardingScreen(
         state = onboardingState,
-        onVerbalSkillClick = viewModel::toggleVerbalSkill,
-        onNonVerbalSkillClick = viewModel::toggleNonVerbalSkill,
+        onVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleVerbalSkill(it)) },
+        onNonVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleNonVerbalSkill(it)) },
         signUp = viewModel::signUp
     )
 }

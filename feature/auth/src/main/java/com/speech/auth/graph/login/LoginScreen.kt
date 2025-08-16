@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +28,7 @@ import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 
 @Composable
@@ -40,21 +40,18 @@ internal fun LoginRoute(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.container.sideEffectFlow.collect { sideEffect ->
-            when (sideEffect) {
-                is LoginSideEffect.NavigateToPractice -> navigateToPractice()
-                is LoginSideEffect.NavigateToOnBoarding -> navigateToOnBoarding(sideEffect.idToken)
-                is LoginSideEffect.ShowSnackBar -> {
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(sideEffect.message)
-                    }
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            is LoginSideEffect.NavigateToPractice -> navigateToPractice()
+            is LoginSideEffect.NavigateToOnBoarding -> navigateToOnBoarding(sideEffect.idToken)
+            is LoginSideEffect.ShowSnackBar -> {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
         }
     }
-
 
     LoginScreen(
         loginKakao = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },

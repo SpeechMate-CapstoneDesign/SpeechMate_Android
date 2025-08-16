@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.LightGray
@@ -37,6 +39,8 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.RecordAudio
 import com.speech.designsystem.theme.RecordVideo
 import com.speech.designsystem.theme.SpeechMateTheme
+import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 
 @Composable
@@ -44,17 +48,32 @@ internal fun PracticeRoute(
     navigateToRecordAudio: () -> Unit,
     viewModel: PracticeViewModel = hiltViewModel()
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
+
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
+            is PracticeSideEffect.ShowSnackBar -> {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(sideEffect.message)
+                }
+            }
+        }
+    }
+
     PracticeScreen(
-        navigateToRecordAudio = navigateToRecordAudio,
-        onRecordVideo = {},
-        onUploadSpeechFile = viewModel::onUploadSpeechFile
+        onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
+        onRecordVideoClick = {},
+        onUploadSpeechFile = { viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(it)) }
     )
 }
 
 @Composable
 private fun PracticeScreen(
-    navigateToRecordAudio: () -> Unit,
-    onRecordVideo: () -> Unit,
+    onRecordAudioClick: () -> Unit,
+    onRecordVideoClick: () -> Unit,
     onUploadSpeechFile: (Uri) -> Unit
 ) {
     LazyColumn(
@@ -92,7 +111,7 @@ private fun PracticeScreen(
                             .background(RecordAudio)
                             .padding(20.dp)
                             .clickable {
-                                navigateToRecordAudio()
+                                onRecordAudioClick()
                             },
                     ) {
                         Row(
@@ -118,7 +137,7 @@ private fun PracticeScreen(
                             .background(RecordVideo)
                             .padding(20.dp)
                             .clickable(isRipple = true) {
-                                onRecordVideo()
+                                onRecordVideoClick()
                             },
                     ) {
                         Row(
@@ -187,8 +206,8 @@ private fun UploadFileButton(onUploadFile: (Uri) -> Unit) {
 @Composable
 private fun PracticeScreenPreview() {
     PracticeScreen(
-        navigateToRecordAudio = {},
-        onRecordVideo = {},
+        onRecordAudioClick = {},
+        onRecordVideoClick = {},
         onUploadSpeechFile = {}
     )
 }
