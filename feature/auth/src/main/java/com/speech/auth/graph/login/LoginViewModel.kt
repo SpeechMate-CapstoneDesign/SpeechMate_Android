@@ -1,41 +1,35 @@
 package com.speech.auth.graph.login
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
-import com.speech.common_ui.event.EventHelper
 import com.speech.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.viewmodel.container
+import org.orbitmvi.orbit.ContainerHost
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    internal val eventHelper: EventHelper,
-) : ViewModel() {
-    private val _eventChannel = Channel<LoginEvent>(Channel.BUFFERED)
-    val eventChannel = _eventChannel.receiveAsFlow()
+) : ContainerHost<Unit, LoginSideEffect>, ViewModel() {
+    override val container = container<Unit, LoginSideEffect>(Unit)
+    fun onIntent(event: LoginIntent) {
+        when (event) {
+            is LoginIntent.OnLoginClick -> loginKakao(event.idToken)
+        }
+    }
 
-    fun loginKakao(idToken: String) = viewModelScope.launch {
+    fun loginKakao(idToken: String) = intent {
         suspendRunCatching {
             authRepository.loginKakao(idToken)
         }.onSuccess { isNewUser ->
             if (isNewUser) {
-                _eventChannel.send(LoginEvent.NavigateToOnBoarding(idToken))
+                postSideEffect(LoginSideEffect.NavigateToOnBoarding(idToken))
             } else {
-                _eventChannel.send(LoginEvent.NavigateToPractice)
+                postSideEffect(LoginSideEffect.NavigateToPractice)
             }
         }.onFailure {
-            _eventChannel.send(LoginEvent.LoginFailure)
+            postSideEffect(LoginSideEffect.ShowSnackBar("로그인에 실패했습니다."))
         }
-    }
-
-    sealed class LoginEvent {
-        data class NavigateToOnBoarding(val idToken: String) : LoginEvent()
-        data object NavigateToPractice : LoginEvent()
-        data object LoginFailure : LoginEvent()
     }
 }

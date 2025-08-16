@@ -4,34 +4,38 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
 class PracticeViewModel @Inject constructor(
     private val speechRepository: SpeechRepository,
-) : ViewModel() {
-    private val _eventChannel = Channel<PracticeEvent>()
-    val eventChannel = _eventChannel.receiveAsFlow()
+) : ContainerHost<Unit, PracticeSideEffect>, ViewModel() {
+    override val container = container<Unit, PracticeSideEffect>(Unit)
 
-    fun onUploadSpeechFile(uri: Uri) = viewModelScope.launch {
-        speechRepository.uploadSpeechFile(uri.toString()).onSuccess {
-            _eventChannel.send(PracticeEvent.UploadFileSuccess)
-            Log.d("PracticeViewModel", "onUploadSpeechFile Success: $it")
-        }.onFailure {
-            _eventChannel.send(PracticeEvent.UploadFileFailure)
-            Log.d("PracticeViewModel", "onUploadSpeechFile Failure: $it")
+    fun onIntent(event: PracticeIntent) {
+        when (event) {
+            is PracticeIntent.OnUploadSpeechFile -> onUploadSpeechFile(event.uri)
+            is PracticeIntent.OnRecordAudioClick -> intent {
+                postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
+            }
         }
     }
 
-    sealed class PracticeEvent {
-        data object NavigateToRecordAudio : PracticeEvent()
-        data object NavigateToRecordVideo : PracticeEvent()
-        data object UploadFileSuccess : PracticeEvent()
-        data object UploadFileFailure : PracticeEvent()
+    fun onUploadSpeechFile(uri: Uri) = intent {
+        suspendRunCatching {
+            speechRepository.uploadSpeechFile(uri.toString())
+        }.onSuccess {
+            Log.d("PracticeViewModel", "onUploadSpeechFile Success: $it")
+        }.onFailure {
+            Log.d("PracticeViewModel", "onUploadSpeechFile Failure: $it")
+        }
     }
 }
+
+

@@ -33,5 +33,9 @@ dependencies {
 
     androidTestImplementation(libs.findLibrary("androidx.compose.ui.test").get())
     debugImplementation(libs.findLibrary("androidx.compose.ui.test.manifest").get())
+    
+    implementation(libs.findLibrary("orbit-core").get())
+    implementation(libs.findLibrary("orbit-viewModel").get())
+    implementation(libs.findLibrary("orbit-compose").get())
 
 }

@@ -16,9 +16,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun loginKakao(idToken: String): Boolean {
         val response = authDataSource.loginKakao(idToken)
 
-        if (response.newUser) {
-            response.newUser
-        } else {
+        if (!response.newUser) {
+    
+        } 
             coroutineScope {
                 val accessTokenJob = launch {
                     response.access?.let { localTokenDataSource.setAccessToken(it) }
@@ -31,10 +31,8 @@ class AuthRepositoryImpl @Inject constructor(
                 joinAll(accessTokenJob, refreshTokenJob)
             }
 
-           return  response.newUser
-        }
 
-        return false
+        return response.newUser
     }
 
 //    override suspend fun signupKakao(idToken: String, skill: String): Result<Unit> {

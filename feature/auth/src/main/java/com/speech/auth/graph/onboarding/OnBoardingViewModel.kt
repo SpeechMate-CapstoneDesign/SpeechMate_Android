@@ -1,80 +1,68 @@
 package com.speech.auth.graph.onboarding
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.speech.common_ui.event.EventHelper
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 
 @HiltViewModel
-class OnBoardingViewModel @Inject constructor(
-    internal val eventHelper: EventHelper,
-) : ViewModel() {
-    private val _eventChannel = Channel<OnBoardingEvent>(Channel.BUFFERED)
-    val eventChannel = _eventChannel.receiveAsFlow()
+class OnBoardingViewModel @Inject constructor() : ViewModel(),
+    ContainerHost<OnBoardingState, OnBoardingSideEffect> {
 
-    private val _selectedVerbalSkills = MutableStateFlow<List<VerbalSkill>>(emptyList())
-    val selectedVerbalSkills = _selectedVerbalSkills.asStateFlow()
+    override val container = container<OnBoardingState, OnBoardingSideEffect>(OnBoardingState())
 
-    private val _selectedNonVerbalSkills = MutableStateFlow<List<NonVerbalSkill>>(emptyList())
-    val selectedNonVerbalSkills = _selectedNonVerbalSkills.asStateFlow()
-
-    val signUpAvailability: StateFlow<Boolean> = combine(
-        selectedVerbalSkills,
-        selectedNonVerbalSkills
-    ) { verbalSkills, nonVerbalSkills ->
-        verbalSkills.isNotEmpty() || nonVerbalSkills.isNotEmpty()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = false
-    )
-
-    fun toggleVerbalSkill(verbalSkill: VerbalSkill) {
-        val currentSkills = _selectedVerbalSkills.value
-
-        if (currentSkills.contains(verbalSkill)) {
-            _selectedVerbalSkills.value = currentSkills - verbalSkill
-        } else {
-            if (currentSkills.size >= MAX_SKILL_SELECTION) {
-                _selectedVerbalSkills.value = currentSkills.drop(1) + verbalSkill
-            } else {
-                _selectedVerbalSkills.value = currentSkills + verbalSkill
-            }
+    fun onIntent(event: OnBoardingIntent) {
+        when (event) {
+            is OnBoardingIntent.ToggleVerbalSkill -> toggleVerbalSkill(event.verbalSkill)
+            is OnBoardingIntent.ToggleNonVerbalSkill -> toggleNonVerbalSkill(event.nonVerbalSkill)
         }
     }
 
-    fun toggleNonVerbalSkill(nonVerbalSkill: NonVerbalSkill) {
-        val currentSkills = _selectedNonVerbalSkills.value
-        if (currentSkills.contains(nonVerbalSkill)) {
-            _selectedNonVerbalSkills.value = currentSkills - nonVerbalSkill
+    fun toggleVerbalSkill(verbalSkill: VerbalSkill) = intent {
+        val currentSkills = state.selectedVerbalSkills
+
+        val newSkills = if (currentSkills.contains(verbalSkill)) {
+            currentSkills - verbalSkill
         } else {
             if (currentSkills.size >= MAX_SKILL_SELECTION) {
-                _selectedNonVerbalSkills.value = currentSkills.drop(1) + nonVerbalSkill
+                currentSkills.drop(1) + verbalSkill
             } else {
-                _selectedNonVerbalSkills.value = currentSkills + nonVerbalSkill
+                currentSkills + verbalSkill
             }
+        }
+        reduce {
+            state.copy(
+                selectedVerbalSkills = newSkills,
+                signUpAvailable = newSkills.isNotEmpty() || state.selectedNonVerbalSkills.isNotEmpty()
+            )
+        }
+    }
+
+    fun toggleNonVerbalSkill(nonVerbalSkill: NonVerbalSkill) = intent {
+        val currentSkills = state.selectedNonVerbalSkills
+        val newSkills = if (currentSkills.contains(nonVerbalSkill)) {
+            currentSkills - nonVerbalSkill
+        } else {
+            if (currentSkills.size >= MAX_SKILL_SELECTION) {
+                currentSkills.drop(1) + nonVerbalSkill
+            } else {
+                currentSkills + nonVerbalSkill
+            }
+        }
+        reduce {
+            state.copy(
+                selectedNonVerbalSkills = newSkills,
+                signUpAvailable = newSkills.isNotEmpty() || state.selectedVerbalSkills.isNotEmpty()
+            )
         }
     }
 
     fun signUp() {
 
-    }
-
-    sealed class OnBoardingEvent {
-        data object SignupSuccess : OnBoardingEvent()
-        data object SignupFailure : OnBoardingEvent()
     }
 
     companion object {
