@@ -18,10 +18,10 @@ class PracticeViewModel @Inject constructor(
 ) : ContainerHost<Unit, PracticeSideEffect>, ViewModel() {
     override val container = container<Unit, PracticeSideEffect>(Unit)
 
-    fun onIntent(event: PracticeIntent) = intent {
+    fun onIntent(event: PracticeIntent) {
         when (event) {
             is PracticeIntent.OnUploadSpeechFile -> onUploadSpeechFile(event.uri)
-            is PracticeIntent.OnRecordAudioClick -> {
+            is PracticeIntent.OnRecordAudioClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
             }
         }

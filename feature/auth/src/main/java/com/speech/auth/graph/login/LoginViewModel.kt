@@ -13,7 +13,7 @@ class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
 ) : ContainerHost<Unit, LoginSideEffect>, ViewModel() {
     override val container = container<Unit, LoginSideEffect>(Unit)
-    fun onIntent(event: LoginIntent) = intent {
+    fun onIntent(event: LoginIntent) {
         when (event) {
             is LoginIntent.OnLoginClick -> loginKakao(event.idToken)
         }

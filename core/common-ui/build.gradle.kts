@@ -9,8 +9,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.orbit.core)
-
     implementation(projects.core.designsystem)
 }
 

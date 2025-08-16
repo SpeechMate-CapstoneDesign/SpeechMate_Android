@@ -15,7 +15,7 @@ class OnBoardingViewModel @Inject constructor() : ViewModel(),
 
     override val container = container<OnBoardingState, OnBoardingSideEffect>(OnBoardingState())
 
-    fun onIntent(event: OnBoardingIntent) = intent {
+    fun onIntent(event: OnBoardingIntent) {
         when (event) {
             is OnBoardingIntent.ToggleVerbalSkill -> toggleVerbalSkill(event.verbalSkill)
             is OnBoardingIntent.ToggleNonVerbalSkill -> toggleNonVerbalSkill(event.nonVerbalSkill)

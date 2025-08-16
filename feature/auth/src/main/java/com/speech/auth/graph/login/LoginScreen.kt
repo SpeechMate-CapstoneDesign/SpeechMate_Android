@@ -57,6 +57,7 @@ internal fun LoginRoute(
         onLoginKakaoClick = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },
         onLoginFailure = {
             scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar("로그인에 실패했습니다")
             }
         },
