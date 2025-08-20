@@ -4,6 +4,8 @@ import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
+import com.speech.network.model.speech.GetSpeechToTextResponse
+import com.speech.network.model.speech.GetTextAnalysisResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.InputStream
@@ -30,4 +32,12 @@ class SpeechDataSourceImpl @Inject constructor(
 
     override suspend fun uploadSpeechCallback(fileKey: String) =
         speechMateApi.uploadSpeechCallback(fileKey).getData()
+
+    override suspend fun getSpeechToText(
+        fileKey: String,
+        speechId: Int
+    ): GetSpeechToTextResponse = speechMateApi.getSpeechToText(fileKey, speechId).getData()
+
+    override suspend fun getTextAnalysis(speechId: Int): GetTextAnalysisResponse =
+        speechMateApi.getTextAnalysis(speechId).getData()
 }

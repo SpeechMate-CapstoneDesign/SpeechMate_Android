@@ -15,7 +15,7 @@ class SpeechRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechDataSource: SpeechDataSource
 ) : SpeechRepository {
-    override suspend fun uploadSpeechFile(uriString: String): Result<Unit> = suspendRunCatching {
+    override suspend fun uploadSpeechFile(uriString: String) {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
         context.contentResolver.takePersistableUriPermission(
@@ -35,7 +35,15 @@ class SpeechRepositoryImpl @Inject constructor(
 
             speechDataSource.uploadSpeechCallback(key)
 
-            contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            contentResolver.releasePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
+    }
+
+    override suspend fun getSpeechAnalysis(fileKey: String, speechId: Int) {
+        speechDataSource.getSpeechToText(fileKey, speechId)
+        speechDataSource.getTextAnalysis(speechId)
     }
 }

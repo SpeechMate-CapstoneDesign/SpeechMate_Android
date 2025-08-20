@@ -10,7 +10,9 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class OnBoardingViewModel @Inject constructor() : ViewModel(),
+class OnBoardingViewModel @Inject constructor(
+
+) : ViewModel(),
     ContainerHost<OnBoardingState, OnBoardingSideEffect> {
 
     override val container = container<OnBoardingState, OnBoardingSideEffect>(OnBoardingState())
