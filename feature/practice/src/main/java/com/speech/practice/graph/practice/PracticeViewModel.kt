@@ -1,5 +1,6 @@
 package com.speech.practice.graph.practice
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
@@ -9,12 +10,14 @@ import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
 class PracticeViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
 ) : ContainerHost<Unit, PracticeSideEffect>, ViewModel() {
     override val container = container<Unit, PracticeSideEffect>(Unit)
@@ -30,6 +33,7 @@ class PracticeViewModel @Inject constructor(
 
     private fun validateSpeechFile(uri: Uri): Boolean {
         val durationMs = MediaMetadataRetriever().use { retriever ->
+            retriever.setDataSource(context, uri)
             retriever
                 .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 ?.toLongOrNull() ?: 0L
