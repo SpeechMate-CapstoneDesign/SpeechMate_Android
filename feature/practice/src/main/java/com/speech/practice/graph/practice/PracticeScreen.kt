@@ -66,7 +66,7 @@ internal fun PracticeRoute(
     PracticeScreen(
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
         onRecordVideoClick = {},
-        onUploadSpeechFile = { viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(it)) }
+        onUploadSpeechFile = { viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(it)) },
     )
 }
 
@@ -74,7 +74,7 @@ internal fun PracticeRoute(
 private fun PracticeScreen(
     onRecordAudioClick: () -> Unit,
     onRecordVideoClick: () -> Unit,
-    onUploadSpeechFile: (Uri) -> Unit
+    onUploadSpeechFile: (Uri) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
