@@ -28,7 +28,7 @@ fun NavController.navigateToPlayAudio(audioFilePath: String, navOptions: NavOpti
 fun NavGraphBuilder.practiceNavGraph(
     navigateBack: () -> Unit,
     navigateToRecordAudio: () -> Unit,
-    navigateToPlayAudio: (String) -> Unit
+    navigateToFeedBack: (Int) -> Unit
 ) {
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {
@@ -40,7 +40,7 @@ fun NavGraphBuilder.practiceNavGraph(
         composable<PracticeGraph.RecordAudioRoute> {
             RecordAudioRoute(
                 navigateBack = navigateBack,
-                navigateToPlayAudio = { audioFilePath -> navigateToPlayAudio(audioFilePath) }
+                navigateToFeedBack = navigateToFeedBack
             )
         }
 
