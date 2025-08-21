@@ -36,8 +36,8 @@ interface SpeechMateApi {
     suspend fun uploadSpeechCallback(@Query("fileKey") fileKey: String) : ApiResponse<UploadSpeechCallbackResponse>
 
     @POST("/api/speech/Whisperstt3/{speechId}")
-    suspend fun getSpeechToText(@Query("fileKey") fileKey: String, @Path("speechId") speechId : Int) : ApiResponse<GetSpeechToTextResponse>
+    suspend fun getSpeechToText( @Path("speechId") speechId : Int) : ApiResponse<GetSpeechToTextResponse>
 
     @POST("/api/speech/analyze/{speechId}")
-    suspend fun getTextAnalysis(@Query("speechId") speechId: Int) : ApiResponse<GetTextAnalysisResponse>
+    suspend fun getTextAnalysis(@Path("speechId") speechId: Int) : ApiResponse<GetTextAnalysisResponse>
 }

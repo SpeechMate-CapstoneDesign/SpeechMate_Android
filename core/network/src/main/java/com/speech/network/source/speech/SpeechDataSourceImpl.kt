@@ -33,10 +33,8 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun uploadSpeechCallback(fileKey: String) =
         speechMateApi.uploadSpeechCallback(fileKey).getData()
 
-    override suspend fun getSpeechToText(
-        fileKey: String,
-        speechId: Int
-    ): GetSpeechToTextResponse = speechMateApi.getSpeechToText(fileKey, speechId).getData()
+    override suspend fun getSpeechToText(speechId: Int): GetSpeechToTextResponse =
+        speechMateApi.getSpeechToText(speechId).getData()
 
     override suspend fun getTextAnalysis(speechId: Int): GetTextAnalysisResponse =
         speechMateApi.getTextAnalysis(speechId).getData()

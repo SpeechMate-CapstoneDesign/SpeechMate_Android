@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetSpeechToTextResponse(
-    val data : String
+    val script : String
 )

@@ -33,7 +33,9 @@ class SpeechRepositoryImpl @Inject constructor(
         contentResolver.openInputStream(uri)?.use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key)
+            speechDataSource.uploadSpeechCallback(key).also {
+                getSpeechAnalysis(it.speechId)
+            }
 
             contentResolver.releasePersistableUriPermission(
                 uri,
@@ -42,8 +44,8 @@ class SpeechRepositoryImpl @Inject constructor(
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 
-    override suspend fun getSpeechAnalysis(fileKey: String, speechId: Int) {
-        speechDataSource.getSpeechToText(fileKey, speechId)
+    override suspend fun getSpeechAnalysis(speechId: Int) {
+        speechDataSource.getSpeechToText(speechId)
         speechDataSource.getTextAnalysis(speechId)
     }
 }
