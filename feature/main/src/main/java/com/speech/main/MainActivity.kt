@@ -1,5 +1,9 @@
 package com.speech.main
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +17,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.designsystem.component.SpeechMateSnackBar
@@ -31,6 +37,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         installSplashScreen()
+
+        requestPermissions(this)
 
         setContent {
             val navController = rememberNavController()
@@ -57,6 +65,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+private fun requestPermissions(activity: Activity) {
+    val permissions = arrayOf(
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.CAMERA
+    )
+
+    ActivityCompat.requestPermissions(activity, permissions, 1001)
 }
 
 
