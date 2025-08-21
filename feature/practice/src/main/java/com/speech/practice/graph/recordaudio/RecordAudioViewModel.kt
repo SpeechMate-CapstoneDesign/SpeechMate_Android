@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.speech.common.util.suspendRunCatching
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
@@ -73,6 +74,10 @@ class RecordAudioViewModel @Inject constructor(
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일은 1분 이상 20분 이하만 피드백 가능합니다."))
             return@intent
         }
+
+        suspendRunCatching {
+            speechRepository.uploadLocalFile(filePath = audioFile.path)
+        }
     }
 
     private fun recordAudio() = intent {
@@ -80,7 +85,7 @@ class RecordAudioViewModel @Inject constructor(
 
         audioFile = File(
             context.cacheDir,
-            "record_${System.currentTimeMillis()}.m4a"
+            "record_${System.currentTimeMillis()}.mp4"
         )
 
         recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

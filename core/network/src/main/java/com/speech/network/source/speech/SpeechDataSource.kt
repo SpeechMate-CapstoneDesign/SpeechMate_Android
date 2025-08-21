@@ -9,7 +9,7 @@ import java.io.InputStream
 
 interface SpeechDataSource {
     suspend fun getPresignedUrl(fileExtension: String): GetPresignedUrlResponse
-    suspend fun uploadSpeechFile(url: String, speechFile: InputStream, contentType: String): Unit
+    suspend fun uploadSpeechFile(url: String, speechFile: InputStream, contentType: String)
     suspend fun uploadSpeechCallback(fileKey: String): UploadSpeechCallbackResponse
     suspend fun getSpeechToText(speechId: Int): GetSpeechToTextResponse
     suspend fun getTextAnalysis(speechId: Int): GetTextAnalysisResponse
