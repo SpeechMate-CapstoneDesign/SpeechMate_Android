@@ -48,7 +48,7 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
-            .callTimeout(5, TimeUnit.SECONDS)
+            .callTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .authenticator(authenticator)
 
@@ -65,12 +65,19 @@ object RetrofitModule {
     @Singleton
     @Provides
     fun provideS3OkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
-            .callTimeout(5, TimeUnit.SECONDS)
-            .build()
+            .callTimeout(15, TimeUnit.SECONDS)
+
+        if (BuildConfig.DEBUG) {
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            builder.addInterceptor(loggingInterceptor)
+        }
+
+        return builder.build()
     }
 
     @Singleton

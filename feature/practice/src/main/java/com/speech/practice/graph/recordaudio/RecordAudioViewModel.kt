@@ -1,196 +1,173 @@
 package com.speech.practice.graph.recordaudio
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.media.AudioFormat
-import android.media.AudioRecord
+import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.Navigation
+import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
+import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
+import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
-import java.io.FileOutputStream
-import java.io.RandomAccessFile
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.Locale
 import javax.inject.Inject
 
-@SuppressLint("MissingPermission")
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
-    private val _eventChannel = Channel<RecordAudioEvent>(Channel.BUFFERED)
+    @ApplicationContext private val context: Context,
+    private val speechRepository: SpeechRepository
+) : ContainerHost<RecordAudioState, RecordAudioSideEffect>, ViewModel() {
 
-    private val _navigationChannel = Channel<NavigationEvent>(Channel.BUFFERED)
-    val navigationChannel = _navigationChannel.receiveAsFlow()
+    override val container = container<RecordAudioState, RecordAudioSideEffect>(RecordAudioState())
 
-    private val _recordingState = MutableStateFlow<RecordingState>(RecordingState.Ready)
-    val recordingState: StateFlow<RecordingState> = _recordingState.asStateFlow()
-
-    private val _elapsedTime = MutableStateFlow(0L)
-
-    private val _timeText = MutableStateFlow("00:00 . 00")
-    val timeText: StateFlow<String> = _timeText.asStateFlow()
-
+    private var _elapsedTime = 0L
     private var timerJob: Job? = null
-    private var recordJob: Job? = null
-
-    private var totalBytes = 0
-    private var recorder: AudioRecord? = null
+    private var recorder: MediaRecorder? = null
     private lateinit var audioFile: File
 
-    init {
-        _eventChannel.receiveAsFlow()
-            .onEach { event ->
-                when (event) {
-                    is RecordAudioEvent.RecordingStarted -> recordAudio()
-                    is RecordAudioEvent.RecordingFinished -> finishRecordAudio()
-                    is RecordAudioEvent.RecordingCanceled -> cancelAudio()
-                    is RecordAudioEvent.RecordingPaused -> pauseAudio()
-                    is RecordAudioEvent.RecordingResumed -> resumeAudio()
-                }
+
+    fun onIntent(event: RecordAudioIntent) {
+        when (event) {
+            is RecordAudioIntent.StartRecording -> recordAudio()
+            is RecordAudioIntent.FinishRecording -> finishRecordAudio()
+            is RecordAudioIntent.CancelRecording -> cancelAudio()
+            is RecordAudioIntent.PauseRecording -> pauseAudio()
+            is RecordAudioIntent.ResumeRecording -> resumeAudio()
+            is RecordAudioIntent.OnBackPressed -> intent {
+                postSideEffect(RecordAudioSideEffect.NavigateBack)
             }
-            .launchIn(viewModelScope)
+
+            is RecordAudioIntent.OnRequestFeedback -> intent {
+                onRequestFeedback()
+            }
+        }
     }
 
-    fun onEvent(event: RecordAudioEvent) = viewModelScope.launch {
-        _eventChannel.send(event)
+    private fun validateSpeechFile(uri: Uri): Boolean {
+        val durationMs = MediaMetadataRetriever().use { retriever ->
+            retriever.setDataSource(context, uri)
+            retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
+        }
+
+        return durationMs >= MIN_DURATION_MS && durationMs <= MAX_DURATION_MS
     }
 
-    fun onNavigationEvent(event: NavigationEvent) = viewModelScope.launch {
-        _navigationChannel.send(event)
+    private fun onRequestFeedback() = intent {
+        if (state.recordingState != RecordingState.Completed) return@intent
+
+        if (!validateSpeechFile(audioFile.toUri())) {
+            postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일은 1분 이상 20분 이하만 피드백 가능합니다."))
+            return@intent
+        }
+
+        suspendRunCatching {
+            speechRepository.uploadLocalFile(filePath = audioFile.path)
+        }
     }
 
-    fun navigateToPlayAudio() = viewModelScope.launch {
-        _navigationChannel.send(NavigationEvent.NavigateToPlayAudio(audioFile.path))
-    }
-
-    private fun setRecordingState(recordingState: RecordingState) {
-        _recordingState.value = recordingState
-    }
-
-    private fun recordAudio() {
-        if (_recordingState.value != RecordingState.Ready) return
-        setRecordingState(RecordingState.Recording)
+    private fun recordAudio() = intent {
+        if (state.recordingState !is RecordingState.Ready) return@intent
 
         audioFile = File(
-            context.filesDir,
-            "record_${System.currentTimeMillis()}.wav"
+            context.cacheDir,
+            "record_${System.currentTimeMillis()}.mp4"
         )
 
-        startTimer()
-
-        startRecordingLoop(true)
-    }
-
-    private fun pauseAudio() {
-        if (_recordingState.value != RecordingState.Recording) return
-        setRecordingState(RecordingState.Paused)
-
-        recorder?.apply { stop(); release() } // AudioRecrod에는 Pause기능이 따로 없기 때문에 recorder 해제
-        recorder = null
-
-        stopTimer()
-    }
-
-    private fun resumeAudio() {
-        if (recordingState.value != RecordingState.Paused) return
-        setRecordingState(RecordingState.Recording)
+        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(context)
+        } else {
+            MediaRecorder()
+        }.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(audioFile.absolutePath)
+            prepare()
+            start()
+        }
 
         startTimer()
-        startRecordingLoop(false)
-    }
 
-    private fun startRecordingLoop(isFirstSegment: Boolean) {
-        recordJob?.cancel()
-
-        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-        recorder = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE,
-            CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
-        ).apply { startRecording() }
-
-        recordJob = viewModelScope.launch(Dispatchers.IO) {
-            FileOutputStream(audioFile, !isFirstSegment).use { fos ->
-                if (isFirstSegment) {
-                    fos.write(ByteArray(44)) // WAV 헤더
-                }
-                val buffer = ByteArray(bufferSize)
-                while (_recordingState.value == RecordingState.Recording) {
-                    val read = recorder!!.read(buffer, 0, buffer.size)
-                    if (read > 0) {
-                        fos.write(buffer, 0, read)
-                        totalBytes += read
-                    }
-                }
-            }
+        reduce {
+            state.copy(recordingState = RecordingState.Recording)
         }
     }
 
-    private fun finishRecordAudio() {
-        if (_recordingState.value != RecordingState.Recording && _recordingState.value != RecordingState.Paused) return
-
-//        if(_elapsedTime.value < MIN_DURATION) {
-//            onEvent(RecordAudioEvent.RecordingPaused)
-//            return
-//        }
-
-        setRecordingState(RecordingState.Completed)
-
-        recordJob?.cancel()
-
-        recorder?.apply {
-            stop()
-            release()
-        }
-
-        recorder = null
-
-        setTimerText(_elapsedTime.value)
+    private fun pauseAudio() = intent {
+        if (state.recordingState !is RecordingState.Recording) return@intent
+        recorder?.pause()
         stopTimer()
-
-        audioFile.let { writeWavHeader(it, totalBytes) }
+        reduce {
+            state.copy(recordingState = RecordingState.Paused)
+        }
     }
 
-    private fun cancelAudio() {
-        setRecordingState(RecordingState.Ready)
+    private fun resumeAudio() = intent {
+        if (state.recordingState !is RecordingState.Paused) return@intent
+        recorder?.resume()
+        startTimer()
+        reduce {
+            state.copy(recordingState = RecordingState.Recording)
+        }
+    }
 
-        _elapsedTime.value = 0L
-        setTimerText(_elapsedTime.value)
+    private fun finishRecordAudio() = intent {
+        if (state.recordingState !is RecordingState.Recording && state.recordingState !is RecordingState.Paused) return@intent
+
         stopTimer()
-
-        recordJob?.cancel()
-        recorder?.apply { stop(); release() }
+        recorder?.stop()
+        recorder?.release()
         recorder = null
 
+        reduce {
+            state.copy(recordingState = RecordingState.Completed)
+        }
+    }
+
+    private fun cancelAudio() = intent {
+        stopTimer()
+        recorder?.stop()
+        recorder?.release()
+        recorder = null
         audioFile.delete()
+        _elapsedTime = 0
+
+        reduce {
+            state.copy(recordingState = RecordingState.Ready, timeText = "00 : 00 . 00")
+        }
     }
 
-    private fun startTimer() {
-        if (timerJob != null) return
-
+    private fun startTimer() = intent {
+        timerJob?.cancel()
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (_recordingState.value == RecordingState.Recording) {
+            while (state.recordingState is RecordingState.Recording) {
                 delay(10)
-                _elapsedTime.value += 10
-                if (_elapsedTime.value % 130L == 0L) {
-                    setTimerText(_elapsedTime.value)
+                _elapsedTime += 10
+                if (_elapsedTime % 130 == 0L) {
+                    reduce {
+                        val m = (_elapsedTime / 1000) / 60
+                        val s = (_elapsedTime / 1000) % 60
+                        val ms = ((_elapsedTime % 1000) / 10).toInt()
+                        state.copy(
+                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+                        )
+                    }
+
                 }
             }
         }
@@ -200,63 +177,4 @@ class RecordAudioViewModel @Inject constructor(
         timerJob?.cancel()
         timerJob = null
     }
-
-    private fun setTimerText(elapsedTime: Long) {
-        val m = (elapsedTime / 1000) / 60
-        val s = (elapsedTime / 1000) % 60
-        val ms = ((elapsedTime % 1000) / 10).toInt()
-        _timeText.value = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
-    }
-
-    private fun writeWavHeader(file: File, totalAudioLen: Int) {
-        val totalDataLen = totalAudioLen + 36
-        val channels = 1
-        val byteRate = SAMPLE_RATE * channels * 2
-        val header = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN)
-            .put("RIFF".toByteArray())
-            .putInt(totalDataLen)
-            .put("WAVE".toByteArray())
-            .put("fmt ".toByteArray())
-            .putInt(16)
-            .putShort(1.toShort())
-            .putShort(channels.toShort())
-            .putInt(SAMPLE_RATE)
-            .putInt(byteRate)
-            .putShort((channels * 2).toShort())
-            .putShort(16.toShort())
-            .put("data".toByteArray())
-            .putInt(totalAudioLen)
-        RandomAccessFile(file, "rw").use { raf ->
-            raf.seek(0)
-            raf.write(header.array())
-        }
-    }
-
-    sealed class RecordingState {
-        data object Ready : RecordingState()
-        data object Recording : RecordingState()
-        data object Paused : RecordingState()
-        data object Completed : RecordingState()
-    }
-
-    sealed class RecordAudioEvent {
-        data object RecordingStarted : RecordAudioEvent()
-        data object RecordingPaused : RecordAudioEvent()
-        data object RecordingResumed : RecordAudioEvent()
-        data object RecordingFinished : RecordAudioEvent()
-        data object RecordingCanceled : RecordAudioEvent()
-    }
-
-    sealed class NavigationEvent {
-        data object NavigateBack : NavigationEvent()
-        data class NavigateToPlayAudio(val audioFilePath: String) : NavigationEvent()
-    }
-
-    companion object {
-        private const val SAMPLE_RATE = 16000
-        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
-        private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-        private const val MIN_DURATION = 60000L // 최소 발표시간 1분
-    }
-
 }

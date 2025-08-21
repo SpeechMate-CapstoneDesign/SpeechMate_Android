@@ -17,7 +17,6 @@ sealed class AuthGraph : Route {
 }
 
 
-
 @Serializable
 data object PracticeBaseRoute : Route
 
@@ -28,6 +27,12 @@ sealed class PracticeGraph : Route {
     @Serializable
     data object RecordAudioRoute : PracticeGraph()
 
+}
+
+@Serializable
+data object MyPageBaseRoute : Route
+
+sealed class MyPageGraph : Route {
     @Serializable
-    data class PlayAudioRoute(val audioFilePath : String) : PracticeGraph()
+    data object MyPageRoute : MyPageGraph()
 }
