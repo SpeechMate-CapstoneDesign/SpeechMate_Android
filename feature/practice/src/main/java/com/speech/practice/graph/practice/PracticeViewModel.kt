@@ -1,19 +1,23 @@
 package com.speech.practice.graph.practice
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
+import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
 class PracticeViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
 ) : ContainerHost<Unit, PracticeSideEffect>, ViewModel() {
     override val container = container<Unit, PracticeSideEffect>(Unit)
@@ -27,7 +31,23 @@ class PracticeViewModel @Inject constructor(
         }
     }
 
+    private fun validateSpeechFile(uri: Uri): Boolean {
+        val durationMs = MediaMetadataRetriever().use { retriever ->
+            retriever.setDataSource(context, uri)
+            retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
+        }
+
+        return durationMs >= MIN_DURATION_MS && durationMs <= MAX_DURATION_MS
+    }
+
     fun onUploadSpeechFile(uri: Uri) = intent {
+        if (!validateSpeechFile(uri)) {
+            postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일은 1분이상 20분 이하만 업로드 가능합니다."))
+            return@intent
+        }
+
         suspendRunCatching {
             speechRepository.uploadSpeechFile(uri.toString())
         }.onSuccess {
@@ -36,6 +56,7 @@ class PracticeViewModel @Inject constructor(
             Log.d("PracticeViewModel", "onUploadSpeechFile Failure: $it")
         }
     }
+
 }
 
 

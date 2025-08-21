@@ -16,12 +16,13 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class AuthOkHttpClient
+annotation class DefaultOkHttpClient
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -36,14 +37,18 @@ object RetrofitModule {
         ignoreUnknownKeys = true
     }
 
-    @AuthOkHttpClient
+    @DefaultOkHttpClient
     @Singleton
     @Provides
-    fun provideAuthOkHttpClient(
+    fun provideDefaultOkHttpClient(
         interceptor: SpeechMateInterceptor,
         authenticator: SpeechMateAuthenticator,
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(180, TimeUnit.SECONDS)
+            .writeTimeout(180, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .authenticator(authenticator)
 
@@ -60,14 +65,19 @@ object RetrofitModule {
     @Singleton
     @Provides
     fun provideS3OkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+        return OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(180, TimeUnit.SECONDS)
+            .writeTimeout(180, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
+            .build()
     }
 
     @Singleton
     @Provides
     fun provideSpeechMateApi(
         json: Json,
-        @AuthOkHttpClient okHttpClient: OkHttpClient,
+        @DefaultOkHttpClient okHttpClient: OkHttpClient,
         callAdapterFactory: SpeechMateCallAdapterFactory
     ): SpeechMateApi = Retrofit.Builder()
         .client(okHttpClient)

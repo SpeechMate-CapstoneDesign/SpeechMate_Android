@@ -3,6 +3,6 @@ package com.speech.network.model.speech
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UploadSpeechCallbackResponse(
-    val speechId: Int
+data class GetSpeechToTextResponse(
+    val script : String
 )

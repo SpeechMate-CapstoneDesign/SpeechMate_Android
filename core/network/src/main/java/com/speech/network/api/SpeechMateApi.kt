@@ -1,5 +1,6 @@
 package com.speech.network.api
 
+import com.google.android.gms.common.api.Api
 import com.speech.network.model.ApiResponse
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
@@ -8,9 +9,12 @@ import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
+import com.speech.network.model.speech.GetSpeechToTextResponse
+import com.speech.network.model.speech.GetTextAnalysisResponse
 import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SpeechMateApi {
@@ -30,4 +34,10 @@ interface SpeechMateApi {
 
     @POST("/api/speech/s3-callback")
     suspend fun uploadSpeechCallback(@Query("fileKey") fileKey: String) : ApiResponse<UploadSpeechCallbackResponse>
+
+    @POST("/api/speech/Whisperstt3/{speechId}")
+    suspend fun getSpeechToText( @Path("speechId") speechId : Int) : ApiResponse<GetSpeechToTextResponse>
+
+    @POST("/api/speech/analyze/{speechId}")
+    suspend fun getTextAnalysis(@Path("speechId") speechId: Int) : ApiResponse<GetTextAnalysisResponse>
 }
