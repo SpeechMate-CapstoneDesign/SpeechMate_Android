@@ -40,7 +40,7 @@ object RetrofitModule {
     @DefaultOkHttpClient
     @Singleton
     @Provides
-    fun provideAuthOkHttpClient(
+    fun provideDefaultOkHttpClient(
         interceptor: SpeechMateInterceptor,
         authenticator: SpeechMateAuthenticator,
     ): OkHttpClient {
@@ -48,6 +48,7 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .authenticator(authenticator)
 
@@ -68,6 +69,7 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
+            .callTimeout(5, TimeUnit.SECONDS)
             .build()
     }
 

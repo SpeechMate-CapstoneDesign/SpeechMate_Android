@@ -3,7 +3,7 @@ package com.speech.network.model.speech
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class  GetTextAnalysisResponse(
+data class GetTextAnalysisResponse(
     val id: Int,
     val sttContent: String,
     val fileUrl: String,
