@@ -129,6 +129,7 @@ fun SpeechConfigDialog(
                 Button(
                     onClick = {
                         onDone(speechConfig)
+                        onDismiss()
                     },
                     enabled = speechConfig.isValid,
                     colors = ButtonDefaults.buttonColors(

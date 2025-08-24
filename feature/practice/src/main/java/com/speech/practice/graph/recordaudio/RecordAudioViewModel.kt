@@ -10,6 +10,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
@@ -51,9 +52,8 @@ class RecordAudioViewModel @Inject constructor(
                 postSideEffect(RecordAudioSideEffect.NavigateBack)
             }
 
-            is RecordAudioIntent.OnRequestFeedback -> intent {
-                onRequestFeedback()
-            }
+            is RecordAudioIntent.OnRequestFeedback -> onRequestFeedback()
+            is RecordAudioIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
         }
     }
 
@@ -77,7 +77,16 @@ class RecordAudioViewModel @Inject constructor(
         }
 
         suspendRunCatching {
-            speechRepository.uploadFromPath(filePath = audioFile.path)
+            speechRepository.uploadFromPath(
+                filePath = audioFile.path,
+                speechConfig = state.speechConfig
+            )
+        }
+    }
+
+    fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
+        reduce {
+            state.copy(speechConfig = speechConfig)
         }
     }
 

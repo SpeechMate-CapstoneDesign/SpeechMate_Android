@@ -20,7 +20,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
+import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.LightGray
@@ -39,14 +44,14 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.RecordAudio
 import com.speech.designsystem.theme.RecordVideo
 import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.domain.model.speech.SpeechConfig
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 
 @Composable
 internal fun PracticeRoute(
-    navigateToRecordAudio: () -> Unit,
-    viewModel: PracticeViewModel = hiltViewModel()
+    navigateToRecordAudio: () -> Unit, viewModel: PracticeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -66,7 +71,8 @@ internal fun PracticeRoute(
     PracticeScreen(
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
         onRecordVideoClick = {},
-        onUploadSpeechFile = { viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(it)) },
+        onUploadSpeechFile = { uri -> viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(uri)) },
+        onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) }
     )
 }
 
@@ -75,105 +81,121 @@ private fun PracticeScreen(
     onRecordAudioClick: () -> Unit,
     onRecordVideoClick: () -> Unit,
     onUploadSpeechFile: (Uri) -> Unit,
+    onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(Modifier.height(50.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(Modifier.height(50.dp))
 
-                Image(painter = painterResource(R.drawable.presenter), contentDescription = "발표자")
+                    Image(
+                        painter = painterResource(R.drawable.presenter),
+                        contentDescription = "발표자"
+                    )
 
-                Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(10.dp))
 
-                Text("발표를 연습하고", style = SpeechMateTheme.typography.headingMB)
+                    Text("발표를 연습하고", style = SpeechMateTheme.typography.headingMB)
 
-                Text(text = buildAnnotatedString {
-                    append("즉시 ")
-                    withStyle(style = SpanStyle(color = PrimaryActive)) {
-                        append("피드백")
-                    }
-                    append("을 받아보세요!")
-                }, style = SpeechMateTheme.typography.headingMB)
-
-                Spacer(Modifier.height(35.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Spacer(Modifier.weight(1f))
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(RecordAudio)
-                            .padding(20.dp)
-                            .clickable {
-                                onRecordAudioClick()
-                            },
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                modifier = Modifier.size(18.dp),
-                                painter = painterResource(R.drawable.record_audio),
-                                contentDescription = "녹음"
-                            )
-
-                            Spacer(Modifier.width(6.dp))
-
-                            Text("녹음", style = SpeechMateTheme.typography.bodyMM)
+                    Text(text = buildAnnotatedString {
+                        append("즉시 ")
+                        withStyle(style = SpanStyle(color = PrimaryActive)) {
+                            append("피드백")
                         }
-                    }
+                        append("을 받아보세요!")
+                    }, style = SpeechMateTheme.typography.headingMB)
 
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.height(35.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(RecordVideo)
-                            .padding(20.dp)
-                            .clickable(isRipple = true) {
-                                onRecordVideoClick()
-                            },
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(Modifier.weight(1f))
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(RecordAudio)
+                                .padding(20.dp)
+                                .clickable {
+                                    onRecordAudioClick()
+                                },
                         ) {
-                            Image(
-                                modifier = Modifier.size(18.dp),
-                                painter = painterResource(R.drawable.record_video),
-                                contentDescription = "녹음"
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(18.dp),
+                                    painter = painterResource(R.drawable.record_audio),
+                                    contentDescription = "녹음"
+                                )
 
-                            Spacer(Modifier.width(6.dp))
+                                Spacer(Modifier.width(6.dp))
 
-                            Text("녹화", style = SpeechMateTheme.typography.bodyMM)
+                                Text("녹음", style = SpeechMateTheme.typography.bodyMM)
+                            }
                         }
+
+                        Spacer(Modifier.weight(1f))
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(RecordVideo)
+                                .padding(20.dp)
+                                .clickable(isRipple = true) {
+                                    onRecordVideoClick()
+                                },
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(18.dp),
+                                    painter = painterResource(R.drawable.record_video),
+                                    contentDescription = "녹음"
+                                )
+
+                                Spacer(Modifier.width(6.dp))
+
+                                Text("녹화", style = SpeechMateTheme.typography.bodyMM)
+                            }
+                        }
+
+                        Spacer(Modifier.weight(1f))
                     }
 
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.height(30.dp))
+
+                    UploadFileButton(
+                        onSpeechConfigChange = onSpeechConfigChange,
+                        onUploadFile = onUploadSpeechFile,
+                    )
                 }
-
-                Spacer(Modifier.height(30.dp))
-
-                UploadFileButton(onUploadFile = onUploadSpeechFile)
             }
         }
+
+
     }
 }
 
 @Composable
-private fun UploadFileButton(onUploadFile: (Uri) -> Unit) {
+private fun UploadFileButton(
+    onSpeechConfigChange: (SpeechConfig) -> Unit,
+    onUploadFile: (Uri) -> Unit,
+) {
+    var showSpeechConfigDg by remember { mutableStateOf(false) }
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
+
     val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri: Uri? ->
-            uri?.let { onUploadFile(it) }
-        }
-    )
+        contract = ActivityResultContracts.OpenDocument(), onResult = { uri: Uri? ->
+            selectedUri = uri
+            showSpeechConfigDg = true
+        })
 
     Box(
         modifier = Modifier
@@ -199,6 +221,16 @@ private fun UploadFileButton(onUploadFile: (Uri) -> Unit) {
             Text("업로드", style = SpeechMateTheme.typography.bodyMM)
         }
     }
+
+    if (showSpeechConfigDg && selectedUri != null) {
+        SpeechConfigDialog(
+            onDone = { speechConfig ->
+                onSpeechConfigChange(speechConfig)
+                onUploadFile(selectedUri!!)
+            },
+            onDismiss = { showSpeechConfigDg = false }
+        )
+    }
 }
 
 
@@ -208,6 +240,6 @@ private fun PracticeScreenPreview() {
     PracticeScreen(
         onRecordAudioClick = {},
         onRecordVideoClick = {},
-        onUploadSpeechFile = {}
-    )
+        onUploadSpeechFile = {},
+        onSpeechConfigChange = {})
 }

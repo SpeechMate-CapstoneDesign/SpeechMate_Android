@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
@@ -19,11 +20,12 @@ import javax.inject.Inject
 class PracticeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
-) : ContainerHost<Unit, PracticeSideEffect>, ViewModel() {
-    override val container = container<Unit, PracticeSideEffect>(Unit)
+) : ContainerHost<PractieState, PracticeSideEffect>, ViewModel() {
+    override val container = container<PractieState, PracticeSideEffect>(PractieState())
 
     fun onIntent(event: PracticeIntent) {
         when (event) {
+            is PracticeIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
             is PracticeIntent.OnUploadSpeechFile -> onUploadSpeechFile(event.uri)
             is PracticeIntent.OnRecordAudioClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
@@ -42,6 +44,12 @@ class PracticeViewModel @Inject constructor(
         return durationMs >= MIN_DURATION_MS && durationMs <= MAX_DURATION_MS
     }
 
+    fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
+        reduce {
+            state.copy(speechConfig = speechConfig)
+        }
+    }
+
     fun onUploadSpeechFile(uri: Uri) = intent {
         if (!validateSpeechFile(uri)) {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일은 1분이상 20분 이하만 업로드 가능합니다."))
@@ -49,7 +57,7 @@ class PracticeViewModel @Inject constructor(
         }
 
         suspendRunCatching {
-            speechRepository.uploadFromUri(uri.toString())
+            speechRepository.uploadFromUri(uri.toString(), state.speechConfig)
         }.onSuccess {
             Log.d("PracticeViewModel", "onUploadSpeechFile Success: $it")
         }.onFailure {

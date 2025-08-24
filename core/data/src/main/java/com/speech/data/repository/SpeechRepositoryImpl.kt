@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import com.speech.common.util.suspendRunCatching
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.repository.SpeechRepository
 import com.speech.network.source.speech.SpeechDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,7 +19,7 @@ class SpeechRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechDataSource: SpeechDataSource
 ) : SpeechRepository {
-    override suspend fun uploadFromUri(uriString: String) {
+    override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig) {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
         context.contentResolver.takePersistableUriPermission(
@@ -36,9 +37,7 @@ class SpeechRepositoryImpl @Inject constructor(
         contentResolver.openInputStream(uri)?.use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key).also {
-                getSpeechAnalysis(it.speechId)
-            }
+            speechDataSource.uploadSpeechCallback(key)
 
             contentResolver.releasePersistableUriPermission(
                 uri,
@@ -47,7 +46,7 @@ class SpeechRepositoryImpl @Inject constructor(
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 
-    override suspend fun uploadFromPath(filePath: String) {
+    override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig) {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalStateException("File does not exist at path: $filePath")
@@ -62,9 +61,7 @@ class SpeechRepositoryImpl @Inject constructor(
         FileInputStream(file).use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key).also {
-                getSpeechAnalysis(it.speechId)
-            }
+            speechDataSource.uploadSpeechCallback(key)
         }
     }
 

@@ -53,6 +53,7 @@ import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.domain.model.speech.SpeechConfig
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -106,6 +107,9 @@ internal fun RecordAudioRoute(
         },
         onResumeRecording = {
             viewModel.onIntent(RecordAudioIntent.ResumeRecording)
+        },
+        onSpeechConfigChange = {
+            viewModel.onIntent(RecordAudioIntent.OnSpeechConfigChange(it))
         }
     )
 }
@@ -120,6 +124,7 @@ private fun RecordAudioScreen(
     onCancelRecording: () -> Unit,
     onPauseRecording: () -> Unit,
     onResumeRecording: () -> Unit,
+    onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
     var showSpeechConfigDg by remember { mutableStateOf(false) }
 
@@ -282,7 +287,6 @@ private fun RecordAudioScreen(
                             .background(PrimaryActive)
                             .clickable {
                                 showSpeechConfigDg = true
-                                onRequestFeedback()
                             }
                     ) {
                         Row(
@@ -353,9 +357,12 @@ private fun RecordAudioScreen(
             else Spacer(Modifier.height(60.dp))
         }
 
-        if(showSpeechConfigDg) {
+        if (showSpeechConfigDg) {
             SpeechConfigDialog(
-                onDone = {},
+                onDone = { speechConfig ->
+                    onSpeechConfigChange(speechConfig)
+                    onRequestFeedback()
+                },
                 onDismiss = { showSpeechConfigDg = false }
             )
         }
@@ -378,7 +385,8 @@ private fun RecordAudioScreenReadyPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -398,7 +406,8 @@ private fun RecordAudioScreenRecordingPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -418,7 +427,8 @@ private fun RecordAudioScreenPausedPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -438,7 +448,8 @@ private fun RecordAudioScreenCompletedPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }

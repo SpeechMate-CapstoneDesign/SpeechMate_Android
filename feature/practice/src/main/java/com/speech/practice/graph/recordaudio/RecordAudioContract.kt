@@ -9,6 +9,7 @@ import java.util.Locale
 data class RecordAudioState(
     val recordingState: RecordingState = RecordingState.Ready,
     val timeText: String = "00 : 00 . 00",
+    val speechConfig: SpeechConfig = SpeechConfig()
 ) : UiState
 
 sealed class RecordingState {
@@ -26,6 +27,7 @@ sealed class RecordAudioIntent : UiIntent {
     data object CancelRecording : RecordAudioIntent()
     data object OnBackPressed : RecordAudioIntent()
     data object OnRequestFeedback : RecordAudioIntent()
+    data class OnSpeechConfigChange(val speechConfig: SpeechConfig) : RecordAudioIntent()
 }
 
 sealed interface RecordAudioSideEffect : UiSideEffect {
