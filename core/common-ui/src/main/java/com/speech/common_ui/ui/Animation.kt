@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 fun SpeechMateBottomBarAnimation(
     visible: Boolean,
     modifier: Modifier = Modifier,
-    contents: @Composable AnimatedVisibilityScope.() -> Unit,
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) = AnimatedVisibility(
     visible = visible,
-    content = contents,
+    content = content,
     modifier = modifier,
 )

@@ -49,7 +49,7 @@ class PracticeViewModel @Inject constructor(
         }
 
         suspendRunCatching {
-            speechRepository.uploadUriFile(uri.toString())
+            speechRepository.uploadFromUri(uri.toString())
         }.onSuccess {
             Log.d("PracticeViewModel", "onUploadSpeechFile Success: $it")
         }.onFailure {

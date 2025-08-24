@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
@@ -33,7 +34,7 @@ class RecordAudioViewModel @Inject constructor(
 
     override val container = container<RecordAudioState, RecordAudioSideEffect>(RecordAudioState())
 
-    private var _elapsedTime = 0L
+    private var _elapsedTime = 6000L
     private var timerJob: Job? = null
     private var recorder: MediaRecorder? = null
     private lateinit var audioFile: File
@@ -76,7 +77,7 @@ class RecordAudioViewModel @Inject constructor(
         }
 
         suspendRunCatching {
-            speechRepository.uploadLocalFile(filePath = audioFile.path)
+            speechRepository.uploadFromPath(filePath = audioFile.path)
         }
     }
 
