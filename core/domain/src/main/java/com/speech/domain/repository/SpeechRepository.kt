@@ -1,8 +1,10 @@
 package com.speech.domain.repository
 
+import com.speech.domain.model.speech.SpeechConfig
+
 
 interface SpeechRepository {
-    suspend fun uploadUriFile(uriString: String)
-    suspend fun uploadLocalFile(filePath: String)
+    suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig)
+    suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig)
     suspend fun getSpeechAnalysis(speechId: Int)
 }

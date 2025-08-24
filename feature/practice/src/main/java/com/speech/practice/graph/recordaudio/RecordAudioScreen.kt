@@ -23,7 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -41,13 +44,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SimpleCircle
+import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
+import com.speech.common_ui.ui.StrokeRoundRectangle
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.domain.model.speech.SpeechConfig
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -71,8 +77,9 @@ internal fun RecordAudioRoute(
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
+
             is RecordAudioSideEffect.NavigateBack -> navigateBack()
-            is RecordAudioSideEffect.NavigateToFeedBack -> {
+            is RecordAudioSideEffect.NavigateToFeedback -> {
                 navigateToFeedBack(sideEffect.speechId)
             }
         }
@@ -100,6 +107,9 @@ internal fun RecordAudioRoute(
         },
         onResumeRecording = {
             viewModel.onIntent(RecordAudioIntent.ResumeRecording)
+        },
+        onSpeechConfigChange = {
+            viewModel.onIntent(RecordAudioIntent.OnSpeechConfigChange(it))
         }
     )
 }
@@ -114,232 +124,250 @@ private fun RecordAudioScreen(
     onCancelRecording: () -> Unit,
     onPauseRecording: () -> Unit,
     onResumeRecording: () -> Unit,
+    onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            IconButton(
-                onClick = { onBackPressed() },
-                modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                    contentDescription = "뒤로 가기",
-                    modifier = Modifier.size(60.dp)
-                )
-            }
-        }
+    var showSpeechConfigDg by remember { mutableStateOf(false) }
 
-        Spacer(Modifier.weight(1f))
-
-        Text(state.timeText, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
-
-        Spacer(Modifier.weight(1f))
-
-        when (state.recordingState) {
-            is RecordingState.Ready -> {
-                Box(
-                    modifier = Modifier
-                        .clip(shape = CircleShape)
-                        .clickable(isRipple = true) {
-                            onStartRecording()
-                        }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 20.dp, end = 20.dp, top = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                    onClick = { onBackPressed() },
+                    modifier = Modifier.align(Alignment.TopStart)
                 ) {
-                    SimpleCircle(
-                        modifier = Modifier
-                            .align(Center)
-                            .shadow(elevation = 4.dp, shape = CircleShape)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                        contentDescription = "뒤로 가기",
+                        modifier = Modifier.size(60.dp)
                     )
-
-                    Image(
-                        painter = painterResource(R.drawable.michrophone),
-                        contentDescription = "녹음",
-                        modifier = Modifier.align(
-                            Center
-                        )
-                    )
-
-                    Spacer(Modifier.height(60.dp))
                 }
             }
 
+            Spacer(Modifier.weight(1f))
 
-            is RecordingState.Recording, is RecordingState.Paused -> {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(Modifier.weight(1f))
+            Text(state.timeText, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
 
+            Spacer(Modifier.weight(1f))
+
+            when (state.recordingState) {
+                is RecordingState.Ready -> {
                     Box(
                         modifier = Modifier
-                            .clip(CircleShape)
+                            .clip(shape = CircleShape)
                             .clickable(isRipple = true) {
-                                onCancelRecording()
+                                onStartRecording()
                             }
                     ) {
-                        StrokeCircle(
-                            color = PrimaryDefault,
-                            modifier = Modifier.align(
-                                Center
-                            )
-                        )
-
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "취소",
-                            modifier = Modifier.align(
-                                Center
-                            ),
-                            tint = DarkGray
-                        )
-                    }
-
-                    Spacer(Modifier.width(30.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .clickable() {
-                                onFinishRecording()
-                            }
-                    ) {
-                        StrokeCircle(
-                            color = PrimaryDefault,
-                            diameter = 70.dp,
-                            modifier = Modifier.align(
-                                Center
-                            )
-                        )
-
-                        Image(
-                            painter = painterResource(R.drawable.stop_audio),
-                            contentDescription = "정지",
+                        SimpleCircle(
                             modifier = Modifier
-                                .size(34.dp)
-                                .align(
-                                    Center
-                                ),
-                            colorFilter = ColorFilter.tint(PrimaryActive)
-                        )
-                    }
-
-                    Spacer(Modifier.width(30.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable(isRipple = true) {
-                                if (state.recordingState == RecordingState.Recording) onPauseRecording() else onResumeRecording()
-                            }
-                    ) {
-                        StrokeCircle(
-                            color = PrimaryDefault,
-                            modifier = Modifier.align(
-                                Center
-                            )
+                                .align(Center)
+                                .shadow(elevation = 4.dp, shape = CircleShape)
                         )
 
-                        Image(
-                            painter = if (state.recordingState == RecordingState.Recording) painterResource(
-                                R.drawable.pause_audio
-                            ) else painterResource(
-                                R.drawable.play_audio
-                            ),
-                            contentDescription = if (state.recordingState == RecordingState.Recording) "일시 정지" else "재개",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .align(
-                                    Center
-                                ),
-                            colorFilter = ColorFilter.tint(DarkGray)
-                        )
-                    }
-
-                    Spacer(Modifier.weight(1f))
-                }
-            }
-
-            is RecordingState.Completed -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 60.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
-                        .background(PrimaryActive)
-                        .clickable() {
-                            onRequestFeedback()
-                        }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .align(Center),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.feedback),
-                            contentDescription = "피드백 받기",
-                            modifier = Modifier
-                                .size(24.dp),
-                            colorFilter = ColorFilter.tint(Color.White)
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Text(
-                            "피드백 받기",
-                            style = SpeechMateTheme.typography.bodyMSB,
-                            color = Color.White
-                        )
-                    }
-
-                }
-
-                Spacer(Modifier.height(30.dp))
-
-                Box(
-                    modifier = Modifier
-                        .clickable {
-                            onCancelRecording()
-                        },
-                ) {
-                    com.speech.common_ui.ui.StrokeRoundRectangle(
-                        modifier = Modifier
-                            .align(Center)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .align(Center),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
                         Image(
                             painter = painterResource(R.drawable.michrophone),
-                            contentDescription = "재녹음",
+                            contentDescription = "녹음",
+                            modifier = Modifier.align(
+                                Center
+                            )
+                        )
+
+                        Spacer(Modifier.height(60.dp))
+                    }
+                }
+
+
+                is RecordingState.Recording, is RecordingState.Paused -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(Modifier.weight(1f))
+
+                        Box(
                             modifier = Modifier
-                                .size(24.dp),
-                            colorFilter = ColorFilter.tint(PrimaryActive)
-                        )
+                                .clip(CircleShape)
+                                .clickable(isRipple = true) {
+                                    onCancelRecording()
+                                }
+                        ) {
+                            StrokeCircle(
+                                color = PrimaryDefault,
+                                modifier = Modifier.align(
+                                    Center
+                                )
+                            )
 
-                        Spacer(Modifier.width(6.dp))
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "취소",
+                                modifier = Modifier.align(
+                                    Center
+                                ),
+                                tint = DarkGray
+                            )
+                        }
 
-                        Text(
-                            "재녹음", style = SpeechMateTheme.typography.bodyMM, color = PrimaryActive
-                        )
+                        Spacer(Modifier.width(30.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .clickable() {
+                                    onFinishRecording()
+                                }
+                        ) {
+                            StrokeCircle(
+                                color = PrimaryDefault,
+                                diameter = 70.dp,
+                                modifier = Modifier.align(
+                                    Center
+                                )
+                            )
+
+                            Image(
+                                painter = painterResource(R.drawable.stop_audio),
+                                contentDescription = "정지",
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .align(
+                                        Center
+                                    ),
+                                colorFilter = ColorFilter.tint(PrimaryActive)
+                            )
+                        }
+
+                        Spacer(Modifier.width(30.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable(isRipple = true) {
+                                    if (state.recordingState == RecordingState.Recording) onPauseRecording() else onResumeRecording()
+                                }
+                        ) {
+                            StrokeCircle(
+                                color = PrimaryDefault,
+                                modifier = Modifier.align(
+                                    Center
+                                )
+                            )
+
+                            Image(
+                                painter = if (state.recordingState == RecordingState.Recording) painterResource(
+                                    R.drawable.pause_audio
+                                ) else painterResource(
+                                    R.drawable.play_audio
+                                ),
+                                contentDescription = if (state.recordingState == RecordingState.Recording) "일시 정지" else "재개",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(
+                                        Center
+                                    ),
+                                colorFilter = ColorFilter.tint(DarkGray)
+                            )
+                        }
+
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+
+                is RecordingState.Completed -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .padding(horizontal = 60.dp)
+                            .clip(shape = RoundedCornerShape(12.dp))
+                            .background(PrimaryActive)
+                            .clickable {
+                                showSpeechConfigDg = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .align(Center),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.feedback),
+                                contentDescription = "피드백 받기",
+                                modifier = Modifier
+                                    .size(24.dp),
+                                colorFilter = ColorFilter.tint(Color.White)
+                            )
+
+                            Spacer(Modifier.width(8.dp))
+
+                            Text(
+                                "피드백 받기",
+                                style = SpeechMateTheme.typography.bodyMSB,
+                                color = Color.White
+                            )
+                        }
+
                     }
 
+                    Spacer(Modifier.height(30.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                onCancelRecording()
+                            },
+                    ) {
+                        StrokeRoundRectangle(
+                            modifier = Modifier
+                                .align(Center)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .align(Center),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.michrophone),
+                                contentDescription = "재녹음",
+                                modifier = Modifier
+                                    .size(24.dp),
+                                colorFilter = ColorFilter.tint(PrimaryActive)
+                            )
+
+                            Spacer(Modifier.width(6.dp))
+
+                            Text(
+                                "재녹음",
+                                style = SpeechMateTheme.typography.bodyMM,
+                                color = PrimaryActive
+                            )
+                        }
+
+                    }
                 }
             }
+
+            if (state.recordingState == RecordingState.Completed) Spacer(Modifier.weight(1f))
+            else Spacer(Modifier.height(60.dp))
         }
 
-        if(state.recordingState == RecordingState.Completed) Spacer(Modifier.weight(1f))
-        else Spacer(Modifier.height(60.dp))
+        if (showSpeechConfigDg) {
+            SpeechConfigDialog(
+                onDone = { speechConfig ->
+                    onSpeechConfigChange(speechConfig)
+                    onRequestFeedback()
+                },
+                onDismiss = { showSpeechConfigDg = false }
+            )
+        }
     }
+
 }
 
 @Preview(name = "Ready", showBackground = true)
@@ -357,7 +385,8 @@ private fun RecordAudioScreenReadyPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -377,7 +406,8 @@ private fun RecordAudioScreenRecordingPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -397,7 +427,8 @@ private fun RecordAudioScreenPausedPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }
@@ -417,7 +448,8 @@ private fun RecordAudioScreenCompletedPreview() {
             onFinishRecording = {},
             onCancelRecording = {},
             onPauseRecording = {},
-            onResumeRecording = {}
+            onResumeRecording = {},
+            onSpeechConfigChange = {}
         )
     }
 }

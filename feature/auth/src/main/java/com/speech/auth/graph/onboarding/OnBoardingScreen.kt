@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
+import com.speech.common_ui.ui.SMOutlineButton
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
@@ -105,8 +106,8 @@ fun OnBoardingScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             VerbalSkill.entries.forEach { skill ->
-                VerbalSkillButton(
-                    verbalSkill = skill,
+                SMOutlineButton(
+                    label = skill.label,
                     isSelected = state.selectedVerbalSkills.contains(skill),
                     onClick = { onVerbalSkillClick(skill) })
 
@@ -122,8 +123,8 @@ fun OnBoardingScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             NonVerbalSkill.entries.forEach { skill ->
-                NonVerbalSkillButton(
-                    nonVerbalSkill = skill,
+                SMOutlineButton(
+                    label = skill.label,
                     isSelected = state.selectedNonVerbalSkills.contains(skill),
                     onClick = { onNonVerbalSkillClick(skill) })
 
@@ -154,50 +155,6 @@ fun OnBoardingScreen(
 
             Spacer(Modifier.height(40.dp))
         }
-    }
-}
-
-@Composable
-private fun VerbalSkillButton(verbalSkill: VerbalSkill, isSelected: Boolean, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.height(36.dp),
-        colors = ButtonColors(
-            containerColor = Color.White,
-            contentColor = if (isSelected) PrimaryActive else Color.Gray,
-            disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.DarkGray
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (isSelected) PrimaryActive else Color.Gray
-        ), shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(verbalSkill.label, style = SpeechMateTheme.typography.bodySM)
-    }
-}
-
-@Composable
-private fun NonVerbalSkillButton(
-    nonVerbalSkill: NonVerbalSkill,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.height(36.dp),
-        colors = ButtonColors(
-            containerColor = Color.White,
-            contentColor = if (isSelected) PrimaryActive else Color.Gray,
-            disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.DarkGray
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (isSelected) PrimaryActive else Color.Gray
-        ), shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(nonVerbalSkill.label, style = SpeechMateTheme.typography.bodySM)
     }
 }
 

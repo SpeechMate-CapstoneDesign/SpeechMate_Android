@@ -18,7 +18,7 @@ enum class TopLevelDestination(
         contentDescription = "연습",
         title = "연습"
     ),
-    MY_Page(
+    MyPage(
         route = MyPageBaseRoute::class,
         icon = R.drawable.bottom_my_page,
         contentDescription = "마이페이지",
