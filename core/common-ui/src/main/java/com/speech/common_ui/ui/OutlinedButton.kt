@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +24,7 @@ fun SMOutlineButton(
     OutlinedButton(
         onClick = onClick,
         modifier = Modifier.height(36.dp),
-        colors = ButtonColors(
+        colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.White,
             contentColor = if (isSelected) PrimaryActive else Color.Gray,
             disabledContainerColor = Color.Gray,

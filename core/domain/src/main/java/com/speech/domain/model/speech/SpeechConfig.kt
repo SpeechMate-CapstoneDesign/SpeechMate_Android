@@ -7,7 +7,7 @@ data class SpeechConfig(
     val venue: Venue? = null
 ) {
     val isValid: Boolean
-        get() = fileName.isNotEmpty() && speechType != null && audience != null && venue != null
+        get() = fileName.isNotBlank() && speechType != null && audience != null && venue != null
 }
 
 enum class SpeechType(val label: String) {

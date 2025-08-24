@@ -83,7 +83,7 @@ internal fun AppBottomBar(
                                 PracticeBaseRoute
                             )
 
-                            TopLevelDestination.MYPage -> navigateToBottomNaviDestination(
+                            TopLevelDestination.MyPage -> navigateToBottomNaviDestination(
                                 MyPageBaseRoute
                             )
                         }

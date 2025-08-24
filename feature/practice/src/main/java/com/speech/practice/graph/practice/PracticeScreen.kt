@@ -157,7 +157,7 @@ private fun PracticeScreen(
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     painter = painterResource(R.drawable.record_video),
-                                    contentDescription = "녹음"
+                                    contentDescription = "녹화"
                                 )
 
                                 Spacer(Modifier.width(6.dp))
@@ -194,7 +194,7 @@ private fun UploadFileButton(
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(), onResult = { uri: Uri? ->
             selectedUri = uri
-            showSpeechConfigDg = true
+            showSpeechConfigDg = uri != null
         })
 
     Box(
@@ -228,7 +228,10 @@ private fun UploadFileButton(
                 onSpeechConfigChange(speechConfig)
                 onUploadFile(selectedUri!!)
             },
-            onDismiss = { showSpeechConfigDg = false }
+            onDismiss = {
+                showSpeechConfigDg = false
+                selectedUri = null
+            }
         )
     }
 }
