@@ -6,8 +6,10 @@ import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.practice.graph.practice.PracticeIntent
+import java.io.File
 
 data class RecordVideoState(
+    val videoFile : File? = null,
     val recordingVideoState: RecordingVideoState = RecordingVideoState.Ready,
     val speechConfig: SpeechConfig = SpeechConfig()
 ) : UiState
