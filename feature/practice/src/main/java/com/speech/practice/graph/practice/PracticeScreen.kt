@@ -51,7 +51,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun PracticeRoute(
-    navigateToRecordAudio: () -> Unit, viewModel: PracticeViewModel = hiltViewModel()
+    navigateToRecordAudio: () -> Unit,
+    navigateToRecordVideo: () -> Unit,
+    navigateToFeedback : (Int) -> Unit,
+    viewModel: PracticeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -59,18 +62,21 @@ internal fun PracticeRoute(
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
+            is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
+            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
             is PracticeSideEffect.ShowSnackBar -> {
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
+
         }
     }
 
     PracticeScreen(
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
-        onRecordVideoClick = {},
+        onRecordVideoClick = { viewModel.onIntent(PracticeIntent.OnRecordVideoClick) },
         onUploadSpeechFile = { uri -> viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(uri)) },
         onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) }
     )

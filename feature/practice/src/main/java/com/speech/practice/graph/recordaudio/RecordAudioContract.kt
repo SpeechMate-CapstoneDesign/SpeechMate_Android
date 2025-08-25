@@ -7,16 +7,16 @@ import com.speech.domain.model.speech.SpeechConfig
 import java.util.Locale
 
 data class RecordAudioState(
-    val recordingState: RecordingState = RecordingState.Ready,
+    val recordingAudioState: RecordingAudioState = RecordingAudioState.Ready,
     val timeText: String = "00 : 00 . 00",
     val speechConfig: SpeechConfig = SpeechConfig()
 ) : UiState
 
-sealed class RecordingState {
-    data object Ready : RecordingState()
-    data object Recording : RecordingState()
-    data object Paused : RecordingState()
-    data object Completed : RecordingState()
+sealed class RecordingAudioState {
+    data object Ready : RecordingAudioState()
+    data object Recording : RecordingAudioState()
+    data object Paused : RecordingAudioState()
+    data object Completed : RecordingAudioState()
 }
 
 sealed class RecordAudioIntent : UiIntent {

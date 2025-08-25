@@ -10,8 +10,10 @@ import androidx.navigation.navOptions
 import com.speech.auth.navigation.authNavGraph
 import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.navigation.AuthBaseRoute
+import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import com.speech.practice.navigation.navigateToRecordAudio
+import com.speech.practice.navigation.navigateToRecordVideo
 
 
 @Composable
@@ -28,7 +30,8 @@ fun AppNavHost(
         practiceNavGraph(
             navigateBack = { navigateBack(navController) },
             navigateToRecordAudio = navController::navigateToRecordAudio,
-            navigateToFeedBack = { }
+            navigateToRecordVideo = navController::navigateToRecordVideo,
+            navigateToFeedBack = navController::navigateToFeedback,
         )
 
         authNavGraph(

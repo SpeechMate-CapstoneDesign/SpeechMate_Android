@@ -7,7 +7,9 @@ import kotlin.reflect.KClass
 
 private val HIDDEN_BOTTOM_BAR_ROUTES = setOf(
     AuthGraph.LoginRoute::class,
-    AuthGraph.OnBoardingRoute::class
+    AuthGraph.OnBoardingRoute::class,
+    PracticeGraph.RecordAudioRoute::class,
+    PracticeGraph.RecordVideoRoute::class,
 )
 
 fun NavDestination?.shouldHideBottomBar(): Boolean =

@@ -1,5 +1,8 @@
 package com.speech.practice.graph.recordaudio
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SimpleCircle
 import com.speech.common_ui.ui.SpeechConfigDialog
@@ -61,13 +69,13 @@ import kotlin.concurrent.timer
 
 @Composable
 internal fun RecordAudioRoute(
-    viewModel: RecordAudioViewModel = hiltViewModel(),
     navigateToFeedBack: (Int) -> Unit,
     navigateBack: () -> Unit,
+    viewModel: RecordAudioViewModel = hiltViewModel(),
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
-    val recordingState by viewModel.collectAsState()
+    val state by viewModel.collectAsState()
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -86,7 +94,7 @@ internal fun RecordAudioRoute(
     }
 
     RecordAudioScreen(
-        state = recordingState,
+        state = state,
         onBackPressed = {
             viewModel.onIntent(RecordAudioIntent.OnBackPressed)
         },
@@ -114,6 +122,7 @@ internal fun RecordAudioRoute(
     )
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun RecordAudioScreen(
     state: RecordAudioState,
@@ -127,6 +136,10 @@ private fun RecordAudioScreen(
     onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
     var showSpeechConfigDg by remember { mutableStateOf(false) }
+    val micPermissionState = rememberPermissionState(
+        android.Manifest.permission.RECORD_AUDIO
+    )
+    val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -154,13 +167,26 @@ private fun RecordAudioScreen(
 
             Spacer(Modifier.weight(1f))
 
-            when (state.recordingState) {
-                is RecordingState.Ready -> {
+            when (state.recordingAudioState) {
+                is RecordingAudioState.Ready -> {
                     Box(
                         modifier = Modifier
                             .clip(shape = CircleShape)
                             .clickable(isRipple = true) {
-                                onStartRecording()
+                                if (micPermissionState.status.isGranted && micPermissionState.status.isGranted) {
+                                    onStartRecording()
+                                } else {
+                                    micPermissionState.launchPermissionRequest()
+                                    if (!micPermissionState.status.shouldShowRationale) { // '다시 묻지 않음' 상태일 때 앱 설정 열기
+                                        val intent = Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.fromParts("package", context.packageName, null)
+                                        )
+
+                                        context.startActivity(intent)
+                                    }
+                                }
+
                             }
                     ) {
                         SimpleCircle(
@@ -182,7 +208,7 @@ private fun RecordAudioScreen(
                 }
 
 
-                is RecordingState.Recording, is RecordingState.Paused -> {
+                is RecordingAudioState.Recording, is RecordingAudioState.Paused -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -247,7 +273,7 @@ private fun RecordAudioScreen(
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable(isRipple = true) {
-                                    if (state.recordingState == RecordingState.Recording) onPauseRecording() else onResumeRecording()
+                                    if (state.recordingAudioState == RecordingAudioState.Recording) onPauseRecording() else onResumeRecording()
                                 }
                         ) {
                             StrokeCircle(
@@ -258,12 +284,12 @@ private fun RecordAudioScreen(
                             )
 
                             Image(
-                                painter = if (state.recordingState == RecordingState.Recording) painterResource(
+                                painter = if (state.recordingAudioState == RecordingAudioState.Recording) painterResource(
                                     R.drawable.pause_audio
                                 ) else painterResource(
                                     R.drawable.play_audio
                                 ),
-                                contentDescription = if (state.recordingState == RecordingState.Recording) "일시 정지" else "재개",
+                                contentDescription = if (state.recordingAudioState == RecordingAudioState.Recording) "일시 정지" else "재개",
                                 modifier = Modifier
                                     .size(20.dp)
                                     .align(
@@ -277,7 +303,7 @@ private fun RecordAudioScreen(
                     }
                 }
 
-                is RecordingState.Completed -> {
+                is RecordingAudioState.Completed -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -353,7 +379,11 @@ private fun RecordAudioScreen(
                 }
             }
 
-            if (state.recordingState == RecordingState.Completed) Spacer(Modifier.weight(1f))
+            if (state.recordingAudioState == RecordingAudioState.Completed) Spacer(
+                Modifier.weight(
+                    1f
+                )
+            )
             else Spacer(Modifier.height(60.dp))
         }
 
@@ -376,7 +406,7 @@ private fun RecordAudioScreenReadyPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
             state = RecordAudioState(
-                recordingState = RecordingState.Ready,
+                recordingAudioState = RecordingAudioState.Ready,
                 timeText = "00 : 00 . 00"
             ),
             onBackPressed = {},
@@ -397,7 +427,7 @@ private fun RecordAudioScreenRecordingPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
             state = RecordAudioState(
-                recordingState = RecordingState.Recording,
+                recordingAudioState = RecordingAudioState.Recording,
                 timeText = "01 : 23 . 45"
             ),
             onBackPressed = {},
@@ -418,7 +448,7 @@ private fun RecordAudioScreenPausedPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
             state = RecordAudioState(
-                recordingState = RecordingState.Paused,
+                recordingAudioState = RecordingAudioState.Paused,
                 timeText = "03 : 10 . 99"
             ),
             onBackPressed = {},
@@ -439,7 +469,7 @@ private fun RecordAudioScreenCompletedPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
             state = RecordAudioState(
-                recordingState = RecordingState.Completed,
+                recordingAudioState = RecordingAudioState.Completed,
                 timeText = "05 : 00 . 00"
             ),
             onBackPressed = {},

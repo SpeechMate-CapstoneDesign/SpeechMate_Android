@@ -10,6 +10,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
+import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
@@ -51,25 +52,15 @@ class RecordAudioViewModel @Inject constructor(
             is RecordAudioIntent.OnBackPressed -> intent {
                 postSideEffect(RecordAudioSideEffect.NavigateBack)
             }
-
-            is RecordAudioIntent.OnRequestFeedback -> onRequestFeedback()
             is RecordAudioIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
+            is RecordAudioIntent.OnRequestFeedback -> onRequestFeedback()
         }
     }
 
-    private fun validateSpeechFile(uri: Uri): Boolean {
-        val durationMs = MediaMetadataRetriever().use { retriever ->
-            retriever.setDataSource(context, uri)
-            retriever
-                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                ?.toLongOrNull() ?: 0L
-        }
-
-        return durationMs >= MIN_DURATION_MS && durationMs <= MAX_DURATION_MS
-    }
+    private fun validateSpeechFile(uri: Uri): Boolean = MediaUtil.isDurationValid(context, uri)
 
     private fun onRequestFeedback() = intent {
-        if (state.recordingState != RecordingState.Completed) return@intent
+        if (state.recordingAudioState != RecordingAudioState.Completed) return@intent
 
         if (!validateSpeechFile(audioFile.toUri())) {
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일은 1분 이상 20분 이하만 피드백 가능합니다."))
@@ -81,6 +72,10 @@ class RecordAudioViewModel @Inject constructor(
                 filePath = audioFile.path,
                 speechConfig = state.speechConfig
             )
+        }.onSuccess { speechId ->
+            postSideEffect(RecordAudioSideEffect.NavigateToFeedback(speechId))
+        }.onFailure {
+            postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }
     }
 
@@ -91,7 +86,7 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     private fun recordAudio() = intent {
-        if (state.recordingState !is RecordingState.Ready) return@intent
+        if (state.recordingAudioState !is RecordingAudioState.Ready) return@intent
 
         audioFile = File(
             context.cacheDir,
@@ -114,30 +109,30 @@ class RecordAudioViewModel @Inject constructor(
         startTimer()
 
         reduce {
-            state.copy(recordingState = RecordingState.Recording)
+            state.copy(recordingAudioState = RecordingAudioState.Recording)
         }
     }
 
     private fun pauseAudio() = intent {
-        if (state.recordingState !is RecordingState.Recording) return@intent
+        if (state.recordingAudioState !is RecordingAudioState.Recording) return@intent
         recorder?.pause()
         stopTimer()
         reduce {
-            state.copy(recordingState = RecordingState.Paused)
+            state.copy(recordingAudioState = RecordingAudioState.Paused)
         }
     }
 
     private fun resumeAudio() = intent {
-        if (state.recordingState !is RecordingState.Paused) return@intent
+        if (state.recordingAudioState !is RecordingAudioState.Paused) return@intent
         recorder?.resume()
         startTimer()
         reduce {
-            state.copy(recordingState = RecordingState.Recording)
+            state.copy(recordingAudioState = RecordingAudioState.Recording)
         }
     }
 
     private fun finishRecordAudio() = intent {
-        if (state.recordingState !is RecordingState.Recording && state.recordingState !is RecordingState.Paused) return@intent
+        if (state.recordingAudioState !is RecordingAudioState.Recording && state.recordingAudioState !is RecordingAudioState.Paused) return@intent
 
         stopTimer()
         recorder?.stop()
@@ -145,7 +140,7 @@ class RecordAudioViewModel @Inject constructor(
         recorder = null
 
         reduce {
-            state.copy(recordingState = RecordingState.Completed)
+            state.copy(recordingAudioState = RecordingAudioState.Completed)
         }
     }
 
@@ -154,30 +149,26 @@ class RecordAudioViewModel @Inject constructor(
         recorder?.stop()
         recorder?.release()
         recorder = null
-        audioFile.delete()
         _elapsedTime = 0
 
         reduce {
-            state.copy(recordingState = RecordingState.Ready, timeText = "00 : 00 . 00")
+            state.copy(recordingAudioState = RecordingAudioState.Ready, timeText = "00 : 00 . 00")
         }
     }
 
     private fun startTimer() = intent {
         timerJob?.cancel()
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (state.recordingState is RecordingState.Recording) {
+            while (state.recordingAudioState is RecordingAudioState.Recording) {
                 delay(10)
                 _elapsedTime += 10
-                if (_elapsedTime % 130 == 0L) {
-                    reduce {
-                        val m = (_elapsedTime / 1000) / 60
-                        val s = (_elapsedTime / 1000) % 60
-                        val ms = ((_elapsedTime % 1000) / 10).toInt()
-                        state.copy(
-                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
-                        )
-                    }
-
+                reduce {
+                    val m = (_elapsedTime / 1000) / 60
+                    val s = (_elapsedTime / 1000) % 60
+                    val ms = ((_elapsedTime % 1000) / 10).toInt()
+                    state.copy(
+                        timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+                    )
                 }
             }
         }
@@ -186,5 +177,11 @@ class RecordAudioViewModel @Inject constructor(
     private fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        recorder?.release()
+        recorder = null
     }
 }
