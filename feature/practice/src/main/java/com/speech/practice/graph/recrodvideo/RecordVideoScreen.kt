@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.view.ViewGroup
+import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -110,7 +111,11 @@ internal fun RecordVideoRoute(
 @Composable
 fun RecordVideoScreen(
     state: RecordVideoState,
-    bindCamera: (lifecycleOwner: LifecycleOwner, surfaceProvider: androidx.camera.core.Preview.SurfaceProvider) -> Unit,
+    bindCamera: (
+        lifecycleOwner: LifecycleOwner,
+        surfaceProvider: androidx.camera.core.Preview.SurfaceProvider,
+        cameraSelector: CameraSelector
+    ) -> Unit,
     onSwitchCamera: () -> Unit,
     onStartRecording: () -> Unit,
     onFinishRecording: () -> Unit,
@@ -148,7 +153,7 @@ fun RecordVideoScreen(
                         scaleType = PreviewView.ScaleType.FILL_CENTER
                     }
                 }, update = { previewView ->
-                    bindCamera(lifecycleOwner, previewView.surfaceProvider)
+                    bindCamera(lifecycleOwner, previewView.surfaceProvider, state.cameraSelector)
                 })
         }
 
@@ -267,13 +272,13 @@ fun RecordVideoScreen(
                 ) {
                     StrokeRoundRectangle(
                         modifier = Modifier
-                            .align(Alignment.Center)
+                            .align(Center)
                     )
 
                     Row(
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
-                            .align(Alignment.Center),
+                            .align(Center),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
@@ -341,7 +346,7 @@ private fun RecordVideoScreenReadyPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Ready),
-            bindCamera = { _, _ -> },
+            bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
             onStartRecording = {},
             onFinishRecording = {},
@@ -361,7 +366,7 @@ private fun RecordVideoScreenRecordingPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Recording),
-            bindCamera = { _, _ -> },
+            bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
             onStartRecording = {},
             onFinishRecording = {},
@@ -381,7 +386,7 @@ private fun RecordVideoScreenPausedPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Paused),
-            bindCamera = { _, _ -> },
+            bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
             onStartRecording = {},
             onFinishRecording = {},
@@ -402,7 +407,7 @@ private fun RecordVideoScreenCompletedPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Completed),
-            bindCamera = { _, _ -> },
+            bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
             onStartRecording = {},
             onFinishRecording = {},

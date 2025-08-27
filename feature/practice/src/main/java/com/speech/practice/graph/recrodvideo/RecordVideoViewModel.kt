@@ -34,8 +34,8 @@ import com.speech.practice.graph.recordaudio.RecordingAudioState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
@@ -135,7 +135,11 @@ class RecordVideoViewModel @Inject constructor(
         videoCapture = VideoCapture.withOutput(recorder)
     }
 
-    fun bindCamera(lifecycleOwner: LifecycleOwner, surfaceProvider: Preview.SurfaceProvider) {
+    fun bindCamera(
+        lifecycleOwner: LifecycleOwner,
+        surfaceProvider: Preview.SurfaceProvider,
+        cameraSelector: CameraSelector
+    ) {
         cameraProvider?.let { provider ->
             provider.unbindAll()
 
@@ -144,7 +148,7 @@ class RecordVideoViewModel @Inject constructor(
             }
 
             provider.bindToLifecycle(
-                lifecycleOwner, container.stateFlow.value.cameraSelector, preview, videoCapture
+                lifecycleOwner, cameraSelector, preview, videoCapture
             )
         }
     }
