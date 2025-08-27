@@ -19,7 +19,7 @@ class SpeechRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechDataSource: SpeechDataSource
 ) : SpeechRepository {
-    override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig) {
+    override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig): Int {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
         context.contentResolver.takePersistableUriPermission(
@@ -34,19 +34,21 @@ class SpeechRepositoryImpl @Inject constructor(
             else -> type
         }
 
-        contentResolver.openInputStream(uri)?.use { inputStream ->
+        return contentResolver.openInputStream(uri)?.use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key)
+            val speechId = speechDataSource.uploadSpeechCallback(key).speechId
 
             contentResolver.releasePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
+
+            speechId
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 
-    override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig) {
+    override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig): Int {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalStateException("File does not exist at path: $filePath")
@@ -58,10 +60,12 @@ class SpeechRepositoryImpl @Inject constructor(
         val mimeType = getMimeType(file)
         Log.d("SpeechRepositoryImpl", "mimeType: $mimeType")
 
-        FileInputStream(file).use { inputStream ->
+        return FileInputStream(file).use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            speechDataSource.uploadSpeechCallback(key)
+            val speechId = speechDataSource.uploadSpeechCallback(key).speechId
+
+            speechId
         }
     }
 

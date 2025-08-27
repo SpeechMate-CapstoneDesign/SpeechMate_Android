@@ -14,9 +14,12 @@ sealed class PracticeIntent : UiIntent {
     data class OnUploadSpeechFile(val uri: Uri) : PracticeIntent()
     data class OnSpeechConfigChange(val speechConfig: SpeechConfig) : PracticeIntent()
     data object OnRecordAudioClick : PracticeIntent()
+    data object OnRecordVideoClick : PracticeIntent()
 }
 
 sealed interface PracticeSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : PracticeSideEffect
     data object NavigateToRecordAudio : PracticeSideEffect
+    data object NavigateToRecordVideo : PracticeSideEffect
+    data class NavigateToFeedback(val speechId : Int) : PracticeSideEffect
 }

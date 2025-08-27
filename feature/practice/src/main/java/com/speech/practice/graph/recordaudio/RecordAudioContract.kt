@@ -4,19 +4,21 @@ import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
+import java.io.File
 import java.util.Locale
 
 data class RecordAudioState(
-    val recordingState: RecordingState = RecordingState.Ready,
+    val audioFile: File? = null,
+    val recordingAudioState: RecordingAudioState = RecordingAudioState.Ready,
     val timeText: String = "00 : 00 . 00",
     val speechConfig: SpeechConfig = SpeechConfig()
 ) : UiState
 
-sealed class RecordingState {
-    data object Ready : RecordingState()
-    data object Recording : RecordingState()
-    data object Paused : RecordingState()
-    data object Completed : RecordingState()
+sealed class RecordingAudioState {
+    data object Ready : RecordingAudioState()
+    data object Recording : RecordingAudioState()
+    data object Paused : RecordingAudioState()
+    data object Completed : RecordingAudioState()
 }
 
 sealed class RecordAudioIntent : UiIntent {

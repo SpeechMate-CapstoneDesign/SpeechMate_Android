@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
@@ -51,7 +52,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun PracticeRoute(
-    navigateToRecordAudio: () -> Unit, viewModel: PracticeViewModel = hiltViewModel()
+    navigateToRecordAudio: () -> Unit,
+    navigateToRecordVideo: () -> Unit,
+    navigateToFeedback: (Int) -> Unit,
+    viewModel: PracticeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -59,18 +63,21 @@ internal fun PracticeRoute(
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
+            is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
+            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
             is PracticeSideEffect.ShowSnackBar -> {
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
+
         }
     }
 
     PracticeScreen(
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
-        onRecordVideoClick = {},
+        onRecordVideoClick = { viewModel.onIntent(PracticeIntent.OnRecordVideoClick) },
         onUploadSpeechFile = { uri -> viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(uri)) },
         onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) }
     )
@@ -121,9 +128,10 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordAudio)
                                 .padding(20.dp)
-                                .clickable {
+                                .clickable(onClick = rememberDebouncedOnClick {
                                     onRecordAudioClick()
-                                },
+                                })
+
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -147,9 +155,9 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordVideo)
                                 .padding(20.dp)
-                                .clickable(isRipple = true) {
+                                .clickable(onClick = rememberDebouncedOnClick {
                                     onRecordVideoClick()
-                                },
+                                })
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically

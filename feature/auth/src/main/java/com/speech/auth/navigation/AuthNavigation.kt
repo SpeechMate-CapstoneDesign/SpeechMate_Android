@@ -19,7 +19,6 @@ fun NavController.navigateToOnBoarding(idToken: String, navOptions: NavOptions? 
 }
 
 fun NavGraphBuilder.authNavGraph(
-    navigateBack: () -> Unit,
     navigateToPractice: () -> Unit,
     navigateToOnBoarding: (String) -> Unit
 ) {

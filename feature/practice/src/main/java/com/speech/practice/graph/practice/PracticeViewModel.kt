@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.speech.common.util.suspendRunCatching
+import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
@@ -30,19 +31,13 @@ class PracticeViewModel @Inject constructor(
             is PracticeIntent.OnRecordAudioClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
             }
+            is PracticeIntent.OnRecordVideoClick -> intent {
+                postSideEffect(PracticeSideEffect.NavigateToRecordVideo)
+            }
         }
     }
 
-    private fun validateSpeechFile(uri: Uri): Boolean {
-        val durationMs = MediaMetadataRetriever().use { retriever ->
-            retriever.setDataSource(context, uri)
-            retriever
-                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                ?.toLongOrNull() ?: 0L
-        }
-
-        return durationMs >= MIN_DURATION_MS && durationMs <= MAX_DURATION_MS
-    }
+    private fun validateSpeechFile(uri: Uri): Boolean = MediaUtil.isDurationValid(context, uri)
 
     fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
         reduce {
@@ -58,10 +53,10 @@ class PracticeViewModel @Inject constructor(
 
         suspendRunCatching {
             speechRepository.uploadFromUri(uri.toString(), state.speechConfig)
-        }.onSuccess {
-            Log.d("PracticeViewModel", "onUploadSpeechFile Success: $it")
+        }.onSuccess { speechId ->
+            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId))
         }.onFailure {
-            Log.d("PracticeViewModel", "onUploadSpeechFile Failure: $it")
+            postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }
     }
 

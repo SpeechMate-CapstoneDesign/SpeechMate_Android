@@ -27,6 +27,11 @@ sealed class PracticeGraph : Route {
     @Serializable
     data object RecordAudioRoute : PracticeGraph()
 
+    @Serializable
+    data object RecordVideoRoute : PracticeGraph()
+
+    @Serializable
+    data class FeedbackRoute(val speechId : Int): PracticeGraph()
 }
 
 @Serializable

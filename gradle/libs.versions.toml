@@ -23,6 +23,9 @@ androidxComposeNavigation = "2.9.3"
 # https://developer.android.com/jetpack/androidx/releases/compose-foundation
 androidxComposeFoundation = "1.9.0"
 
+# https://google.github.io/accompanist/permissions/
+accompanistPermission = "0.37.3"
+
 ## Kotlin Symbol Processing
 ksp = "2.1.0-1.0.29"
 
@@ -49,6 +52,10 @@ kotlinxSerializationJson = "1.9.0"
 kotlinxCoroutine = "1.10.2"
 gson = "2.13.1"
 
+# https://orbit-mvi.org/
+orbit = "10.0.0"
+
+
 ## OAuth
 # https://developers.kakao.com/docs/latest/ko/android/getting-started#apply-sdk
 kakao = "2.21.6"
@@ -64,6 +71,9 @@ coil = "3.3.0"
 ### audioWaveForm
 audioWaveform = "1.1.1"
 
+# https://developer.android.com/jetpack/androidx/releases/camera?hl=ko
+camerax = "1.5.0-rc01"
+
 ## Test
 # https://github.com/junit-team/junit4
 junit4 = "4.13.2"
@@ -71,7 +81,7 @@ junitJupiter = "5.13.4"
 # https://mockk.io/
 mockk = "1.14.5"
 # https://github.com/pinterest/ktlint
-ktlint = "13.0.0"
+ktlint = "13.1.0"
 # https://developer.android.com/jetpack/androidx/releases/test
 androidxTestRunner = "1.7.0"
 #noinspection GradleDependency
@@ -84,8 +94,7 @@ firebaseCommonKtx = "21.0.0"
 foundationAndroid = "1.9.0"
 activityKtx = "1.10.1"
 
-# https://orbit-mvi.org/
-orbit = "10.0.0"
+
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -118,6 +127,9 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxComposeNavigation" }
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
+# accompanist-permission
+accompanist-permission = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermission" }
+
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutine" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutine" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutine" }
@@ -133,12 +145,13 @@ hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-comp
 
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
-# https://orbit-mvi.org/
+# orbit-mvi
 orbit-core = { group = "org.orbit-mvi", name = "orbit-core", version.ref = "orbit" }
 orbit-viewModel = { group = "org.orbit-mvi", name = "orbit-viewmodel", version.ref = "orbit" }
 orbit-compose = { group = "org.orbit-mvi", name = "orbit-compose", version.ref = "orbit" }
 orbit-test = { group = "org.orbit-mvi", name = "orbit-test", version.ref = "orbit" }
 
+# network
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-kotlin-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
@@ -175,7 +188,19 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 
+# audio-waveform
 audio-waveform = { group = "com.github.lincollincol", name = "compose-audiowaveform", version.ref = "audioWaveform" }
+
+# camerx
+camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+camerax-video = { group = "androidx.camera", name = "camera-video", version.ref = "camerax" }
+camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+camerax-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camerax" }
+camerax-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
+
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
