@@ -156,8 +156,7 @@ class RecordVideoViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun startRecordVideo() = intent {
-        if (recording != null) return@intent
-        val videoCapture = videoCapture ?: return@intent
+        if (recording != null || videoCapture == null) return@intent
 
         val videoFile = File(
             context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
@@ -166,48 +165,57 @@ class RecordVideoViewModel @Inject constructor(
 
         val outputOptions = FileOutputOptions.Builder(videoFile).build()
 
-        val pendingRecording =
-            videoCapture.output.prepareRecording(context, outputOptions).withAudioEnabled()
+        val pendingRecording = videoCapture!!.output.prepareRecording(context, outputOptions)
+            .withAudioEnabled()
+
+        reduce {
+            state.copy(
+                recordingVideoState = RecordingVideoState.Recording,
+                videoFile = videoFile
+            )
+        }
 
         recording = pendingRecording.start(ContextCompat.getMainExecutor(context)) { event ->
+            handleVideoRecordEvent(event, videoFile)
+        }
+    }
 
-            Log.d("RecordVideoViewModel", "Received VideoRecordEvent: $event")
-            when (event) {
-                is VideoRecordEvent.Start -> intent {
-                    Log.d("RecordVideoViewModel", "Event: Start. Changing state to Recording.")
-                    reduce {
-                        state.copy(
-                            recordingVideoState = RecordingVideoState.Recording,
-                            videoFile = videoFile
-                        )
-                    }
-                    startTimer()
-                }
+    private fun handleVideoRecordEvent(event: VideoRecordEvent, videoFile: File) = intent {
+        when (event) {
+            is VideoRecordEvent.Start -> {
+                startTimer()
+            }
 
-                is VideoRecordEvent.Finalize -> intent {
-                    Log.d("RecordVideoViewModel", "Event: Finalize. Error: ${event.error}")
-
-                    if (event.hasError()) {
-                        videoFile.delete()
-                    }
+            is VideoRecordEvent.Finalize -> {
+                if (event.hasError()) {
+                    Log.e(
+                        "RecordVideoViewModel",
+                        "Recording failed with error: ${event.error}, cause : ${event.cause}"
+                    )
+                    cancelRecordVideo()
+                    videoFile.delete()
+                } else {
                     reduce {
                         state.copy(recordingVideoState = RecordingVideoState.Completed)
                     }
-                    stopTimer()
                 }
 
+                recording = null
+                recording?.stop()
+                stopTimer()
+            }
 
-                is VideoRecordEvent.Status -> {
-                    Log.d("RecordVideoViewModel", "📊 Recording status: ${event.recordingStats}")
-                }
 
-                is VideoRecordEvent.Pause -> {
-                    Log.d("RecordVideoViewModel", "⏸️ Recording paused")
-                }
+            is VideoRecordEvent.Status -> {
+                // Log.d("RecordVideoViewModel", "📊 Recording status: ${event.recordingStats}")
+            }
 
-                is VideoRecordEvent.Resume -> {
-                    Log.d("RecordVideoViewModel", "▶️ Recording resumed")
-                }
+            is VideoRecordEvent.Pause -> {
+
+            }
+
+            is VideoRecordEvent.Resume -> {
+
             }
         }
     }
@@ -283,7 +291,7 @@ class RecordVideoViewModel @Inject constructor(
         super.onCleared()
         cameraProvider?.unbindAll()
         recording?.stop()
-        recording = null
         stopTimer()
     }
+
 }

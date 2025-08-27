@@ -10,6 +10,7 @@ import androidx.navigation.navOptions
 import com.speech.auth.navigation.authNavGraph
 import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.navigation.AuthBaseRoute
+import com.speech.navigation.PracticeBaseRoute
 import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import com.speech.practice.navigation.navigateToRecordAudio
@@ -23,7 +24,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AuthBaseRoute,
+        startDestination = PracticeBaseRoute,
         modifier = modifier,
     ) {
 

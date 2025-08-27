@@ -2,6 +2,7 @@ package com.speech.practice.graph.recrodvideo
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.Settings
 import android.view.ViewGroup
@@ -32,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +65,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
+import com.speech.common_ui.ui.LockScreenOrientation
 import com.speech.common_ui.ui.SimpleCircle
 import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
@@ -74,7 +77,6 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
-import com.speech.practice.graph.recordaudio.RecordingAudioState
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -127,7 +129,7 @@ fun RecordVideoScreen(
     bindCamera: (
         lifecycleOwner: LifecycleOwner,
         surfaceProvider: androidx.camera.core.Preview.SurfaceProvider,
-        cameraSelector: CameraSelector
+        cameraSelector: CameraSelector,
     ) -> Unit,
     onSwitchCamera: () -> Unit,
     onStartRecording: () -> Unit,
@@ -149,6 +151,18 @@ fun RecordVideoScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var showSpeechConfigDg by remember { mutableStateOf(false) }
+    val previewView = remember { PreviewView(context) }
+
+    LaunchedEffect(state.cameraSelector) {
+        bindCamera(
+            lifecycleOwner,
+            previewView.surfaceProvider,
+            state.cameraSelector
+        )
+    }
+
+    // 화면 회전 방지
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -163,22 +177,31 @@ fun RecordVideoScreen(
                     .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = state.timeText,
-                    style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold),
-                    color = Color.White
-                )
+                Box(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            if (state.recordingVideoState is RecordingVideoState.Recording) Color.Red else Color.Black.copy(
+                                0.5f
+                            )
+                        )
+                        .padding(horizontal = 3.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = state.timeText,
+                        style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
+                        color = Color.White
+                    )
+                }
+
             }
 
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
-                factory = { ctx ->
-                    PreviewView(ctx).apply {
-                        scaleType = PreviewView.ScaleType.FILL_CENTER
-                    }
-                }, update = { previewView ->
-                    bindCamera(lifecycleOwner, previewView.surfaceProvider, state.cameraSelector)
-                })
+                factory = { previewView }
+            )
         }
 
         Spacer(
@@ -196,7 +219,7 @@ fun RecordVideoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(BottomCenter)
-                        .padding(bottom = 60.dp)
+                        .padding(bottom = 40.dp)
                 ) {
                     RecordVideoButton(
                         modifier = Modifier.align(Center),
@@ -232,7 +255,7 @@ fun RecordVideoScreen(
                         val rotationAngle by animateFloatAsState(
                             targetValue = rotationState,
                             animationSpec = tween(
-                                durationMillis = 1000,
+                                durationMillis = 1500,
                                 easing = LinearOutSlowInEasing
                             ),
                             label = "rotationAnimation"
@@ -249,9 +272,11 @@ fun RecordVideoScreen(
                             painter = painterResource(R.drawable.switch_ic),
                             contentDescription = "카메라 전환",
                             colorFilter = ColorFilter.tint(Color.White),
-                            modifier = Modifier.align(
-                                Center
-                            ).rotate(rotationAngle)
+                            modifier = Modifier
+                                .align(
+                                    Center
+                                )
+                                .rotate(rotationAngle)
                         )
                     }
                 }
@@ -441,7 +466,10 @@ fun RecordVideoScreen(
 
         if (showSpeechConfigDg) {
             SpeechConfigDialog(
-                onDone = onSpeechConfigChange,
+                onDone = { speechConfig ->
+                    onSpeechConfigChange(speechConfig)
+                    onRequestFeedback()
+                },
                 onDismiss = { showSpeechConfigDg = false },
             )
         }
@@ -474,7 +502,6 @@ private fun RecordVideoButton(
         )
     }
 }
-
 
 @Preview(name = "Ready", showBackground = true)
 @Composable
