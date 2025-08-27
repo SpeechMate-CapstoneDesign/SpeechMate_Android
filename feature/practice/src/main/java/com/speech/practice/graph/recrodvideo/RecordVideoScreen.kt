@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.Settings
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -153,6 +154,8 @@ fun RecordVideoScreen(
     var showSpeechConfigDg by remember { mutableStateOf(false) }
     val previewView = remember { PreviewView(context) }
 
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+
     LaunchedEffect(state.cameraSelector) {
         bindCamera(
             lifecycleOwner,
@@ -161,8 +164,9 @@ fun RecordVideoScreen(
         )
     }
 
-    // 화면 회전 방지
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    BackHandler(enabled = true) {
+        onBackPressed()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -204,7 +208,7 @@ fun RecordVideoScreen(
             )
         }
 
-        if(state.recordingVideoState is RecordingVideoState.Ready) {
+        if (state.recordingVideoState is RecordingVideoState.Ready) {
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -263,8 +267,8 @@ fun RecordVideoScreen(
                         )
 
                         SimpleCircle(
-                            diameter = 60.dp,
-                            color = Color.Black.copy(alpha = 0.8f),
+                            diameter = 40.dp,
+                            color = Color.Black.copy(alpha = 0.4f),
                             modifier = Modifier
                                 .align(Center)
                         )
@@ -274,6 +278,7 @@ fun RecordVideoScreen(
                             contentDescription = "카메라 전환",
                             colorFilter = ColorFilter.tint(Color.White),
                             modifier = Modifier
+                                .size(24.dp)
                                 .align(
                                     Center
                                 )

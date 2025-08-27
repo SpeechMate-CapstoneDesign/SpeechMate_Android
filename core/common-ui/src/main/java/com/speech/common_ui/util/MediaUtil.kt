@@ -16,8 +16,6 @@ object MediaUtil {
                 ?.toLongOrNull() ?: 0L
         }
 
-        Log.d("MediaUtil", "durationMs: $durationMs")
-
         return durationMs in MIN_DURATION_MS..MAX_DURATION_MS
     }
 }

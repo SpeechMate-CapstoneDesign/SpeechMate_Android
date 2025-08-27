@@ -70,13 +70,22 @@ class RecordVideoViewModel @Inject constructor(
             is RecordVideoIntent.CancelRecording -> cancelRecordVideo()
             is RecordVideoIntent.PauseRecording -> pauseRecordVideo()
             is RecordVideoIntent.ResumeRecording -> resumeRecordVideo()
-            is RecordVideoIntent.OnBackPressed -> intent {
-                postSideEffect(RecordVideoSideEffect.NavigateBack)
-            }
-
+            is RecordVideoIntent.OnBackPressed -> onBackPressed()
             is RecordVideoIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
             is RecordVideoIntent.OnRequestFeedback -> onRequestFeedback()
             is RecordVideoIntent.SwitchCamera -> switchCamera()
+        }
+    }
+
+    fun onBackPressed() = intent {
+        when (state.recordingVideoState) {
+            is RecordingVideoState.Recording, is RecordingVideoState.Paused -> {
+                cancelRecordVideo()
+            }
+
+            else -> {
+                postSideEffect(RecordVideoSideEffect.NavigateBack)
+            }
         }
     }
 
@@ -194,10 +203,6 @@ class RecordVideoViewModel @Inject constructor(
                     )
                     cancelRecordVideo()
                     videoFile.delete()
-                } else {
-                    reduce {
-                        state.copy(recordingVideoState = RecordingVideoState.Completed)
-                    }
                 }
 
                 recording = null
