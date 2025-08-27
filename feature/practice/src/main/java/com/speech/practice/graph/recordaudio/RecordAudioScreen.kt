@@ -45,12 +45,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
+import com.speech.common_ui.ui.BackButton
 import com.speech.common_ui.ui.SimpleCircle
 import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
@@ -148,18 +148,7 @@ private fun RecordAudioScreen(
                 .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(
-                    onClick = { onBackPressed() },
-                    modifier = Modifier.align(Alignment.TopStart)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                        contentDescription = "뒤로 가기",
-                        modifier = Modifier.size(60.dp)
-                    )
-                }
-            }
+            BackButton(onBackPressed = onBackPressed)
 
             Spacer(Modifier.weight(1f))
 
@@ -202,8 +191,6 @@ private fun RecordAudioScreen(
                                 Center
                             )
                         )
-
-                        Spacer(Modifier.height(60.dp))
                     }
                 }
 

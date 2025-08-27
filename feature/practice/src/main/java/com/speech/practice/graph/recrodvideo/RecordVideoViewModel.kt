@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -57,12 +58,12 @@ class RecordVideoViewModel @Inject constructor(
     private var recordDuration = 0L
     private var timerJob: Job? = null
 
+    init {
+        initializeCamera()
+    }
+
     fun onIntent(event: RecordVideoIntent) {
         when (event) {
-            is RecordVideoIntent.OnRequestPermissionFailure -> intent {
-                postSideEffect(RecordVideoSideEffect.ShowSnackBar("녹화를 위해 카메라 접근 권한 허용이 필요합니다."))
-            }
-
             is RecordVideoIntent.StartRecording -> startRecordVideo()
             is RecordVideoIntent.FinishRecording -> finishRecordVideo()
             is RecordVideoIntent.CancelRecording -> cancelRecordVideo()
@@ -74,12 +75,25 @@ class RecordVideoViewModel @Inject constructor(
 
             is RecordVideoIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
             is RecordVideoIntent.OnRequestFeedback -> onRequestFeedback()
+            is RecordVideoIntent.SwitchCamera -> switchCamera()
         }
     }
 
     fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
         reduce {
             state.copy(speechConfig = speechConfig)
+        }
+    }
+
+    private fun switchCamera() = intent {
+        reduce {
+            state.copy(
+                cameraSelector = if (state.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                }
+            )
         }
     }
 
@@ -95,8 +109,7 @@ class RecordVideoViewModel @Inject constructor(
 
         suspendRunCatching {
             speechRepository.uploadFromPath(
-                filePath = state.videoFile!!.path,
-                speechConfig = state.speechConfig
+                filePath = state.videoFile!!.path, speechConfig = state.speechConfig
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordVideoSideEffect.NavigateToFeedback(speechId))
@@ -105,7 +118,7 @@ class RecordVideoViewModel @Inject constructor(
         }
     }
 
-    private fun initializeCamera(context: Context) {
+    private fun initializeCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProvider = cameraProviderFuture.get()
 
@@ -113,14 +126,11 @@ class RecordVideoViewModel @Inject constructor(
     }
 
     private fun setupVideoCapture() {
-        val recorder = Recorder.Builder()
-            .setQualitySelector(
-                QualitySelector.from(
-                    Quality.HD,
-                    FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
-                )
+        val recorder = Recorder.Builder().setQualitySelector(
+            QualitySelector.from(
+                Quality.HD, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
             )
-            .build()
+        ).build()
 
         videoCapture = VideoCapture.withOutput(recorder)
     }
@@ -129,25 +139,19 @@ class RecordVideoViewModel @Inject constructor(
         cameraProvider?.let { provider ->
             provider.unbindAll()
 
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(surfaceProvider)
-                }
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(surfaceProvider)
+            }
 
             provider.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                preview,
-                videoCapture
+                lifecycleOwner, container.stateFlow.value.cameraSelector, preview, videoCapture
             )
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun startRecordVideo() = intent {
+        recording?.stop()
         val videoCapture = videoCapture ?: return@intent
 
         val videoFile = File(
@@ -157,40 +161,56 @@ class RecordVideoViewModel @Inject constructor(
 
         val outputOptions = FileOutputOptions.Builder(videoFile).build()
 
-        recording = videoCapture.output
-            .prepareRecording(context, outputOptions)
-            .apply {
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.RECORD_AUDIO
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    withAudioEnabled()
-                }
+        val pendingRecording = videoCapture.output.prepareRecording(context, outputOptions).apply {
+            if (ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                withAudioEnabled()
             }
-            .start(ContextCompat.getMainExecutor(context)) { event ->
-                when (event) {
-                    is VideoRecordEvent.Start -> intent {
-                        reduce {
-                            state.copy(
-                                recordingVideoState = RecordingVideoState.Recording,
-                                videoFile = videoFile
-                            )
-                        }
-                        startTimer()
-                    }
+        }
 
-                    is VideoRecordEvent.Finalize -> intent {
-                        if (event.hasError()) {
-                            videoFile.delete()
-                        }
-                        reduce {
-                            state.copy(recordingVideoState = RecordingVideoState.Completed)
-                        }
-                        stopTimer()
+        recording = pendingRecording.start(ContextCompat.getMainExecutor(context)) { event ->
+
+            Log.d("RecordVideoViewModel", "Received VideoRecordEvent: $event")
+            when (event) {
+                is VideoRecordEvent.Start -> intent {
+                    Log.d("RecordVideoViewModel", "Event: Start. Changing state to Recording.")
+                    reduce {
+                        state.copy(
+                            recordingVideoState = RecordingVideoState.Recording,
+                            videoFile = videoFile
+                        )
                     }
+                    startTimer()
+                }
+
+                is VideoRecordEvent.Finalize -> intent {
+                    Log.d("RecordVideoViewModel", "Event: Finalize. Error: ${event.error}")
+
+                    if (event.hasError()) {
+                        videoFile.delete()
+                    }
+                    reduce {
+                        state.copy(recordingVideoState = RecordingVideoState.Completed)
+                    }
+                    stopTimer()
+                }
+
+
+                is VideoRecordEvent.Status -> {
+                    Log.d("RecordVideoViewModel", "📊 Recording status: ${event.recordingStats}")
+                }
+
+                is VideoRecordEvent.Pause -> {
+                    Log.d("RecordVideoViewModel", "⏸️ Recording paused")
+                }
+
+                is VideoRecordEvent.Resume -> {
+                    Log.d("RecordVideoViewModel", "▶️ Recording resumed")
                 }
             }
+        }
     }
 
     private fun pauseRecordVideo() = intent {
@@ -253,10 +273,9 @@ class RecordVideoViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopTimer()
-        recording?.stop()
         cameraProvider?.unbindAll()
-
+        recording?.stop()
+        stopTimer()
     }
 
 }
