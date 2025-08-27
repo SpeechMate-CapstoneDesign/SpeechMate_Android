@@ -156,7 +156,7 @@ class RecordVideoViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun startRecordVideo() = intent {
-        recording?.stop()
+        if (recording != null) return@intent
         val videoCapture = videoCapture ?: return@intent
 
         val videoFile = File(
@@ -166,14 +166,8 @@ class RecordVideoViewModel @Inject constructor(
 
         val outputOptions = FileOutputOptions.Builder(videoFile).build()
 
-        val pendingRecording = videoCapture.output.prepareRecording(context, outputOptions).apply {
-            if (ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.RECORD_AUDIO
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                withAudioEnabled()
-            }
-        }
+        val pendingRecording =
+            videoCapture.output.prepareRecording(context, outputOptions).withAudioEnabled()
 
         recording = pendingRecording.start(ContextCompat.getMainExecutor(context)) { event ->
 
@@ -239,14 +233,15 @@ class RecordVideoViewModel @Inject constructor(
     }
 
     fun cancelRecordVideo() = intent {
-        if (state.recordingVideoState !is RecordingVideoState.Recording && state.recordingVideoState !is RecordingVideoState.Paused) return@intent
-
         stopTimer()
         recording?.stop()
         recording = null
-
+        recordDuration = 0
         reduce {
-            state.copy(recordingVideoState = RecordingVideoState.Ready)
+            state.copy(
+                timeText = "00 : 00",
+                recordingVideoState = RecordingVideoState.Ready
+            )
         }
     }
 
@@ -288,7 +283,7 @@ class RecordVideoViewModel @Inject constructor(
         super.onCleared()
         cameraProvider?.unbindAll()
         recording?.stop()
+        recording = null
         stopTimer()
     }
-
 }

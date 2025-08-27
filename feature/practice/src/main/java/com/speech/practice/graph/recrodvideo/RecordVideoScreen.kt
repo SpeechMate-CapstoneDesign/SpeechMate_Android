@@ -7,6 +7,9 @@ import android.provider.Settings
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +42,7 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -161,7 +165,7 @@ fun RecordVideoScreen(
             ) {
                 Text(
                     text = state.timeText,
-                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.SemiBold),
+                    style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold),
                     color = Color.White
                 )
             }
@@ -214,15 +218,26 @@ fun RecordVideoScreen(
                         }
                     )
 
+                    var rotationState by remember { mutableStateOf(0f) }
 
                     Box(
                         modifier = Modifier
                             .clickable {
+                                rotationState += 360
                                 onSwitchCamera()
                             }
                             .align(Alignment.CenterEnd)
                             .padding(end = 45.dp)
                     ) {
+                        val rotationAngle by animateFloatAsState(
+                            targetValue = rotationState,
+                            animationSpec = tween(
+                                durationMillis = 1000,
+                                easing = LinearOutSlowInEasing
+                            ),
+                            label = "rotationAnimation"
+                        )
+
                         SimpleCircle(
                             diameter = 60.dp,
                             color = Color.Black.copy(alpha = 0.8f),
@@ -233,10 +248,10 @@ fun RecordVideoScreen(
                         Image(
                             painter = painterResource(R.drawable.switch_ic),
                             contentDescription = "카메라 전환",
+                            colorFilter = ColorFilter.tint(Color.White),
                             modifier = Modifier.align(
                                 Center
-                            ),
-                            colorFilter = ColorFilter.tint(Color.White)
+                            ).rotate(rotationAngle)
                         )
                     }
                 }
