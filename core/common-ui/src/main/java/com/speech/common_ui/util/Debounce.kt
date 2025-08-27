@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun rememberDebouncedOnClick(
-    timeoutMillis: Long = 500L, // 기본 타임아웃 0.5초
+    timeoutMillis: Long = 500L, // 기본 타임아웃
     onClick: () -> Unit
 ): () -> Unit {
     var lastClickTime by remember { mutableStateOf(0L) }

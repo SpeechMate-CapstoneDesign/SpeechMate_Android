@@ -166,14 +166,18 @@ class RecordAudioViewModel @Inject constructor(
             while (state.recordingAudioState is RecordingAudioState.Recording) {
                 delay(10)
                 recordDuration += 10
-                reduce {
-                    val m = (recordDuration / 1000) / 60
-                    val s = (recordDuration / 1000) % 60
-                    val ms = ((recordDuration % 1000) / 10).toInt()
-                    state.copy(
-                        timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
-                    )
+
+                if(recordDuration % 130 == 0L) {
+                    reduce {
+                        val m = (recordDuration / 1000) / 60
+                        val s = (recordDuration / 1000) % 60
+                        val ms = ((recordDuration % 1000) / 10).toInt()
+                        state.copy(
+                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+                        )
+                    }
                 }
+
             }
         }
     }

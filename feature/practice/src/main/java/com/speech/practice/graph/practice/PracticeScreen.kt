@@ -54,7 +54,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 internal fun PracticeRoute(
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedback : (Int) -> Unit,
+    navigateToFeedback: (Int) -> Unit,
     viewModel: PracticeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -90,9 +90,6 @@ private fun PracticeScreen(
     onUploadSpeechFile: (Uri) -> Unit,
     onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
-    val debouncedRecordAudioClick = rememberDebouncedOnClick { onRecordAudioClick() }
-    val debouncedRecordVideoClick = rememberDebouncedOnClick { onRecordVideoClick() }
-
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -131,9 +128,10 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordAudio)
                                 .padding(20.dp)
-                                .clickable {
-                                    debouncedRecordAudioClick()
-                                },
+                                .clickable(onClick = rememberDebouncedOnClick {
+                                    onRecordAudioClick()
+                                })
+
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -157,9 +155,9 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordVideo)
                                 .padding(20.dp)
-                                .clickable {
-                                    debouncedRecordVideoClick()
-                                },
+                                .clickable(onClick = rememberDebouncedOnClick {
+                                    onRecordVideoClick()
+                                })
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically

@@ -102,9 +102,7 @@ internal fun RecordVideoRoute(
                 }
             }
 
-            is RecordVideoSideEffect.NavigateBack -> {
-                rememberDebouncedOnClick { navigateBack() }
-            }
+            is RecordVideoSideEffect.NavigateBack -> navigateBack()
             is RecordVideoSideEffect.NavigateToFeedback -> {
                 navigateToFeedBack(sideEffect.speechId)
             }
