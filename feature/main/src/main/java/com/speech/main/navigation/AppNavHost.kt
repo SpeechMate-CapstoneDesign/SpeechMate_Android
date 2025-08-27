@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.navOptions
 import com.speech.auth.navigation.authNavGraph
 import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.navigation.AuthBaseRoute
@@ -29,22 +28,15 @@ fun AppNavHost(
     ) {
 
         practiceNavGraph(
-            navigateBack = { navigateBack(navController) },
+            navigateBack = navController::popBackStack,
             navigateToRecordAudio = navController::navigateToRecordAudio,
             navigateToRecordVideo = navController::navigateToRecordVideo,
             navigateToFeedBack = navController::navigateToFeedback,
         )
 
         authNavGraph(
-            navigateBack = { navigateBack(navController) },
             navigateToPractice = {
-                navController.navigateToPractice(
-                    navOptions {
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                    }
-                )
+                navController.navigateToPractice()
             },
             navigateToOnBoarding = { idToken ->
                 navController.navigateToOnBoarding(idToken)
@@ -53,8 +45,3 @@ fun AppNavHost(
     }
 }
 
-private fun navigateBack(
-    navController: NavHostController
-) {
-    navController.popBackStack()
-}

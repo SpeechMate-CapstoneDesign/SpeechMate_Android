@@ -56,6 +56,7 @@ import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
 import com.speech.common_ui.ui.StrokeRoundRectangle
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
@@ -142,6 +143,7 @@ private fun RecordAudioScreen(
     val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -149,7 +151,7 @@ private fun RecordAudioScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                BackButton(onBackPressed = onBackPressed)
+                BackButton(onBackPressed = debouncedOnBackPressed)
             }
 
             Spacer(Modifier.weight(1f))

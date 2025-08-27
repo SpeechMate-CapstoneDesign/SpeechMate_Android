@@ -72,6 +72,7 @@ import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
 import com.speech.common_ui.ui.StrokeRoundRectangle
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryActive
@@ -101,7 +102,9 @@ internal fun RecordVideoRoute(
                 }
             }
 
-            is RecordVideoSideEffect.NavigateBack -> navigateBack()
+            is RecordVideoSideEffect.NavigateBack -> {
+                rememberDebouncedOnClick { navigateBack() }
+            }
             is RecordVideoSideEffect.NavigateToFeedback -> {
                 navigateToFeedBack(sideEffect.speechId)
             }

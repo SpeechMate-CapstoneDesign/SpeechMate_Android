@@ -29,6 +29,7 @@ import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
+import com.speech.common_ui.util.rememberDebouncedOnClick
 
 
 @Composable
@@ -70,6 +71,13 @@ fun LoginScreen(
     onLoginFailure: () -> Unit
 ) {
     val context = LocalContext.current
+    val debouncedKakaoLoginClick = rememberDebouncedOnClick {
+        loginKakao(
+            context,
+            onSuccess = { idToken -> onLoginKakaoClick(idToken) },
+            onFailure = { onLoginFailure() }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -92,11 +100,7 @@ fun LoginScreen(
         Image(
             painter = painterResource(R.drawable.kakao_login),
             contentDescription = "카카오 로그인",
-            modifier = Modifier.clickable {
-                loginKakao(context, onSuccess = { idToken ->
-                    onLoginKakaoClick(idToken)
-                }, onFailure = { onLoginFailure() })
-            }
+            modifier = Modifier.clickable { debouncedKakaoLoginClick() }
         )
 
         Spacer(Modifier.weight(2f))

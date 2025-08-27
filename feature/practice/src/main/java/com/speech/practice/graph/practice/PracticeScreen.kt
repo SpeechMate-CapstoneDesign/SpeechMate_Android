@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechConfigDialog
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
@@ -89,6 +90,9 @@ private fun PracticeScreen(
     onUploadSpeechFile: (Uri) -> Unit,
     onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
+    val debouncedRecordAudioClick = rememberDebouncedOnClick { onRecordAudioClick() }
+    val debouncedRecordVideoClick = rememberDebouncedOnClick { onRecordVideoClick() }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -128,7 +132,7 @@ private fun PracticeScreen(
                                 .background(RecordAudio)
                                 .padding(20.dp)
                                 .clickable {
-                                    onRecordAudioClick()
+                                    debouncedRecordAudioClick()
                                 },
                         ) {
                             Row(
@@ -153,8 +157,8 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordVideo)
                                 .padding(20.dp)
-                                .clickable(isRipple = true) {
-                                    onRecordVideoClick()
+                                .clickable {
+                                    debouncedRecordVideoClick()
                                 },
                         ) {
                             Row(

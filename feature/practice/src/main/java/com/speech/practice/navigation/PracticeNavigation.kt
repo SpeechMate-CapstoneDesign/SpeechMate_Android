@@ -48,15 +48,13 @@ fun NavGraphBuilder.practiceNavGraph(
 
         composable<PracticeGraph.RecordAudioRoute> {
             RecordAudioRoute(
-                navigateBack = navigateBack,
-                navigateToFeedBack = navigateToFeedBack
+                navigateBack = navigateBack, navigateToFeedBack = navigateToFeedBack
             )
         }
 
         composable<PracticeGraph.RecordVideoRoute> {
             RecordVideoRoute(
-                navigateBack = navigateBack,
-                navigateToFeedBack = navigateToFeedBack
+                navigateBack = navigateBack, navigateToFeedBack = navigateToFeedBack
             )
         }
 
