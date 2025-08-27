@@ -1,9 +1,5 @@
 package com.speech.common_ui.ui
 
-import android.graphics.ColorFilter
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton

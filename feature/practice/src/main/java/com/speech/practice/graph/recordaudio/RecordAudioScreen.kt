@@ -148,7 +148,9 @@ private fun RecordAudioScreen(
                 .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BackButton(onBackPressed = onBackPressed)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                BackButton(onBackPressed = onBackPressed)
+            }
 
             Spacer(Modifier.weight(1f))
 

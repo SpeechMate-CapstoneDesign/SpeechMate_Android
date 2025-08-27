@@ -187,7 +187,7 @@ fun RecordVideoScreen(
                                 0.5f
                             )
                         )
-                        .padding(horizontal = 3.dp, vertical = 3.dp)
+                        .padding(horizontal = 5.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = state.timeText,
@@ -204,14 +204,15 @@ fun RecordVideoScreen(
             )
         }
 
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black.copy(0.3f))
-                .align(BottomCenter)
-                .height(200.dp)
-
-        )
+        if(state.recordingVideoState is RecordingVideoState.Ready) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(0.3f))
+                    .align(BottomCenter)
+                    .height(160.dp)
+            )
+        }
 
         when (state.recordingVideoState) {
             is RecordingVideoState.Ready -> {
@@ -287,7 +288,7 @@ fun RecordVideoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(BottomCenter)
-                        .padding(bottom = 60.dp),
+                        .padding(bottom = 40.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(Modifier.weight(1f))
