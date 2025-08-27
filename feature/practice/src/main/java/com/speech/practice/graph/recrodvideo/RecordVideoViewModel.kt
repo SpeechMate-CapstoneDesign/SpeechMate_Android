@@ -253,7 +253,8 @@ class RecordVideoViewModel @Inject constructor(
         reduce {
             state.copy(
                 timeText = "00 : 00",
-                recordingVideoState = RecordingVideoState.Ready
+                recordingVideoState = RecordingVideoState.Ready,
+                videoFile = null
             )
         }
     }
