@@ -10,6 +10,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,8 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
@@ -149,7 +153,18 @@ fun RecordVideoScreen(
                 .background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.height(50.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = state.timeText,
+                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.SemiBold),
+                    color = Color.White
+                )
+            }
 
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -331,7 +346,7 @@ fun RecordVideoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(BottomCenter)
-                        .padding(bottom = 60.dp)
+                        .padding(bottom = 40.dp)
                 ) {
                     Box(
                         modifier = Modifier

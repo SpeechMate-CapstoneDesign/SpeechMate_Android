@@ -39,6 +39,7 @@ import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.use
 
@@ -245,7 +246,7 @@ class RecordVideoViewModel @Inject constructor(
         recording = null
 
         reduce {
-            state.copy(recordingVideoState = RecordingVideoState.Completed)
+            state.copy(recordingVideoState = RecordingVideoState.Ready)
         }
     }
 
@@ -264,8 +265,16 @@ class RecordVideoViewModel @Inject constructor(
     private fun startTimer() = intent {
         timerJob = viewModelScope.launch {
             while (state.recordingVideoState == RecordingVideoState.Recording) {
-                delay(10)
-                recordDuration += 10
+                delay(1000)
+                recordDuration += 1000
+                reduce {
+                    val minutes = (recordDuration / 1000) / 60
+                    val seconds = (recordDuration / 1000) % 60
+                    state.copy(
+                        timeText = String.format(Locale.US, "%02d : %02d", minutes, seconds)
+                    )
+                }
+
             }
         }
     }
