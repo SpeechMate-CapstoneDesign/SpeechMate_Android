@@ -11,16 +11,16 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val authRepository: AuthRepository
-) : ContainerHost<SettingState, SettingSideEffect>, ViewModel() {
-    override val container = container<SettingState, SettingSideEffect>(SettingState())
+) : ContainerHost<Unit, SettingSideEffect>, ViewModel() {
+    override val container = container<Unit, SettingSideEffect>(Unit)
     fun onIntent(intent: SettingIntent) {
         when (intent) {
             is SettingIntent.OnBackPressed -> intent {
                 postSideEffect(SettingSideEffect.NavigateToBack)
             }
             is SettingIntent.OnLogout -> onLogout()
-            is SettingIntent.OnUnRegister -> onUnRegister()
-            is SettingIntent.OnPolicyClick -> intent {
+            is SettingIntent.OnUnRegisterUser -> onUnRegisterUser()
+                SettingIntent.OnPolicyClick -> intent {
                 postSideEffect(SettingSideEffect.NavigateToPolicy)
             }
 
@@ -30,11 +30,8 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    fun onLogout() = intent {
-        reduce {
-            state.copy(showLogoutDialog = true)
-        }
 
+    fun onLogout() = intent {
         suspendRunCatching {
             authRepository.logOut()
         }.onSuccess {
@@ -44,7 +41,7 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    fun onUnRegister() = intent {
+    fun onUnRegisterUser() = intent {
         suspendRunCatching {
             authRepository.unRegisterUser()
         }.onSuccess {

@@ -4,16 +4,14 @@ import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 
-data class SettingState(
-    val showLogoutDialog: Boolean = false,
-    val showUnRegisterDialog: Boolean = false
-) : UiState
+//data class SettingState(
+//) : UiState
 
 sealed class SettingIntent : UiIntent {
     data object OnBackPressed : SettingIntent()
     data object OnPolicyClick : SettingIntent()
     data object OnLogout : SettingIntent()
-    data object OnUnRegister : SettingIntent()
+    data object OnUnRegisterUser : SettingIntent()
     data object OnInquiry : SettingIntent()
 }
 

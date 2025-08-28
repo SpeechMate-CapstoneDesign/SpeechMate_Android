@@ -21,7 +21,7 @@ fun CheckCancelDialog(
     onCheck: () -> Unit,
     onDismiss: () -> Unit,
     title: String? = null,
-    dialogText: String,
+    content: String,
     checkText: String? = null,
 ) {
     AlertDialog(
@@ -31,7 +31,7 @@ fun CheckCancelDialog(
                 Text(text = title, style = SpeechMateTheme.typography.bodyMSB)
             }
         },
-        text = { Text(dialogText, style = SpeechMateTheme.typography.bodySM) },
+        text = { Text(content, style = SpeechMateTheme.typography.bodySM) },
         shape = RoundedCornerShape(8.dp),
         containerColor = White,
         confirmButton = {
@@ -66,7 +66,7 @@ fun CheckCancelDialogPreview() {
             onCheck = {},
             onDismiss = {},
             title = "제목",
-            dialogText = "정말로 ~~ 하시겠습니까?"
+            content = "정말로 ~~ 하시겠습니까?"
         )
     }
 }

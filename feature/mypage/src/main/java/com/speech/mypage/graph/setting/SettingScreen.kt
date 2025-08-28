@@ -12,7 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
+import com.speech.common_ui.ui.CheckCancelDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.SpeechMateTheme
@@ -48,7 +53,6 @@ internal fun SettingRoute(
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
-
             is SettingSideEffect.NavigateToBack -> navigateToBack()
             is SettingSideEffect.NavigateToPolicy -> navigateToPolicy()
             is SettingSideEffect.NavigateToInquiry -> navigateToInquiry()
@@ -56,25 +60,46 @@ internal fun SettingRoute(
         }
     }
 
+
     SettingScreen(
-        state = state,
         onBackPressed = { viewModel.onIntent(SettingIntent.OnBackPressed) },
         onPolicyClick = { viewModel.onIntent(SettingIntent.OnPolicyClick) },
         onLogout = { viewModel.onIntent(SettingIntent.OnLogout) },
-        onUnRegister = { viewModel.onIntent(SettingIntent.OnUnRegister) },
+        onUnRegisterUser = { viewModel.onIntent(SettingIntent.OnUnRegisterUser) },
         onInquiry = { viewModel.onIntent(SettingIntent.OnInquiry) }
     )
 }
 
 @Composable
 private fun SettingScreen(
-    state: SettingState,
     onBackPressed: () -> Unit,
     onLogout: () -> Unit,
-    onUnRegister: () -> Unit,
+    onUnRegisterUser: () -> Unit,
     onPolicyClick: () -> Unit,
     onInquiry: () -> Unit,
 ) {
+    var showLogoutDg by remember { mutableStateOf(false) }
+    var showUnRegisterDg by remember { mutableStateOf(false) }
+
+    if (showLogoutDg) {
+        CheckCancelDialog(
+            title = "로그아웃",
+            content = "정말로 로그아웃 하시겠습니까?",
+            onCheck = onLogout,
+            onDismiss = { showLogoutDg = false }
+        )
+    }
+
+    if (showUnRegisterDg) {
+        CheckCancelDialog(
+            title = "회원탈퇴",
+            content = "회원탈퇴 시 모든 정보가 삭제되며, 복구할 수 없습니다. 정말로 탈퇴하시겠습니까?",
+            onCheck = onUnRegisterUser,
+            onDismiss = { showUnRegisterDg = false }
+        )
+    }
+
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -160,7 +185,7 @@ private fun SettingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(onClick = rememberDebouncedOnClick {
-                            onLogout()
+                            showLogoutDg = true
                         })
                 ) {
                     Text(
@@ -175,11 +200,11 @@ private fun SettingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(onClick = rememberDebouncedOnClick {
-                            onUnRegister()
+                            showUnRegisterDg = true
                         })
                 ) {
                     Text(
-                        "회원 탈퇴",
+                        "회원탈퇴",
                         style = SpeechMateTheme.typography.bodyMM
                     )
                 }
@@ -204,6 +229,7 @@ private fun SettingScreen(
 
             Text("설정", style = SpeechMateTheme.typography.bodyMSB)
         }
+
     }
 }
 
@@ -211,11 +237,10 @@ private fun SettingScreen(
 @Preview(showBackground = true)
 private fun SettingScreenPreview() {
     SettingScreen(
-        state = SettingState(),
         onBackPressed = {},
         onPolicyClick = {},
         onLogout = {},
-        onUnRegister = {},
+        onUnRegisterUser = {},
         onInquiry = {}
     )
 }
