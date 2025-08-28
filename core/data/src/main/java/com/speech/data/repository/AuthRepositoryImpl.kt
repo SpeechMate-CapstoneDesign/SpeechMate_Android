@@ -17,25 +17,61 @@ class AuthRepositoryImpl @Inject constructor(
         val response = authDataSource.loginKakao(idToken)
 
         if (!response.newUser) {
-    
-        } 
-            coroutineScope {
-                val accessTokenJob = launch {
-                    response.access?.let { localTokenDataSource.setAccessToken(it) }
-                }
 
-                val refreshTokenJob = launch {
-                    response.refresh?.let { localTokenDataSource.setRefreshToken(it) }
-                }
-
-                joinAll(accessTokenJob, refreshTokenJob)
+        }
+        coroutineScope {
+            val accessTokenJob = launch {
+                response.access?.let { localTokenDataSource.setAccessToken(it) }
             }
 
+            val refreshTokenJob = launch {
+                response.refresh?.let { localTokenDataSource.setRefreshToken(it) }
+            }
+
+            joinAll(accessTokenJob, refreshTokenJob)
+        }
 
         return response.newUser
     }
 
-//    override suspend fun signupKakao(idToken: String, skill: String): Result<Unit> {
-//        TODO("Not yet implemented")
-//    }
+    override suspend fun signupKakao(idToken: String, skills: List<String>) {
+        val response = authDataSource.signupKakao(idToken = idToken, skills = skills)
+
+        coroutineScope {
+            val accessTokenJob = launch {
+                response.access.let { localTokenDataSource.setAccessToken(it) }
+            }
+
+            val refreshTokenJob = launch {
+                response.refresh.let { localTokenDataSource.setRefreshToken(it) }
+            }
+
+            joinAll(accessTokenJob, refreshTokenJob)
+        }
+    }
+
+    override suspend fun logOut() {
+        authDataSource.logout()
+
+        coroutineScope {
+            val clearTokenJob = launch {
+                localTokenDataSource.clearToken()
+            }
+
+            clearTokenJob.join()
+        }
+    }
+
+    override suspend fun unRegisterUser() {
+        authDataSource.unRegisterUser()
+
+        coroutineScope {
+            val clearTokenJob = launch {
+                localTokenDataSource.clearToken()
+            }
+
+            clearTokenJob.join()
+        }
+    }
+
 }

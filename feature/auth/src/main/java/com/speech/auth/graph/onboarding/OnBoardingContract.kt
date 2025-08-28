@@ -8,6 +8,7 @@ import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 
 data class OnBoardingState(
+    val idToken: String = "",
     val selectedVerbalSkills: List<VerbalSkill> = emptyList(),
     val selectedNonVerbalSkills: List<NonVerbalSkill> = emptyList(),
     val signUpAvailable: Boolean = false
@@ -16,7 +17,7 @@ data class OnBoardingState(
 sealed class OnBoardingIntent : UiIntent {
     data class ToggleVerbalSkill(val verbalSkill: VerbalSkill) : OnBoardingIntent()
     data class ToggleNonVerbalSkill(val nonVerbalSkill: NonVerbalSkill) : OnBoardingIntent()
-   // data class SignUp() : OnBoardingIntent()
+    data object OnSignUpClick : OnBoardingIntent()
 }
 
 sealed interface OnBoardingSideEffect : UiSideEffect {

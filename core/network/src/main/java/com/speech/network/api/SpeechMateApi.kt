@@ -28,6 +28,12 @@ interface SpeechMateApi {
     @POST("/api/auth/reissue")
     suspend fun reissueToken(@Body reissueTokenRequest: ReissueTokenRequest) : ApiResponse<ReissueTokenResponse>
 
+    @POST("/api/auth/logout")
+    suspend fun logout() : ApiResponse<Unit>
+
+    @POST("/api/auth/withdraw")
+    suspend fun unRegisterUser() : ApiResponse<Unit>
+
     // Speech Analysis
     @POST("/api/speech/presignedWithS3")
     suspend fun getPresignedUrl(@Query("fileExtension") fileExtension: String) : ApiResponse<GetPresignedUrlResponse>

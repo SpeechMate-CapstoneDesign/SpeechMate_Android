@@ -9,9 +9,8 @@ import com.speech.mypage.graph.mypage.MyPageRoute
 import com.speech.mypage.graph.setting.SettingRoute
 import com.speech.navigation.MyPageBaseRoute
 import com.speech.navigation.MyPageGraph
-import com.speech.navigation.PracticeGraph
 
-fun NavController.navigateToMyPgae(navOptions: NavOptions? = null) {
+fun NavController.navigateToMyPage(navOptions: NavOptions? = null) {
     navigate(MyPageGraph.MyPageRoute, navOptions)
 }
 
@@ -21,6 +20,9 @@ fun NavController.navigateToSetting(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.myPageNavGraph(
     navigateBack: () -> Unit,
+    navigateToLogin: () -> Unit,
+    navigateToPolicy: () -> Unit,
+    navigateToInquiry: () -> Unit,
     navigateToSetting: () -> Unit,
     navigateToFeedBack: (Int) -> Unit
 ) {
@@ -34,7 +36,10 @@ fun NavGraphBuilder.myPageNavGraph(
 
         composable<MyPageGraph.SettingRoute> {
             SettingRoute(
-                navigateToBack = navigateBack
+                navigateToBack = navigateBack,
+                navigateToLogin = navigateToLogin,
+                navigateToPolicy = navigateToPolicy,
+                navigateToInquiry = navigateToInquiry
             )
         }
     }

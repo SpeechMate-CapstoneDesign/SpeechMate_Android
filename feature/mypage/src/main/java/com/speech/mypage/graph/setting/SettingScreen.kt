@@ -22,8 +22,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.SpeechMateTheme
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
@@ -34,6 +36,7 @@ internal fun SettingRoute(
     navigateToInquiry: () -> Unit,
     viewModel: SettingViewModel = hiltViewModel()
 ) {
+    val state = viewModel.collectAsState().value
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
@@ -54,6 +57,7 @@ internal fun SettingRoute(
     }
 
     SettingScreen(
+        state = state,
         onBackPressed = { viewModel.onIntent(SettingIntent.OnBackPressed) },
         onPolicyClick = { viewModel.onIntent(SettingIntent.OnPolicyClick) },
         onLogout = { viewModel.onIntent(SettingIntent.OnLogout) },
@@ -64,6 +68,7 @@ internal fun SettingRoute(
 
 @Composable
 private fun SettingScreen(
+    state: SettingState,
     onBackPressed: () -> Unit,
     onLogout: () -> Unit,
     onUnRegister: () -> Unit,
@@ -108,9 +113,10 @@ private fun SettingScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .clickable(onClick = rememberDebouncedOnClick {
                             onInquiry()
-                        }) {
+                        })
+                ) {
                     Text(
                         "문의하기",
                         style = SpeechMateTheme.typography.bodyMM
@@ -122,9 +128,10 @@ private fun SettingScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .clickable(onClick = rememberDebouncedOnClick {
                             onPolicyClick()
-                        }) {
+                        })
+                ) {
                     Text(
                         "개인정보처리방침",
                         style = SpeechMateTheme.typography.bodyMM
@@ -152,9 +159,10 @@ private fun SettingScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-
-                        }) {
+                        .clickable(onClick = rememberDebouncedOnClick {
+                            onLogout()
+                        })
+                ) {
                     Text(
                         "로그아웃",
                         style = SpeechMateTheme.typography.bodyMM
@@ -166,9 +174,10 @@ private fun SettingScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-
-                        }) {
+                        .clickable(onClick = rememberDebouncedOnClick {
+                            onUnRegister()
+                        })
+                ) {
                     Text(
                         "회원 탈퇴",
                         style = SpeechMateTheme.typography.bodyMM
@@ -202,6 +211,7 @@ private fun SettingScreen(
 @Preview(showBackground = true)
 private fun SettingScreenPreview() {
     SettingScreen(
+        state = SettingState(),
         onBackPressed = {},
         onPolicyClick = {},
         onLogout = {},
