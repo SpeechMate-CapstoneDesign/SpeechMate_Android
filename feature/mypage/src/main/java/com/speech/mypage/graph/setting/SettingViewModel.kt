@@ -14,6 +14,9 @@ class SettingViewModel @Inject constructor(
     override val container = container<Unit, SettingSideEffect>(Unit)
     fun onIntent(intent: SettingIntent) {
         when (intent) {
+            is SettingIntent.OnBackPressed -> intent {
+                postSideEffect(SettingSideEffect.NavigateToBack)
+            }
             is SettingIntent.OnLogout -> onLogOut()
             is SettingIntent.OnUnRegister -> onUnRegister()
             is SettingIntent.OnPolicyClick -> intent {
