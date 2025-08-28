@@ -40,4 +40,5 @@ data object MyPageBaseRoute : Route
 sealed class MyPageGraph : Route {
     @Serializable
     data object MyPageRoute : MyPageGraph()
+    data object SettingRoute : MyPageGraph()
 }

@@ -8,6 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.speech.auth.navigation.authNavGraph
 import com.speech.auth.navigation.navigateToOnBoarding
+import com.speech.mypage.navigation.myPageNavGraph
+import com.speech.mypage.navigation.navigateToSetting
 import com.speech.navigation.AuthBaseRoute
 import com.speech.navigation.PracticeBaseRoute
 import com.speech.practice.navigation.navigateToFeedback
@@ -26,6 +28,14 @@ fun AppNavHost(
         startDestination = AuthBaseRoute,
         modifier = modifier,
     ) {
+        authNavGraph(
+            navigateToPractice = {
+                navController.navigateToPractice()
+            },
+            navigateToOnBoarding = { idToken ->
+                navController.navigateToOnBoarding(idToken)
+            }
+        )
 
         practiceNavGraph(
             navigateBack = navController::popBackStack,
@@ -34,13 +44,10 @@ fun AppNavHost(
             navigateToFeedBack = navController::navigateToFeedback,
         )
 
-        authNavGraph(
-            navigateToPractice = {
-                navController.navigateToPractice()
-            },
-            navigateToOnBoarding = { idToken ->
-                navController.navigateToOnBoarding(idToken)
-            }
+        myPageNavGraph(
+            navigateBack = navController::popBackStack,
+            navigateToSetting = navController::navigateToSetting,
+            navigateToFeedBack = navController::navigateToFeedback,
         )
     }
 }
