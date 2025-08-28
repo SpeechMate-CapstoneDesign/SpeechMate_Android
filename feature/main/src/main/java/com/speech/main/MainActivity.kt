@@ -51,8 +51,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         requestPermissions(this)
 
-        viewModel.checkSession()
-
         setContent {
             val navController = rememberNavController()
             val currentDestination = navController.currentBackStackEntryAsState()

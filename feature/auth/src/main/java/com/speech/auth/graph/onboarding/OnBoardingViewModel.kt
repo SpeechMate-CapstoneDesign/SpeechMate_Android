@@ -23,12 +23,8 @@ class OnBoardingViewModel @Inject constructor(
 
     override val container = container<OnBoardingState, OnBoardingSideEffect>(OnBoardingState())
 
-    init {
-        intent {
-            val routeArgs: AuthGraph.OnBoardingRoute = savedStateHandle.toRoute()
-            reduce { state.copy(idToken = routeArgs.idToken) }
-        }
-    }
+    private val routeArgs: AuthGraph.OnBoardingRoute = savedStateHandle.toRoute()
+    private val idToken = routeArgs.idToken
 
 
     fun onIntent(event: OnBoardingIntent) {
@@ -84,7 +80,7 @@ class OnBoardingViewModel @Inject constructor(
                 state.selectedVerbalSkills.map { it.name } + state.selectedNonVerbalSkills.map { it.name }
 
             authRepository.signupKakao(
-                idToken = state.idToken,
+                idToken = idToken,
                 skills = selectedSkills
             )
         }.onSuccess {

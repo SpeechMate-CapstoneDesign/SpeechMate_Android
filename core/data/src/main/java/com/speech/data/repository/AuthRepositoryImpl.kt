@@ -68,9 +68,8 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun logOut() {
+    override suspend fun logout() {
         // localTokenDataSource.setAccessToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJpYXQiOjE3NTYzNzk4NDIsImV4cCI6MTc1NjM4MzQ0Mn0.6xZZ3iaAAIrqJBAVR6rz0MkKez0DReYpZHWVZHgkAN0\",\"refresh\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiY2F0ZWdvcnkiOiJyZWZyZXNoIiwiaWF0IjoxNzU2Mzc5ODQyLCJleHAiOjE3NTY5ODQ2NDJ9.t6mfmibuRhN9LgRpEIMIraf1dSzrx5C-9yRfHLiLf7o")
-        authDataSource.logout()
 
         coroutineScope {
             val clearTokenJob = launch {
@@ -79,6 +78,8 @@ class AuthRepositoryImpl @Inject constructor(
 
             clearTokenJob.join()
         }
+
+        authDataSource.logout()
     }
 
     override suspend fun unRegisterUser() {

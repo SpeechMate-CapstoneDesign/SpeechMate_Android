@@ -8,7 +8,6 @@ import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
 
 data class OnBoardingState(
-    val idToken: String = "",
     val selectedVerbalSkills: List<VerbalSkill> = emptyList(),
     val selectedNonVerbalSkills: List<NonVerbalSkill> = emptyList(),
     val signUpAvailable: Boolean = false

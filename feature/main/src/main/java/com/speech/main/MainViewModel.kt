@@ -15,7 +15,11 @@ class MainViewModel @Inject constructor(
 ) : ContainerHost<Unit, MainSideEffect>, ViewModel() {
     override val container = container<Unit, MainSideEffect>(Unit)
 
-    fun checkSession() = intent {
+    init {
+        checkSession()
+    }
+
+    private fun checkSession() = intent {
         suspendRunCatching {
             authRepository.checkSession()
         }.onSuccess {

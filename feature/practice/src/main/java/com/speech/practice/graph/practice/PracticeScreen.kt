@@ -234,6 +234,8 @@ private fun UploadFileButton(
             onDone = { speechConfig ->
                 onSpeechConfigChange(speechConfig)
                 onUploadFile(selectedUri!!)
+                showSpeechConfigDg = false
+                selectedUri = null
             },
             onDismiss = {
                 showSpeechConfigDg = false

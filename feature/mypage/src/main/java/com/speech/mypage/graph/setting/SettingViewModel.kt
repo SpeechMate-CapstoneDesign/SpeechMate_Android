@@ -18,9 +18,12 @@ class SettingViewModel @Inject constructor(
             is SettingIntent.OnBackPressed -> intent {
                 postSideEffect(SettingSideEffect.NavigateToBack)
             }
+
             is SettingIntent.OnLogout -> onLogout()
+
             is SettingIntent.OnUnRegisterUser -> onUnRegisterUser()
-                SettingIntent.OnPolicyClick -> intent {
+
+            SettingIntent.OnPolicyClick -> intent {
                 postSideEffect(SettingSideEffect.NavigateToPolicy)
             }
 
@@ -33,7 +36,7 @@ class SettingViewModel @Inject constructor(
 
     fun onLogout() = intent {
         suspendRunCatching {
-            authRepository.logOut()
+            authRepository.logout()
         }.onSuccess {
             postSideEffect(SettingSideEffect.NavigateToLogin)
         }.onFailure {
