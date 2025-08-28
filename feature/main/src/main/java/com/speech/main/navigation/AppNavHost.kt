@@ -13,10 +13,12 @@ import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.mypage.navigation.myPageNavGraph
 import com.speech.mypage.navigation.navigateToSetting
 import com.speech.navigation.AuthBaseRoute
+import com.speech.navigation.SplashRoute
 import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import com.speech.practice.navigation.navigateToRecordAudio
 import com.speech.practice.navigation.navigateToRecordVideo
+import com.speech.splash.splashScreen
 
 
 @Composable
@@ -26,9 +28,11 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AuthBaseRoute,
+        startDestination = SplashRoute,
         modifier = modifier,
     ) {
+        splashScreen()
+
         authNavGraph(
             navigateToPractice = {
                 navController.navigateToPractice()
@@ -57,6 +61,7 @@ fun AppNavHost(
             navigateToPolicy = {},
             navigateToInquiry = {},
         )
+
     }
 }
 

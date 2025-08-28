@@ -71,8 +71,6 @@ internal fun PracticeRoute(
             is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
             is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
             is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
-
-
         }
     }
 
