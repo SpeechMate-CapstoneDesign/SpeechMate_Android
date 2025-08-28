@@ -45,3 +45,5 @@ include(":feature:practice")
 include(":feature:auth")
 
 
+include(":feature:mypage")
+include(":feature:splash")

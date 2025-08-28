@@ -10,6 +10,8 @@ android {
 dependencies {
     implementation(projects.feature.auth)
     implementation(projects.feature.practice)
+    implementation(projects.feature.mypage)
+    implementation(projects.feature.splash)
 
     implementation(projects.core.commonUi)
 

@@ -6,6 +6,9 @@ import java.io.File
 sealed interface Route
 
 @Serializable
+data object SplashRoute : Route
+
+@Serializable
 data object AuthBaseRoute : Route
 
 sealed class AuthGraph : Route {
@@ -13,7 +16,7 @@ sealed class AuthGraph : Route {
     data object LoginRoute : AuthGraph()
 
     @Serializable
-    data class OnBoardingRoute(val idToken : String) : AuthGraph()
+    data class OnBoardingRoute(val idToken: String) : AuthGraph()
 }
 
 
@@ -31,7 +34,7 @@ sealed class PracticeGraph : Route {
     data object RecordVideoRoute : PracticeGraph()
 
     @Serializable
-    data class FeedbackRoute(val speechId : Int): PracticeGraph()
+    data class FeedbackRoute(val speechId: Int) : PracticeGraph()
 }
 
 @Serializable
@@ -40,4 +43,7 @@ data object MyPageBaseRoute : Route
 sealed class MyPageGraph : Route {
     @Serializable
     data object MyPageRoute : MyPageGraph()
+
+    @Serializable
+    data object SettingRoute : MyPageGraph()
 }

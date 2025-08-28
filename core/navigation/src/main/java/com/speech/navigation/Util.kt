@@ -6,6 +6,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import kotlin.reflect.KClass
 
 private val HIDDEN_BOTTOM_BAR_ROUTES = setOf(
+    SplashRoute::class,
     AuthGraph.LoginRoute::class,
     AuthGraph.OnBoardingRoute::class,
     PracticeGraph.RecordAudioRoute::class,

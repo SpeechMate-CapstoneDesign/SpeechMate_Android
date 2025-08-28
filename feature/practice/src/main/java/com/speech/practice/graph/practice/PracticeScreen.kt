@@ -62,16 +62,15 @@ internal fun PracticeRoute(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
-            is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
-            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
             is PracticeSideEffect.ShowSnackBar -> {
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
-
+            is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
+            is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
+            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
         }
     }
 
@@ -235,6 +234,8 @@ private fun UploadFileButton(
             onDone = { speechConfig ->
                 onSpeechConfigChange(speechConfig)
                 onUploadFile(selectedUri!!)
+                showSpeechConfigDg = false
+                selectedUri = null
             },
             onDismiss = {
                 showSpeechConfigDg = false

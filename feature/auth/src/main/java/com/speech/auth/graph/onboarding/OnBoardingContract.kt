@@ -16,7 +16,7 @@ data class OnBoardingState(
 sealed class OnBoardingIntent : UiIntent {
     data class ToggleVerbalSkill(val verbalSkill: VerbalSkill) : OnBoardingIntent()
     data class ToggleNonVerbalSkill(val nonVerbalSkill: NonVerbalSkill) : OnBoardingIntent()
-   // data class SignUp() : OnBoardingIntent()
+    data object OnSignUpClick : OnBoardingIntent()
 }
 
 sealed interface OnBoardingSideEffect : UiSideEffect {

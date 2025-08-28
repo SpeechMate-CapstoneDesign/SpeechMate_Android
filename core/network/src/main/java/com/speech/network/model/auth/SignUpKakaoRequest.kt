@@ -10,5 +10,5 @@ data class SignUpKakaoRequest(
 
 @Serializable
 data class OnBoardingDto(
-    val skill: String
+    val skill: List<String>
 )
