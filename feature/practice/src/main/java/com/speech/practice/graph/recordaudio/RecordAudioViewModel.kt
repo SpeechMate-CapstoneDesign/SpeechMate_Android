@@ -49,7 +49,7 @@ class RecordAudioViewModel @Inject constructor(
             is RecordAudioIntent.PauseRecording -> pauseRecordAudio()
             is RecordAudioIntent.ResumeRecording -> resumeRecordAudio()
             is RecordAudioIntent.OnBackPressed -> intent {
-                postSideEffect(RecordAudioSideEffect.NavigateBack)
+                postSideEffect(RecordAudioSideEffect.NavigateToBack)
             }
 
             is RecordAudioIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)

@@ -34,6 +34,6 @@ sealed class RecordAudioIntent : UiIntent {
 
 sealed interface RecordAudioSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : RecordAudioSideEffect
-    data object NavigateBack : RecordAudioSideEffect
+    data object NavigateToBack : RecordAudioSideEffect
     data class NavigateToFeedback(val speechId: Int) : RecordAudioSideEffect
 }

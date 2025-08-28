@@ -41,7 +41,7 @@ internal fun SettingRoute(
     navigateToInquiry: () -> Unit,
     viewModel: SettingViewModel = hiltViewModel()
 ) {
-    val state = viewModel.collectAsState().value
+    val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 

@@ -87,7 +87,7 @@ internal fun RecordAudioRoute(
                 }
             }
 
-            is RecordAudioSideEffect.NavigateBack -> navigateBack()
+            is RecordAudioSideEffect.NavigateToBack -> navigateBack()
             is RecordAudioSideEffect.NavigateToFeedback -> {
                 navigateToFeedBack(sideEffect.speechId)
             }

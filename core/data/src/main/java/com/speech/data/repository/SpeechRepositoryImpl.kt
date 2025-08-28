@@ -69,8 +69,19 @@ class SpeechRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSpeechAnalysis(speechId: Int) {
-        speechDataSource.getSpeechToText(speechId)
-        speechDataSource.getTextAnalysis(speechId)
+    override suspend fun getScript(speechId: Int) : String =
+        speechDataSource.getSpeechToText(speechId).script
+
+
+    override suspend fun getScriptAnalysis(speechId: Int) =
+        speechDataSource.getTextAnalysis(speechId).analysisResult.toDomain()
+
+
+    override suspend fun getVerbalAnalysis(speechId: Int) {
+
+    }
+
+    override suspend fun getVideoAnalysis(speechId: Int) {
+        
     }
 }
