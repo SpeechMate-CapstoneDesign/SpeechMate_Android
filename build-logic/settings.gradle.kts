@@ -12,4 +12,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "speechmate"
+rootProject.name = "SpeechMate"
