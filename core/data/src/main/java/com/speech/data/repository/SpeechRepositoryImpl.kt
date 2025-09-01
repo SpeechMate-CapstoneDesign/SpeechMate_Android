@@ -39,6 +39,8 @@ class SpeechRepositoryImpl @Inject constructor(
 
             val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
 
+            speechDataSource.updateSpeechConfig(speechId, speechConfig)
+
             contentResolver.releasePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION,
@@ -55,15 +57,15 @@ class SpeechRepositoryImpl @Inject constructor(
         }
 
         val fileExtension = file.extension
-        Log.d("SpeechRepositoryImpl", "fileExtension: $fileExtension")
         val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
         val mimeType = getMimeType(file)
-        Log.d("SpeechRepositoryImpl", "mimeType: $mimeType")
 
         return FileInputStream(file).use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
             val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
+
+            speechDataSource.updateSpeechConfig(speechId, speechConfig)
 
             speechId
         }

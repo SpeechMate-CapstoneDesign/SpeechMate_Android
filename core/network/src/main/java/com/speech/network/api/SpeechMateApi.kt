@@ -1,6 +1,7 @@
 package com.speech.network.api
 
 import com.google.android.gms.common.api.Api
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.network.model.ApiResponse
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
@@ -11,9 +12,11 @@ import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechToTextResponse
 import com.speech.network.model.speech.GetTextAnalysisResponse
+import com.speech.network.model.speech.UpdateSpeechConfigRequest
 import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -49,4 +52,7 @@ interface SpeechMateApi {
 
     @POST("/api/speech/analyze/{speechId}")
     suspend fun getTextAnalysis(@Path("speechId") speechId: Int): ApiResponse<GetTextAnalysisResponse>
+
+    @PUT("/api/speech/metadata/{speechId}")
+    suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
 }

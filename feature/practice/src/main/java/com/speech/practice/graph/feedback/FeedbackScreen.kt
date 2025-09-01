@@ -118,23 +118,23 @@ private fun FeedbackScreen(
                     FeedbackTab.SPEECH_CONFIG -> {
                         val config = state.speechDetail.speechConfig
 
-                        Text("날짜: ${state.speechDetail.foramttedTime}", style = SpeechMateTheme.typography.bodyXMM)
+                        Text("날짜: ${state.speechDetail.foramttedTime}", style = SpeechMateTheme.typography.bodySM)
 
                         Spacer(Modifier.height(15.dp))
 
-                        Text("발표 이름: ${config.fileName}", style = SpeechMateTheme.typography.bodyXMM)
+                        Text("발표 이름: ${config.fileName}", style = SpeechMateTheme.typography.bodySM)
 
                         Spacer(Modifier.height(15.dp))
 
-                        Text("발표 상황: ${config.speechType!!.label}", style = SpeechMateTheme.typography.bodyXMM)
+                        Text("발표 상황: ${config.speechType!!.label}", style = SpeechMateTheme.typography.bodySM)
 
                         Spacer(Modifier.height(15.dp))
 
-                        Text("청중: ${config.audience!!.label}", style = SpeechMateTheme.typography.bodyXMM)
+                        Text("청중: ${config.audience!!.label}", style = SpeechMateTheme.typography.bodySM)
 
                         Spacer(Modifier.height(15.dp))
 
-                        Text("발표 장소: ${config.venue!!.label}", style = SpeechMateTheme.typography.bodyXMM)
+                        Text("발표 장소: ${config.venue!!.label}", style = SpeechMateTheme.typography.bodySM)
 
                         Spacer(Modifier.height(15.dp))
                     }
@@ -157,16 +157,17 @@ private fun FeedbackScreen(
 
                                 Text(
                                     "대본을 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SpeechMateTheme.typography.bodySM,
                                 )
                             }
                         } else {
-                            Text(text = state.speechDetail.script, style = SpeechMateTheme.typography.bodyXMM)
+                            Text(text = state.speechDetail.script, style = SpeechMateTheme.typography.bodySM)
                         }
                     }
 
                     FeedbackTab.SCRIPT_ANALYSIS -> {
-                        if (state.speechDetail.scriptAnalysis == null) {
+                        val scriptAnalysis = state.speechDetail.scriptAnalysis
+                        if (scriptAnalysis == null) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -183,54 +184,53 @@ private fun FeedbackScreen(
 
                                 Text(
                                     "대본을 분석한 결과를 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SpeechMateTheme.typography.bodySM,
                                 )
                             }
                         } else {
-                            Column {
-                                val analysis = state.speechDetail.scriptAnalysis!!
+                            if (scriptAnalysis.isError) {
                                 Text(
-                                    text = "요약: ${analysis.summary}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    "대본을 분석한 결과를 불러오는데 실패했습니다.",
+                                    style = SpeechMateTheme.typography.bodySM,
                                 )
-                                Spacer(Modifier.height(15.dp))
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                                    val analysis = state.speechDetail.scriptAnalysis!!
+                                    Text(
+                                        text = "요약: ${analysis.summary}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Text(
-                                    text = "키워드: ${analysis.keywords}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
+                                    Text(
+                                        text = "키워드: ${analysis.keywords}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Spacer(Modifier.height(15.dp))
+                                    Text(
+                                        text = "개선점: ${analysis.improvementPoints}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Text(
-                                    text = "개선점: ${analysis.improvementPoints}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
+                                    Text(
+                                        text = "논리적 일관성 점수: ${analysis.logicalCoherenceScore}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Spacer(Modifier.height(15.dp))
+                                    Text(
+                                        text = "피드백: ${analysis.feedback}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Text(
-                                    text = "논리적 일관성 점수: ${analysis.logicalCoherenceScore}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-                                Spacer(Modifier.height(15.dp))
+                                    Text(
+                                        text = "점수 설명: ${analysis.scoreExplanation}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
 
-                                Text(
-                                    text = "피드백: ${analysis.feedback}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    text = "점수 설명: ${analysis.scoreExplanation}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    text = "예상 질문: ${analysis.expectedQuestions}",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
+                                    Text(
+                                        text = "예상 질문: ${analysis.expectedQuestions}",
+                                        style = SpeechMateTheme.typography.bodySM,
+                                    )
+                                }
                             }
                         }
                     }
@@ -240,7 +240,6 @@ private fun FeedbackScreen(
                     FeedbackTab.NON_VERBAL_ANALYSIS -> {}
                 }
             }
-
         }
     }
 

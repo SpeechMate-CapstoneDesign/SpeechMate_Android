@@ -26,6 +26,7 @@ data class ScriptAnalysis(
     val feedback: String,
     val scoreExplanation: String,
     val expectedQuestions: String,
+    val isError: Boolean = false,
 )
 
 data class VerbalAnalysis(

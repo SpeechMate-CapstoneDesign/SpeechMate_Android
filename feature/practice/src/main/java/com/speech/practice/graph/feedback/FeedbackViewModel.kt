@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.model.speech.FeedbackTab
+import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.repository.SpeechRepository
 import com.speech.navigation.PracticeGraph
@@ -96,6 +97,7 @@ class FeedbackViewModel @Inject constructor(
         }.onFailure {
             reduce {
                 state.copy(speechDetail = state.speechDetail.copy(script = "대본을 불러오는데 실패했습니다."))
+                state.copy(speechDetail = state.speechDetail.copy(script = "대본을 분석한 결과를 불러오는데 실패했습니다."))
             }
         }
     }
@@ -109,7 +111,19 @@ class FeedbackViewModel @Inject constructor(
             }
         }.onFailure {
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(script = "대본을 분석한 결과를 불러오는데 실패했습니다."))
+                state.copy(
+                    speechDetail = state.speechDetail.copy(
+                        scriptAnalysis = (state.speechDetail.scriptAnalysis ?: ScriptAnalysis(
+                            summary = "",
+                            keywords = "",
+                            improvementPoints = "",
+                            logicalCoherenceScore = 0,
+                            feedback = "",
+                            scoreExplanation = "",
+                            expectedQuestions = ""
+                        )).copy(isError = true)
+                    )
+                )
             }
         }
     }
