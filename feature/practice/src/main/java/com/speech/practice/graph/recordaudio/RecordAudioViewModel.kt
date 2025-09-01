@@ -31,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val speechRepository: SpeechRepository
+    private val speechRepository: SpeechRepository,
 ) : ContainerHost<RecordAudioState, RecordAudioSideEffect>, ViewModel() {
 
     override val container = container<RecordAudioState, RecordAudioSideEffect>(RecordAudioState())
@@ -70,7 +70,8 @@ class RecordAudioViewModel @Inject constructor(
         suspendRunCatching {
             speechRepository.uploadFromPath(
                 filePath = state.audioFile!!.path,
-                speechConfig = state.speechConfig
+                speechConfig = state.speechConfig,
+                duration = recordDuration.toInt()
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordAudioSideEffect.NavigateToFeedback(speechId))
@@ -92,8 +93,8 @@ class RecordAudioViewModel @Inject constructor(
             state.copy(
                 audioFile = File(
                     context.cacheDir,
-                    "record_${System.currentTimeMillis()}.mp4"
-                )
+                    "record_${System.currentTimeMillis()}.mp4",
+                ),
             )
         }
 
@@ -167,13 +168,13 @@ class RecordAudioViewModel @Inject constructor(
                 delay(10)
                 recordDuration += 10
 
-                if(recordDuration % 130 == 0L) {
+                if (recordDuration % 130 == 0L) {
                     reduce {
                         val m = (recordDuration / 1000) / 60
                         val s = (recordDuration / 1000) % 60
                         val ms = ((recordDuration % 1000) / 10).toInt()
                         state.copy(
-                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms),
                         )
                     }
                 }

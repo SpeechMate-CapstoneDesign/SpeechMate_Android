@@ -46,7 +46,9 @@ import com.speech.designsystem.theme.RecordAudio
 import com.speech.designsystem.theme.RecordVideo
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 
@@ -54,9 +56,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 internal fun PracticeRoute(
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedback: (Int) -> Unit,
-    viewModel: PracticeViewModel = hiltViewModel()
+    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    viewModel: PracticeViewModel = hiltViewModel(),
 ) {
+    val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
@@ -68,9 +71,10 @@ internal fun PracticeRoute(
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
+
             is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
             is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
-            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId)
+            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId, sideEffect.speechFileType, state.speechConfig)
         }
     }
 
@@ -78,7 +82,7 @@ internal fun PracticeRoute(
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
         onRecordVideoClick = { viewModel.onIntent(PracticeIntent.OnRecordVideoClick) },
         onUploadSpeechFile = { uri -> viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(uri)) },
-        onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) }
+        onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) },
     )
 }
 
@@ -94,7 +98,7 @@ private fun PracticeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -102,20 +106,23 @@ private fun PracticeScreen(
 
                     Image(
                         painter = painterResource(R.drawable.presenter),
-                        contentDescription = "발표자"
+                        contentDescription = "발표자",
                     )
 
                     Spacer(Modifier.height(10.dp))
 
                     Text("발표를 연습하고", style = SpeechMateTheme.typography.headingMB)
 
-                    Text(text = buildAnnotatedString {
-                        append("즉시 ")
-                        withStyle(style = SpanStyle(color = PrimaryActive)) {
-                            append("피드백")
-                        }
-                        append("을 받아보세요!")
-                    }, style = SpeechMateTheme.typography.headingMB)
+                    Text(
+                        text = buildAnnotatedString {
+                            append("즉시 ")
+                            withStyle(style = SpanStyle(color = PrimaryActive)) {
+                                append("피드백")
+                            }
+                            append("을 받아보세요!")
+                        },
+                        style = SpeechMateTheme.typography.headingMB,
+                    )
 
                     Spacer(Modifier.height(35.dp))
 
@@ -127,18 +134,20 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordAudio)
                                 .padding(20.dp)
-                                .clickable(onClick = rememberDebouncedOnClick {
-                                    onRecordAudioClick()
-                                })
+                                .clickable(
+                                    onClick = rememberDebouncedOnClick {
+                                        onRecordAudioClick()
+                                    },
+                                ),
 
-                        ) {
+                            ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     painter = painterResource(R.drawable.record_audio),
-                                    contentDescription = "녹음"
+                                    contentDescription = "녹음",
                                 )
 
                                 Spacer(Modifier.width(6.dp))
@@ -154,17 +163,19 @@ private fun PracticeScreen(
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(RecordVideo)
                                 .padding(20.dp)
-                                .clickable(onClick = rememberDebouncedOnClick {
-                                    onRecordVideoClick()
-                                })
+                                .clickable(
+                                    onClick = rememberDebouncedOnClick {
+                                        onRecordVideoClick()
+                                    },
+                                ),
                         ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     painter = painterResource(R.drawable.record_video),
-                                    contentDescription = "녹화"
+                                    contentDescription = "녹화",
                                 )
 
                                 Spacer(Modifier.width(6.dp))
@@ -199,10 +210,12 @@ private fun UploadFileButton(
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(), onResult = { uri: Uri? ->
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri: Uri? ->
             selectedUri = uri
             showSpeechConfigDg = uri != null
-        })
+        },
+    )
 
     Box(
         modifier = Modifier
@@ -215,12 +228,12 @@ private fun UploadFileButton(
             },
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
                 modifier = Modifier.size(18.dp),
                 painter = painterResource(R.drawable.upload_file),
-                contentDescription = "파일 업로드"
+                contentDescription = "파일 업로드",
             )
 
             Spacer(Modifier.width(6.dp))
@@ -240,7 +253,7 @@ private fun UploadFileButton(
             onDismiss = {
                 showSpeechConfigDg = false
                 selectedUri = null
-            }
+            },
         )
     }
 }
@@ -253,5 +266,6 @@ private fun PracticeScreenPreview() {
         onRecordAudioClick = {},
         onRecordVideoClick = {},
         onUploadSpeechFile = {},
-        onSpeechConfigChange = {})
+        onSpeechConfigChange = {},
+    )
 }

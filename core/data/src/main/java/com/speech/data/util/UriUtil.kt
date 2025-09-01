@@ -1,6 +1,8 @@
 package com.speech.data.util
 
 import android.content.ContentResolver
+import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.webkit.MimeTypeMap
 
@@ -16,3 +18,4 @@ fun getExtension(contentResolver: ContentResolver, uri: Uri): String {
         MimeTypeMap.getFileExtensionFromUrl(uri.toString())
     } ?: ""
 }
+

@@ -1,5 +1,6 @@
 package com.speech.practice.graph.feedback
 
+import androidx.compose.material3.rememberDrawerState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
@@ -16,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val speechRepository: SpeechRepository
+    private val speechRepository: SpeechRepository,
 ) : ContainerHost<FeedbackState, FeedbackSideEffect>, ViewModel() {
     override val container = container<FeedbackState, FeedbackSideEffect>(FeedbackState())
 
@@ -32,9 +33,9 @@ class FeedbackViewModel @Inject constructor(
                             fileName = routeArgs.fileName,
                             speechType = routeArgs.speechType,
                             audience = routeArgs.audience,
-                            venue = routeArgs.venue
-                        )
-                    )
+                            venue = routeArgs.venue,
+                        ),
+                    ),
                 )
             }
         }
@@ -61,7 +62,7 @@ class FeedbackViewModel @Inject constructor(
 
     private fun onTabSelected(feedbackTab: FeedbackTab) = intent {
         reduce {
-            state.copy(feedbackTab = feedbackTab)
+           state.copy(feedbackTab = feedbackTab)
         }
     }
 
@@ -83,7 +84,6 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-
     private fun getScript() = intent {
         suspendRunCatching {
             speechRepository.getScript(state.speechDetail.id)
@@ -91,6 +91,7 @@ class FeedbackViewModel @Inject constructor(
             reduce {
                 state.copy(speechDetail = state.speechDetail.copy(script = it))
             }
+
             getScriptAnalysis()
         }.onFailure {
             reduce {
@@ -107,7 +108,9 @@ class FeedbackViewModel @Inject constructor(
                 state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
             }
         }.onFailure {
-
+            reduce {
+                state.copy(speechDetail = state.speechDetail.copy(script = "대본을 분석한 결과를 불러오는데 실패했습니다."))
+            }
         }
     }
 

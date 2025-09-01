@@ -119,7 +119,9 @@ class RecordVideoViewModel @Inject constructor(
 
         suspendRunCatching {
             speechRepository.uploadFromPath(
-                filePath = state.videoFile!!.path, speechConfig = state.speechConfig
+                filePath = state.videoFile!!.path,
+                speechConfig = state.speechConfig,
+                duration = recordDuration.toInt()
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordVideoSideEffect.NavigateToFeedback(speechId))

@@ -7,6 +7,7 @@ import com.speech.domain.model.speech.SpeechType
 import com.speech.domain.model.speech.Venue
 import kotlinx.serialization.Serializable
 import java.io.File
+import java.time.LocalDateTime
 
 sealed interface Route
 
@@ -42,6 +43,7 @@ sealed class PracticeGraph : Route {
     data class FeedbackRoute(
         val speechId: Int,
         val speechFileType: SpeechFileType,
+        val date: String,
         // SpeechConfig
         val fileName: String = "",
         val speechType: SpeechType? = null,

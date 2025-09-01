@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
-    private val speechRepository: SpeechRepository
+    private val speechRepository: SpeechRepository,
 ) : ContainerHost<MyPageState, MyPageSideEffect>, ViewModel() {
     override val container = container<MyPageState, MyPageSideEffect>(MyPageState())
 
@@ -20,7 +20,7 @@ class MyPageViewModel @Inject constructor(
             }
 
             is MyPageIntent.OnSpeechClick -> intent {
-                postSideEffect(MyPageSideEffect.NavigateToFeedback(event.speechId))
+                postSideEffect(MyPageSideEffect.NavigateToFeedback(event.speechId, event.speechFileType, event.speechConfig))
             }
         }
     }

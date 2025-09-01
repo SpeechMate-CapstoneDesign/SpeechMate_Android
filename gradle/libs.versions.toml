@@ -1,5 +1,5 @@
 [versions]
-## Android gradle plugin
+## Android gradle plugin(agp)
 androidGradlePlugin = "8.12.2"
 ## AndroidX
 # https://developer.android.com/jetpack/androidx/releases/core
@@ -26,8 +26,8 @@ androidxComposeFoundation = "1.9.0"
 # https://google.github.io/accompanist/permissions/
 accompanistPermission = "0.37.3"
 
-## Kotlin Symbol Processing
-ksp = "2.1.0-1.0.29"
+# https://github.com/google/ksp/releases
+ksp = "2.2.10-2.0.2"
 
 ## Hilt
 hilt = "2.57.1"
@@ -47,7 +47,7 @@ profileinstaller = "1.4.1"
 uiautomator = "2.3.0"
 
 ## Kotlin
-kotlin = "2.1.0"
+kotlin = "2.2.10"
 kotlinxSerializationJson = "1.9.0"
 kotlinxCoroutine = "1.10.2"
 gson = "2.13.1"

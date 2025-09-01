@@ -5,6 +5,7 @@ import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 
 data class PractieState(
     val speechConfig: SpeechConfig = SpeechConfig()
@@ -21,5 +22,5 @@ sealed interface PracticeSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : PracticeSideEffect
     data object NavigateToRecordAudio : PracticeSideEffect
     data object NavigateToRecordVideo : PracticeSideEffect
-    data class NavigateToFeedback(val speechId : Int) : PracticeSideEffect
+    data class NavigateToFeedback(val speechId : Int, val speechFileType: SpeechFileType) : PracticeSideEffect
 }

@@ -4,14 +4,23 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import androidx.navigation.navigation
+import com.speech.domain.model.speech.Audience
+import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.speech.SpeechType
+import com.speech.domain.model.speech.Venue
 import com.speech.navigation.PracticeBaseRoute
 import com.speech.navigation.PracticeGraph
+import com.speech.practice.graph.feedback.FeedbackRoute
 import com.speech.practice.graph.playaudio.PlayAudioRoute
 import com.speech.practice.graph.practice.PracticeRoute
 import com.speech.practice.graph.recordaudio.RecordAudioRoute
 import com.speech.practice.graph.recrodvideo.RecordVideoRoute
 import com.speech.practice.graph.recrodvideo.RecordVideoScreen
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 fun NavController.navigateToPractice(navOptions: NavOptions? = null) {
@@ -26,8 +35,31 @@ fun NavController.navigateToRecordVideo(navOptions: NavOptions? = null) {
     navigate(PracticeGraph.RecordVideoRoute, navOptions)
 }
 
-fun NavController.navigateToFeedback(speechId: Int, navOptions: NavOptions? = null) {
-    navigate(PracticeGraph.FeedbackRoute(speechId), navOptions)
+fun NavController.navigateToFeedback(
+    speechId: Int,
+    speechFileType: SpeechFileType,
+    speechConfig: SpeechConfig,
+    date: String = "",
+    navOptions: NavOptions? = null,
+) {
+    val formattedDate =
+        date.ifEmpty {
+            LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"))
+        }
+
+    navigate(
+        PracticeGraph.FeedbackRoute(
+            speechId = speechId,
+            speechFileType = speechFileType,
+            date = formattedDate,
+            fileName = speechConfig.fileName,
+            speechType = speechConfig.speechType,
+            audience = speechConfig.audience,
+            venue = speechConfig.venue,
+        ),
+        navOptions,
+    )
 }
 
 
@@ -35,28 +67,35 @@ fun NavGraphBuilder.practiceNavGraph(
     navigateBack: () -> Unit,
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedBack: (Int) -> Unit
+    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
 ) {
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {
             PracticeRoute(
                 navigateToRecordAudio = navigateToRecordAudio,
                 navigateToRecordVideo = navigateToRecordVideo,
-                navigateToFeedback = navigateToFeedBack
+                navigateToFeedback = navigateToFeedback,
             )
         }
 
         composable<PracticeGraph.RecordAudioRoute> {
             RecordAudioRoute(
-                navigateBack = navigateBack, navigateToFeedBack = navigateToFeedBack
+                navigateBack = navigateBack,
+                navigateToFeedback = navigateToFeedback,
             )
         }
 
         composable<PracticeGraph.RecordVideoRoute> {
             RecordVideoRoute(
-                navigateBack = navigateBack, navigateToFeedBack = navigateToFeedBack
+                navigateBack = navigateBack,
+                navigateToFeedback = navigateToFeedback,
             )
         }
 
+        composable<PracticeGraph.FeedbackRoute> {
+            FeedbackRoute(
+                navigateToBack = navigateBack,
+            )
+        }
     }
 }

@@ -17,14 +17,14 @@ import javax.inject.Inject
 
 class SpeechRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val speechDataSource: SpeechDataSource
+    private val speechDataSource: SpeechDataSource,
 ) : SpeechRepository {
-    override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig): Int {
+    override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig, duration: Int): Int {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
         context.contentResolver.takePersistableUriPermission(
             uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
+            Intent.FLAG_GRANT_READ_URI_PERMISSION,
         )
 
         val fileExtension = getExtension(contentResolver, uri)
@@ -37,18 +37,18 @@ class SpeechRepositoryImpl @Inject constructor(
         return contentResolver.openInputStream(uri)?.use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            val speechId = speechDataSource.uploadSpeechCallback(key).speechId
+            val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
 
             contentResolver.releasePersistableUriPermission(
                 uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                Intent.FLAG_GRANT_READ_URI_PERMISSION,
             )
 
             speechId
         } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
     }
 
-    override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig): Int {
+    override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig, duration: Int): Int {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalStateException("File does not exist at path: $filePath")
@@ -63,13 +63,13 @@ class SpeechRepositoryImpl @Inject constructor(
         return FileInputStream(file).use { inputStream ->
             speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            val speechId = speechDataSource.uploadSpeechCallback(key).speechId
+            val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
 
             speechId
         }
     }
 
-    override suspend fun getScript(speechId: Int) : String =
+    override suspend fun getScript(speechId: Int): String =
         speechDataSource.getSpeechToText(speechId).script
 
 
@@ -82,6 +82,6 @@ class SpeechRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getVideoAnalysis(speechId: Int) {
-        
+
     }
 }

@@ -30,8 +30,8 @@ class SpeechDataSourceImpl @Inject constructor(
         return s3Api.uploadSpeechFile(url, requestBody)
     }
 
-    override suspend fun uploadSpeechCallback(fileKey: String) =
-        speechMateApi.uploadSpeechCallback(fileKey).getData()
+    override suspend fun uploadSpeechCallback(fileKey: String, duration : Int) =
+        speechMateApi.uploadSpeechCallback(fileKey, duration).getData()
 
     override suspend fun getSpeechToText(speechId: Int): GetSpeechToTextResponse =
         speechMateApi.getSpeechToText(speechId).getData()

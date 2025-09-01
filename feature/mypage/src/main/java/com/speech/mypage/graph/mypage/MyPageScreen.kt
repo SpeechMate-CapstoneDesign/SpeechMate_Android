@@ -19,49 +19,61 @@ import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import com.speech.mypage.graph.setting.SettingViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun MyPageRoute(
     navigateToSetting: () -> Unit,
-    navigateToFeedBack: (Int) -> Unit,
-    viewModel: MyPageViewModel = hiltViewModel()
+    navigateToFeedBack: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MyPageSideEffect.NavigateToSetting -> navigateToSetting()
-            is MyPageSideEffect.NavigateToFeedback -> navigateToFeedBack(sideEffect.speechId)
+            is MyPageSideEffect.NavigateToFeedback -> navigateToFeedBack(sideEffect.speechId, sideEffect.speechFileType, sideEffect.speechConfig)
         }
     }
-    
+
     MyPageScreen(
         onSettingClick = { viewModel.onIntent(MyPageIntent.OnSettingClick) },
-        onSpeechClick = { speechId -> viewModel.onIntent(MyPageIntent.OnSpeechClick(speechId)) }
+        onSpeechClick = { speechId, speechFileType, speechConfig ->
+            viewModel.onIntent(
+                MyPageIntent.OnSpeechClick(
+                    speechId,
+                    speechFileType,
+                    speechConfig,
+                ),
+            )
+        },
     )
 }
 
 @Composable
 private fun MyPageScreen(
     onSettingClick: () -> Unit,
-    onSpeechClick: (Int) -> Unit
+    onSpeechClick: (Int, SpeechFileType, SpeechConfig) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 20.dp, end = 20.dp, top = 48.dp)
+                .padding(start = 20.dp, end = 20.dp, top = 48.dp),
         ) {
             item {
                 Text(
                     "나의 스피치",
-                    style = SpeechMateTheme.typography.headingMB
+                    style = SpeechMateTheme.typography.headingMB,
                 )
             }
         }
 
         Box(
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp, end = 10.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, end = 10.dp),
         ) {
             Image(
                 painter = painterResource(R.drawable.setting_ic),
@@ -69,9 +81,11 @@ private fun MyPageScreen(
                 modifier = Modifier
                     .size(28.dp)
                     .align(Alignment.TopEnd)
-                    .clickable(onClick = rememberDebouncedOnClick {
-                        onSettingClick()
-                    })
+                    .clickable(
+                        onClick = rememberDebouncedOnClick {
+                            onSettingClick()
+                        },
+                    ),
             )
         }
     }
@@ -82,6 +96,6 @@ private fun MyPageScreen(
 private fun MyPageScreenPreview() {
     MyPageScreen(
         onSettingClick = {},
-        onSpeechClick = {}
+        onSpeechClick = { _, _, _ -> },
     )
 }

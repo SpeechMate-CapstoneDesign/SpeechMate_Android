@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.Settings
-import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
@@ -14,7 +13,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,27 +63,22 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.BackButton
 import com.speech.common_ui.ui.LockScreenOrientation
 import com.speech.common_ui.ui.SimpleCircle
 import com.speech.common_ui.ui.SpeechConfigDialog
-import com.speech.common_ui.ui.StrokeCircle
-import com.speech.common_ui.ui.StrokeRoundRectangle
 import com.speech.common_ui.util.clickable
-import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.DarkGray
 import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordVideoRoute(
-    navigateToFeedBack: (Int) -> Unit,
+    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordVideoViewModel = hiltViewModel(),
 ) {
@@ -104,7 +97,7 @@ internal fun RecordVideoRoute(
 
             is RecordVideoSideEffect.NavigateBack -> navigateBack()
             is RecordVideoSideEffect.NavigateToFeedback -> {
-                navigateToFeedBack(sideEffect.speechId)
+                navigateToFeedback(sideEffect.speechId, SpeechFileType.VIDEO, state.speechConfig)
             }
         }
     }

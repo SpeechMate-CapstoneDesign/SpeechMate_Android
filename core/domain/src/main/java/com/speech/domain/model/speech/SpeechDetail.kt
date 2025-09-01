@@ -1,6 +1,7 @@
 package com.speech.domain.model.speech
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class SpeechDetail(
     val id: Int = 0,
@@ -12,7 +13,10 @@ data class SpeechDetail(
     val scriptAnalysis: ScriptAnalysis? = null,
     val verbalAnalysis: VerbalAnalysis? = null,
     val nonVerbalAnalysis: NonVerbalAnalysis? = null,
-)
+) {
+    val foramttedTime: String =
+        createdAt.format(DateTimeFormatter.ofPattern("yyyy년-MM월-dd일 HH:mm"))
+}
 
 data class ScriptAnalysis(
     val summary: String,
@@ -21,14 +25,13 @@ data class ScriptAnalysis(
     val logicalCoherenceScore: Int,
     val feedback: String,
     val scoreExplanation: String,
-    val expectedQuestions: String
+    val expectedQuestions: String,
 )
 
 data class VerbalAnalysis(
-    val score : Int = 0,
+    val score: Int = 0,
 )
 
-
 data class NonVerbalAnalysis(
-    val score : Int = 0,
+    val score: Int = 0,
 )

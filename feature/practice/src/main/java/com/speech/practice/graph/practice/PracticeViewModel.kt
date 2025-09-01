@@ -31,6 +31,7 @@ class PracticeViewModel @Inject constructor(
             is PracticeIntent.OnRecordAudioClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
             }
+
             is PracticeIntent.OnRecordVideoClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordVideo)
             }
@@ -51,10 +52,12 @@ class PracticeViewModel @Inject constructor(
             return@intent
         }
 
+        val speechFileType = MediaUtil.getSpeechFileType(context, uri)
+
         suspendRunCatching {
-            speechRepository.uploadFromUri(uri.toString(), state.speechConfig)
+            speechRepository.uploadFromUri(uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt())
         }.onSuccess { speechId ->
-            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId))
+            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId, speechFileType))
         }.onFailure {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }
