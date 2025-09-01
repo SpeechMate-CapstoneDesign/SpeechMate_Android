@@ -14,8 +14,8 @@ data class SpeechDetail(
     val verbalAnalysis: VerbalAnalysis? = null,
     val nonVerbalAnalysis: NonVerbalAnalysis? = null,
 ) {
-    val foramttedTime: String =
-        createdAt.format(DateTimeFormatter.ofPattern("yyyy년-MM월-dd일 HH:mm"))
+    val fornattedTime: String =
+        createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"))
 }
 
 data class ScriptAnalysis(
