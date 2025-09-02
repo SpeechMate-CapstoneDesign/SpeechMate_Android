@@ -1,7 +1,7 @@
 [versions]
-## Android gradle plugin(agp)
+# Android gradle plugin(agp)
 androidGradlePlugin = "8.12.2"
-## AndroidX
+# AndroidX
 # https://developer.android.com/jetpack/androidx/releases/core
 androidxCore = "1.17.0"
 # https://developer.android.com/jetpack/androidx/releases/appcompat
@@ -29,24 +29,24 @@ accompanistPermission = "0.37.3"
 # https://github.com/google/ksp/releases
 ksp = "2.2.10-2.0.2"
 
-## Hilt
+# Hilt
 hilt = "2.57.1"
 hiltNavigationCompose = "1.2.0"
 
-## Material
+# Material
 material = "1.12.0"
 
-## Network
+# Network
 okhttp = "5.1.0"
 retrofit = "3.0.0"
 
-## BenchMark
+# BenchMark
 benchmarkMacroJunit4 = "1.4.0"
 baselineprofile = "1.3.3"
 profileinstaller = "1.4.1"
 uiautomator = "2.3.0"
 
-## Kotlin
+# Kotlin
 kotlin = "2.2.10"
 kotlinxSerializationJson = "1.9.0"
 kotlinxCoroutine = "1.10.2"
@@ -55,26 +55,24 @@ gson = "2.13.1"
 # https://orbit-mvi.org/
 orbit = "10.0.0"
 
-
-## OAuth
 # https://developers.kakao.com/docs/latest/ko/android/getting-started#apply-sdk
 kakao = "2.21.7"
 
-## firebase
+# firebase
 googleServices = "4.4.2"
 firebaseBom = "34.2.0"
 crashlytics = "3.0.3"
 
-### coil
+# coil
 coil = "3.3.0"
 
-### audioWaveForm
-audioWaveform = "1.1.1"
+# media3
+media3 = "1.8.0"
 
 # https://developer.android.com/jetpack/androidx/releases/camera?hl=ko
 camerax = "1.5.0-rc01"
 
-## Test
+# Test
 # https://github.com/junit-team/junit4
 junit4 = "4.13.2"
 junitJupiter = "5.13.4"
@@ -93,8 +91,6 @@ kotest = "6.0.1"
 firebaseCommonKtx = "21.0.0"
 foundationAndroid = "1.9.0"
 activityKtx = "1.10.1"
-
-
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -156,6 +152,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-kotlin-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 
+# firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
@@ -188,8 +185,11 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 
-# audio-waveform
-audio-waveform = { group = "com.github.lincollincol", name = "compose-audiowaveform", version.ref = "audioWaveform" }
+# media3
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-ui-compose = { group = "androidx.media3", name = "media3-ui-compose", version.ref = "media3" }
+media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
+
 
 # camerx
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
@@ -199,8 +199,6 @@ camerax-video = { group = "androidx.camera", name = "camera-video", version.ref 
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 camerax-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camerax" }
 camerax-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
-
-
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
