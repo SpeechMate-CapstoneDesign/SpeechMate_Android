@@ -15,6 +15,7 @@ import com.speech.network.model.speech.GetTextAnalysisResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
 import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -47,12 +48,13 @@ interface SpeechMateApi {
         @Query("durationSeconds") duration: Int,
     ): ApiResponse<UploadSpeechCallbackResponse>
 
+    @PUT("/api/speech/metadata/{speechId}")
+    suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
+
     @POST("/api/speech/Whisperstt3/{speechId}")
     suspend fun getSpeechToText(@Path("speechId") speechId: Int): ApiResponse<GetSpeechToTextResponse>
 
     @POST("/api/speech/analyze/{speechId}")
     suspend fun getTextAnalysis(@Path("speechId") speechId: Int): ApiResponse<GetTextAnalysisResponse>
 
-    @PUT("/api/speech/metadata/{speechId}")
-    suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
 }

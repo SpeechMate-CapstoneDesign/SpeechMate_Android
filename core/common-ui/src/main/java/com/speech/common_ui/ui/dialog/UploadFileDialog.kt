@@ -38,14 +38,14 @@ fun UploadFileDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("발표 파일 업로드 중입니다", style = SpeechMateTheme.typography.bodyMM)
-
-                Spacer(Modifier.height(20.dp))
-
                 CircularProgressIndicator(
                     modifier = Modifier.size(64.dp),
                     color = PrimaryDefault,
                 )
+
+                Spacer(Modifier.height(20.dp))
+
+                Text("발표 파일 업로드 중입니다", style = SpeechMateTheme.typography.bodyMM)
             }
         }
     }
