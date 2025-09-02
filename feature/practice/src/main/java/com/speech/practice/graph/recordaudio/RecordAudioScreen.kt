@@ -18,13 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +49,10 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
 import com.speech.common_ui.ui.SimpleCircle
-import com.speech.common_ui.ui.SpeechConfigDialog
+import com.speech.common_ui.ui.dialog.SpeechConfigDialog
 import com.speech.common_ui.ui.StrokeCircle
 import com.speech.common_ui.ui.StrokeRoundRectangle
+import com.speech.common_ui.ui.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.DarkGray
@@ -67,7 +65,6 @@ import com.speech.domain.model.speech.SpeechFileType
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import kotlin.concurrent.timer
 
 @Composable
 internal fun RecordAudioRoute(
@@ -122,6 +119,10 @@ internal fun RecordAudioRoute(
             viewModel.onIntent(RecordAudioIntent.OnSpeechConfigChange(it))
         },
     )
+
+    if(state.isUploadingFile) {
+        UploadFileDialog()
+    }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)

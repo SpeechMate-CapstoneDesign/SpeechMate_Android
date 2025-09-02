@@ -52,6 +52,10 @@ class PracticeViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(isUploadingFile = true)
+        }
+
         val speechFileType = MediaUtil.getSpeechFileType(context, uri)
 
         suspendRunCatching {
@@ -60,9 +64,12 @@ class PracticeViewModel @Inject constructor(
             postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId, speechFileType))
         }.onFailure {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+        }.also {
+            reduce {
+                state.copy(isUploadingFile = false)
+            }
         }
     }
-
 }
 
 

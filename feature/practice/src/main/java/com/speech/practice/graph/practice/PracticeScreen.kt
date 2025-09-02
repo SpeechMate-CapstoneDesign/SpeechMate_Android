@@ -1,7 +1,6 @@
 package com.speech.practice.graph.practice
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -36,7 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.SpeechConfigDialog
+import com.speech.common_ui.ui.dialog.SpeechConfigDialog
+import com.speech.common_ui.ui.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
@@ -79,15 +79,21 @@ internal fun PracticeRoute(
     }
 
     PracticeScreen(
+        state = state,
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
         onRecordVideoClick = { viewModel.onIntent(PracticeIntent.OnRecordVideoClick) },
         onUploadSpeechFile = { uri -> viewModel.onIntent(PracticeIntent.OnUploadSpeechFile(uri)) },
         onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) },
     )
+
+    if(state.isUploadingFile) {
+        UploadFileDialog()
+    }
 }
 
 @Composable
 private fun PracticeScreen(
+    state: PractieState,
     onRecordAudioClick: () -> Unit,
     onRecordVideoClick: () -> Unit,
     onUploadSpeechFile: (Uri) -> Unit,
@@ -196,8 +202,6 @@ private fun PracticeScreen(
                 }
             }
         }
-
-
     }
 }
 
@@ -263,6 +267,7 @@ private fun UploadFileButton(
 @Composable
 private fun PracticeScreenPreview() {
     PracticeScreen(
+        state = PractieState(),
         onRecordAudioClick = {},
         onRecordVideoClick = {},
         onUploadSpeechFile = {},

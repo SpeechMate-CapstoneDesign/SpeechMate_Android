@@ -58,7 +58,7 @@ orbit = "10.0.0"
 
 ## OAuth
 # https://developers.kakao.com/docs/latest/ko/android/getting-started#apply-sdk
-kakao = "2.21.6"
+kakao = "2.21.7"
 
 ## firebase
 googleServices = "4.4.2"

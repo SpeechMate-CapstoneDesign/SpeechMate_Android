@@ -11,6 +11,7 @@ private val HIDDEN_BOTTOM_BAR_ROUTES = setOf(
     AuthGraph.OnBoardingRoute::class,
     PracticeGraph.RecordAudioRoute::class,
     PracticeGraph.RecordVideoRoute::class,
+    PracticeGraph.FeedbackRoute::class,
 )
 
 fun NavDestination?.shouldHideBottomBar(): Boolean =

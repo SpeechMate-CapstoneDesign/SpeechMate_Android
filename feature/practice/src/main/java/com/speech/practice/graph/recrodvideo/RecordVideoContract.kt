@@ -10,11 +10,12 @@ import java.io.File
 import androidx.camera.core.CameraSelector
 
 data class RecordVideoState(
-    val videoFile : File? = null,
+    val videoFile: File? = null,
     val recordingVideoState: RecordingVideoState = RecordingVideoState.Ready,
-    val timeText : String = "00:00",
+    val timeText: String = "00:00",
     val speechConfig: SpeechConfig = SpeechConfig(),
-    val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
+    val isUploadingFile: Boolean = false,
 ) : UiState
 
 sealed class RecordingVideoState {

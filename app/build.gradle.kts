@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    lintChecks("com.android.tools.lint:lint-gradle:31.12.2")
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
     implementation(projects.core.domain)

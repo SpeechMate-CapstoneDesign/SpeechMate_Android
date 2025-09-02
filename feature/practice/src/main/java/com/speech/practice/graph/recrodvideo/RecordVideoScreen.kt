@@ -28,7 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +64,8 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.LockScreenOrientation
 import com.speech.common_ui.ui.SimpleCircle
-import com.speech.common_ui.ui.SpeechConfigDialog
+import com.speech.common_ui.ui.dialog.SpeechConfigDialog
+import com.speech.common_ui.ui.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.PrimaryActive
@@ -115,6 +115,10 @@ internal fun RecordVideoRoute(
         onBackPressed = { viewModel.onIntent(RecordVideoIntent.OnBackPressed) },
         onSpeechConfigChange = { viewModel.onIntent(RecordVideoIntent.OnSpeechConfigChange(it)) }
     )
+
+    if(state.isUploadingFile) {
+        UploadFileDialog()
+    }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)

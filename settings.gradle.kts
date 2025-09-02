@@ -26,9 +26,6 @@ rootProject.name = "SpeechMate"
 
 include(":app")
 
-include(":feature")
-include(":feature:main")
-
 include(":core")
 include(":core:designsystem")
 include(":core:data")
@@ -39,6 +36,8 @@ include(":core:network")
 include(":core:navigation")
 include(":core:datastore")
 
+include(":feature")
+include(":feature:main")
 include(":feature:practice")
 include(":feature:auth")
 include(":feature:mypage")

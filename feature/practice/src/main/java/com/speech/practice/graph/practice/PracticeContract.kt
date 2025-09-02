@@ -8,7 +8,8 @@ import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 
 data class PractieState(
-    val speechConfig: SpeechConfig = SpeechConfig()
+    val speechConfig: SpeechConfig = SpeechConfig(),
+    val isUploadingFile: Boolean = false
 ) : UiState
 
 sealed class PracticeIntent : UiIntent {
