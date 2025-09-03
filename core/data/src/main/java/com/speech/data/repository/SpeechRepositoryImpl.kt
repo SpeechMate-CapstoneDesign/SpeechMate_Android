@@ -22,32 +22,34 @@ class SpeechRepositoryImpl @Inject constructor(
     override suspend fun uploadFromUri(uriString: String, speechConfig: SpeechConfig, duration: Int): Int {
         val uri = uriString.toUri()
         val contentResolver = context.contentResolver
-        context.contentResolver.takePersistableUriPermission(
+        contentResolver.takePersistableUriPermission(
             uri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION,
         )
 
-        val fileExtension = getExtension(contentResolver, uri)
-        val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
-        val mimeType = when (val type = getMimeType(contentResolver, uri)) {
-            "audio/x-wav" -> "audio/wav"
-            else -> type
-        }
+t        try {
+            val fileExtension = getExtension(contentResolver, uri)
+            val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
+            val mimeType = when (val type = getMimeType(contentResolver, uri)) {
+                "audio/x-wav" -> "audio/wav"
+                else -> type
+            }
 
-        return contentResolver.openInputStream(uri)?.use { inputStream ->
-            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
+            return contentResolver.openInputStream(uri)?.use { inputStream ->
+                speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
 
-            val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
+                val speechId = speechDataSource.uploadSpeechCallback(key, duration).speechId
 
-            speechDataSource.updateSpeechConfig(speechId, speechConfig)
+                speechDataSource.updateSpeechConfig(speechId, speechConfig)
 
+                speechId
+            } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
+        } finally {
             contentResolver.releasePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION,
             )
-
-            speechId
-        } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
+        }
     }
 
     override suspend fun uploadFromPath(filePath: String, speechConfig: SpeechConfig, duration: Int): Int {
