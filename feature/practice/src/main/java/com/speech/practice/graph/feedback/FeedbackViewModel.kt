@@ -2,6 +2,7 @@ package com.speech.practice.graph.feedback
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.material3.rememberDrawerState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -56,31 +57,36 @@ class FeedbackViewModel @Inject constructor(
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            val duration = _exoPlayer?.duration ?: 0L
             when (playbackState) {
-                Player.STATE_IDLE -> intent {
-                    reduce {
-                        state.copy(
-                            playingState = PlayingState.Ready,
-                            currentPosition = 0L,
-                            duration = duration,
-                        )
+                Player.STATE_IDLE -> {
+                    intent {
+                        reduce {
+                            state.copy(
+                                playingState = PlayingState.Ready,
+                                currentPosition = 0L,
+                            )
+                        }
                     }
                 }
 
-                Player.STATE_READY -> intent {
-                    reduce {
-                        state.copy(
-                            playingState = PlayingState.Ready,
-                            currentPosition = 0L,
-                            duration = duration,
-                        )
+                Player.STATE_READY -> {
+                    val duration = _exoPlayer?.duration ?: 0L
+                    intent {
+                        reduce {
+                            state.copy(
+                                duration = duration,
+                                playingState = PlayingState.Ready,
+                            )
+                        }
                     }
                 }
 
-                Player.STATE_BUFFERING -> intent {
-                    reduce {
-                        state.copy(playingState = PlayingState.Loading)
+                Player.STATE_BUFFERING -> {
+                    Log.d("FeedbackViewModel", "Playback state: BUFFERING")
+                    intent {
+                        reduce {
+                            state.copy(playingState = PlayingState.Loading)
+                        }
                     }
                 }
 
@@ -95,11 +101,9 @@ class FeedbackViewModel @Inject constructor(
                 reduce {
                     state.copy(playingState = PlayingState.Error)
                 }
-                postSideEffect(FeedbackSideEffect.ShowSnackbar(error.message ?: "An unknown player error occurred."))
             }
         }
     }
-
 
     private fun initializePlayer() {
         _exoPlayer = ExoPlayer.Builder(context).build().apply {
@@ -190,9 +194,11 @@ class FeedbackViewModel @Inject constructor(
     fun seekTo(position: Long) {
         _exoPlayer?.seekTo(position)
         intent {
+            Log.d("FeedbackViewModel1", "seekTo - duration: ${state.duration}, currentPosition: $position")
             reduce {
                 state.copy(currentPosition = position)
             }
+            Log.d("FeedbackViewModel2", "seekTo - duration: ${state.duration}, currentPosition: $position")
         }
     }
 
@@ -204,6 +210,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
     }
+
     private fun loadMedia(fieUrl: String) {
         _exoPlayer?.let { player ->
             val mediaItem = MediaItem.fromUri(fieUrl)

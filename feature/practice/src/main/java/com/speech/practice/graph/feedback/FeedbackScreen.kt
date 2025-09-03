@@ -1,5 +1,6 @@
 package com.speech.practice.graph.feedback
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -25,9 +26,13 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -126,13 +131,36 @@ private fun FeedbackScreen(
                 .padding(start = 20.dp, end = 20.dp, top = 55.dp),
         ) {
             item {
-                PlayerSurface(
-                    player = exoPlayer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 10f),
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    PlayerSurface(
+                        player = exoPlayer,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 11f),
+                    )
 
-                )
+                    when (state.playingState) {
+                        is PlayingState.Loading -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                color = PrimaryActive,
+                            )
+                        }
+
+                        is PlayingState.Error -> {
+                            Text(
+                                "영상 또는 음성 파일을 불러오는데 실패했습니다.",
+                                modifier = Modifier.align(Alignment.Center),
+                                color = Color.White,
+                                style = SpeechMateTheme.typography.bodySM
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
 
                 Spacer(Modifier.height(8.dp))
 
@@ -165,26 +193,28 @@ private fun FeedbackScreen(
                 when (state.feedbackTab) {
                     FeedbackTab.SPEECH_CONFIG -> {
                         val config = state.speechDetail.speechConfig
-
-                        Text("날짜: ${state.speechDetail.fornattedTime}", style = SpeechMateTheme.typography.bodyXMM)
-
-                        Spacer(Modifier.height(15.dp))
-
-                        Text("발표 이름: ${config.fileName}", style = SpeechMateTheme.typography.bodyXMM)
-
-                        Spacer(Modifier.height(15.dp))
-
-                        Text("발표 상황: ${config.speechType!!.label}", style = SpeechMateTheme.typography.bodyXMM)
-
-                        Spacer(Modifier.height(15.dp))
-
-                        Text("청중: ${config.audience!!.label}", style = SpeechMateTheme.typography.bodyXMM)
-
-                        Spacer(Modifier.height(15.dp))
-
-                        Text("발표 장소: ${config.venue!!.label}", style = SpeechMateTheme.typography.bodyXMM)
-
-                        Spacer(Modifier.height(15.dp))
+                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                            Text(
+                                "날짜: ${state.speechDetail.fornattedTime}",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                            Text(
+                                "발표 이름: ${config.fileName}",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                            Text(
+                                "발표 상황: ${config.speechType!!.label}",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                            Text(
+                                "청중: ${config.audience!!.label}",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                            Text(
+                                "발표 장소: ${config.venue!!.label}",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                        }
                     }
 
                     FeedbackTab.SCRIPT -> {
@@ -316,6 +346,15 @@ private fun MediaControls(
     onSeekTo: (Long) -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
 ) {
+    var sliderValue by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.progress) {
+        if (!isDragging) {
+            sliderValue = state.progress
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
@@ -345,9 +384,14 @@ private fun MediaControls(
             Spacer(Modifier.width(12.dp))
 
             Slider(
-                value = state.progress,
-                onValueChange = { progress ->
-                    val newPosition = (progress * state.duration).toLong()
+                value = sliderValue,
+                onValueChange = {
+                    isDragging = true
+                    sliderValue = it
+                },
+                onValueChangeFinished = {
+                    isDragging = false
+                    val newPosition = (sliderValue * state.duration).toLong()
                     onSeekTo(newPosition)
                 },
                 colors = SliderDefaults.colors(
@@ -414,7 +458,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
                 ),
             ),
 
-        ),
+            ),
         exoPlayer = null,
         onBackPressed = {},
         onTabSelected = {},
