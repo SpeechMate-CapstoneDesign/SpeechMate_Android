@@ -1,27 +1,19 @@
 package com.speech.practice.graph.recordaudio
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
-import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
-import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
@@ -75,7 +67,7 @@ class RecordAudioViewModel @Inject constructor(
             speechRepository.uploadFromPath(
                 filePath = state.audioFile!!.path,
                 speechConfig = state.speechConfig,
-                duration = recordDuration.toInt()
+                duration = recordDuration.toInt(),
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordAudioSideEffect.NavigateToFeedback(speechId))
@@ -169,9 +161,9 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-    private fun startTimer() = intent {
+    private fun startTimer() {
         timerJob?.cancel()
-        timerJob = viewModelScope.launch {
+        timerJob = intent {
             while (state.recordingAudioState is RecordingAudioState.Recording) {
                 delay(10)
                 recordDuration += 10

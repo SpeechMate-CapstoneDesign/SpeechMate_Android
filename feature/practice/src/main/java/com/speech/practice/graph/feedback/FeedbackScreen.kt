@@ -1,5 +1,6 @@
 package com.speech.practice.graph.feedback
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,29 +15,47 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
+import com.speech.common_ui.ui.NoRippleInteractionSource
 import com.speech.common_ui.ui.SpeechMateTab
+import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
+import com.speech.designsystem.R
+import com.speech.designsystem.theme.LightGray
+import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
-import com.speech.practice.graph.recordaudio.RecordAudioViewModel
+import com.speech.domain.model.speech.SpeechFileType
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -65,6 +84,7 @@ internal fun FeedbackRoute(
 
     FeedbackScreen(
         state = state,
+        exoPlayer = viewModel.exoPlayer,
         onBackPressed = {
             viewModel.onIntent(FeedbackIntent.OnBackPressed)
         },
@@ -77,8 +97,11 @@ internal fun FeedbackRoute(
         onPausePlaying = {
             viewModel.onIntent(FeedbackIntent.PausePlaying)
         },
-        onResumePlaying = {
-            viewModel.onIntent(FeedbackIntent.ResumePlaying)
+        onSeekTo = { position ->
+            viewModel.onIntent(FeedbackIntent.SeekTo(position))
+        },
+        onChangePlaybackSpeed = { speed ->
+            viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
     )
 }
@@ -86,11 +109,13 @@ internal fun FeedbackRoute(
 @Composable
 private fun FeedbackScreen(
     state: FeedbackState,
+    exoPlayer: ExoPlayer?,
     onBackPressed: () -> Unit,
     onTabSelected: (FeedbackTab) -> Unit,
     onStartPlaying: () -> Unit,
     onPausePlaying: () -> Unit,
-    onResumePlaying: () -> Unit,
+    onSeekTo: (Long) -> Unit,
+    onChangePlaybackSpeed: (Float) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -105,8 +130,18 @@ private fun FeedbackScreen(
                     player = exoPlayer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f),
-                    useController = false // 커스텀 컨트롤러 사용
+                        .aspectRatio(16f / 10f),
+
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                MediaControls(
+                    state = state,
+                    onStartPlaying = onStartPlaying,
+                    onPausePlaying = onPausePlaying,
+                    onSeekTo = onSeekTo,
+                    onChangePlaybackSpeed = onChangePlaybackSpeed,
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -116,6 +151,7 @@ private fun FeedbackScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     FeedbackTab.entries.forEach { tab ->
+                        if (state.speechDetail.speechFileType == SpeechFileType.AUDIO && tab == FeedbackTab.NON_VERBAL_ANALYSIS) return@forEach
                         SpeechMateTab(
                             label = tab.label,
                             isSelected = state.feedbackTab == tab,
@@ -271,113 +307,210 @@ private fun FeedbackScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MediaControls(
+    state: FeedbackState,
+    onStartPlaying: () -> Unit,
+    onPausePlaying: () -> Unit,
+    onSeekTo: (Long) -> Unit,
+    onChangePlaybackSpeed: (Float) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val isPlaying = state.playingState == PlayingState.Playing
+
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { if (isPlaying) onPausePlaying() else onStartPlaying() },
+            ) {
+                Icon(
+                    painter = if (isPlaying) {
+                        painterResource(R.drawable.pause_audio)
+                    } else {
+                        painterResource(R.drawable.play_audio)
+                    },
+                    contentDescription = if (isPlaying) "일시정지" else "재생",
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            Slider(
+                value = state.progress,
+                onValueChange = { progress ->
+                    val newPosition = (progress * state.duration).toLong()
+                    onSeekTo(newPosition)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = PrimaryActive,
+                    inactiveTrackColor = LightGray,
+                    activeTickColor = Color.Transparent,
+                    inactiveTickColor = Color.Transparent,
+                ),
+                thumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .shadow(elevation = 1.dp, shape = CircleShape)
+                            .background(color = PrimaryActive, shape = CircleShape),
+                    )
+                },
+                track = { sliderState ->
+                    SliderDefaults.Track(
+                        sliderState = sliderState,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.Transparent,
+                            activeTrackColor = PrimaryActive,
+                            inactiveTrackColor = LightGray,
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent,
+                        ),
+                        thumbTrackGapSize = 0.dp,
+                        modifier = Modifier.height(8.dp),
+                    )
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            )
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        Row {
+            Text(
+                text = state.formattedCurrentPosition,
+                style = SpeechMateTheme.typography.bodySM,
+            )
+
+            Text(
+                text = " / ${state.formattedDuration}",
+                style = SpeechMateTheme.typography.bodySM,
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true, name = "발표 설정 탭")
 @Composable
 private fun FeedbackScreenSpeechConfigPreview() {
-    SpeechMateTheme {
-        FeedbackScreen(
-            state = FeedbackState(
-                feedbackTab = FeedbackTab.SPEECH_CONFIG,
-                speechDetail = SpeechDetail(
-                    speechConfig = SpeechConfig(
-                        fileName = "중간 발표 1",
-                    ),
+    FeedbackScreen(
+        state = FeedbackState(
+            feedbackTab = FeedbackTab.SPEECH_CONFIG,
+            speechDetail = SpeechDetail(
+                speechConfig = SpeechConfig(
+                    fileName = "중간 발표 1",
                 ),
             ),
-            onBackPressed = {},
-            onTabSelected = {},
-            onStartPlaying = {},
-            onPausePlaying = {},
-            onResumePlaying = {},
-        )
-    }
+
+        ),
+        exoPlayer = null,
+        onBackPressed = {},
+        onTabSelected = {},
+        onStartPlaying = {},
+        onPausePlaying = {},
+        onSeekTo = {},
+        onChangePlaybackSpeed = {},
+    )
 }
 
 @Preview(showBackground = true, name = "대본 탭")
 @Composable
 private fun FeedbackScreenScriptPreview() {
-    SpeechMateTheme {
-        FeedbackScreen(
-            state = FeedbackState(
-                feedbackTab = FeedbackTab.SCRIPT,
-                speechDetail = SpeechDetail(
-                    speechConfig = SpeechConfig(
-                        fileName = "중간 발표 1",
-                    ),
+    FeedbackScreen(
+        state = FeedbackState(
+            feedbackTab = FeedbackTab.SCRIPT,
+            speechDetail = SpeechDetail(
+                speechConfig = SpeechConfig(
+                    fileName = "중간 발표 1",
                 ),
             ),
-            onBackPressed = {},
-            onTabSelected = {},
-            onStartPlaying = {},
-            onPausePlaying = {},
-            onResumePlaying = {},
-        )
-    }
+            currentPosition = 100000,
+            duration = 200000,
+        ),
+        exoPlayer = null,
+        onBackPressed = {},
+        onTabSelected = {},
+        onStartPlaying = {},
+        onPausePlaying = {},
+        onSeekTo = {},
+        onChangePlaybackSpeed = {},
+    )
 }
 
 @Preview(showBackground = true, name = "대본 분석 탭")
 @Composable
 private fun FeedbackScreenScriptAnalysisPreview() {
-    SpeechMateTheme {
-        FeedbackScreen(
-            state = FeedbackState(
-                feedbackTab = FeedbackTab.SCRIPT_ANALYSIS,
-                speechDetail = SpeechDetail(
-                    speechConfig = SpeechConfig(
-                        fileName = "중간 발표 1",
-                    ),
+    FeedbackScreen(
+        state = FeedbackState(
+            feedbackTab = FeedbackTab.SCRIPT_ANALYSIS,
+            speechDetail = SpeechDetail(
+                speechConfig = SpeechConfig(
+                    fileName = "중간 발표 1",
                 ),
             ),
-            onBackPressed = {},
-            onTabSelected = {},
-            onStartPlaying = {},
-            onPausePlaying = {},
-            onResumePlaying = {},
-        )
-    }
+        ),
+        exoPlayer = null,
+        onBackPressed = {},
+        onTabSelected = {},
+        onStartPlaying = {},
+        onPausePlaying = {},
+        onSeekTo = {},
+        onChangePlaybackSpeed = {},
+    )
 }
 
 @Preview(showBackground = true, name = "언어적 분석 탭")
 @Composable
 private fun FeedbackScreenVerbalAnalysisPreview() {
-    SpeechMateTheme {
-        FeedbackScreen(
-            state = FeedbackState(
-                feedbackTab = FeedbackTab.VERBAL_ANALYSIS,
-                speechDetail = SpeechDetail(
-                    speechConfig = SpeechConfig(
-                        fileName = "중간 발표 1",
-                    ),
+    FeedbackScreen(
+        state = FeedbackState(
+            feedbackTab = FeedbackTab.VERBAL_ANALYSIS,
+            speechDetail = SpeechDetail(
+                speechConfig = SpeechConfig(
+                    fileName = "중간 발표 1",
                 ),
             ),
-            onBackPressed = {},
-            onTabSelected = {},
-            onStartPlaying = {},
-            onPausePlaying = {},
-            onResumePlaying = {},
-        )
-    }
+        ),
+        exoPlayer = null,
+        onBackPressed = {},
+        onTabSelected = {},
+        onStartPlaying = {},
+        onPausePlaying = {},
+        onSeekTo = {},
+        onChangePlaybackSpeed = {},
+    )
 }
 
 @Preview(showBackground = true, name = "비언어적 분석 탭")
 @Composable
 private fun FeedbackScreenNonVerbalAnalysisPreview() {
-    SpeechMateTheme {
-        FeedbackScreen(
-            state = FeedbackState(
-                feedbackTab = FeedbackTab.NON_VERBAL_ANALYSIS,
-                speechDetail = SpeechDetail(
-                    speechConfig = SpeechConfig(
-                        fileName = "중간 발표 1",
-                    ),
+    FeedbackScreen(
+        state = FeedbackState(
+            feedbackTab = FeedbackTab.NON_VERBAL_ANALYSIS,
+            speechDetail = SpeechDetail(
+                speechConfig = SpeechConfig(
+                    fileName = "중간 발표 1",
                 ),
             ),
-            onBackPressed = {},
-            onTabSelected = {},
-            onStartPlaying = {},
-            onPausePlaying = {},
-            onResumePlaying = {},
-        )
-    }
+        ),
+        exoPlayer = null,
+        onBackPressed = {},
+        onTabSelected = {},
+        onStartPlaying = {},
+        onPausePlaying = {},
+        onSeekTo = {},
+        onChangePlaybackSpeed = {},
+    )
 }

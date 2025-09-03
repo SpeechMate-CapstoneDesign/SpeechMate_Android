@@ -10,12 +10,33 @@ data class FeedbackState(
     val speechDetail: SpeechDetail = SpeechDetail(),
     val feedbackTab: FeedbackTab = FeedbackTab.SCRIPT,
     val playingState: PlayingState = PlayingState.Ready,
-) : UiState
+    val playbackSpeed: Float = 1.0f,
+    val currentPosition: Long = 0L,
+    val duration: Long = 0L,
+) : UiState {
+    val progress: Float
+        get() = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
+
+    val formattedCurrentPosition: String
+        get() = formatTime(currentPosition)
+
+    val formattedDuration: String
+        get() = formatTime(duration)
+
+    fun formatTime(time: Long): String {
+        val totalSeconds = time / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return "%02d:%02d".format(minutes, seconds)
+    }
+}
 
 sealed class PlayingState {
     data object Ready : PlayingState()
+    data object Loading : PlayingState()
     data object Playing : PlayingState()
     data object Paused : PlayingState()
+    data object Error : PlayingState()
 }
 
 sealed class FeedbackIntent : UiIntent {
@@ -23,7 +44,8 @@ sealed class FeedbackIntent : UiIntent {
     data class OnTabSelected(val feedbackTab: FeedbackTab) : FeedbackIntent()
     data object StartPlaying : FeedbackIntent()
     data object PausePlaying : FeedbackIntent()
-    data object ResumePlaying : FeedbackIntent()
+    data class SeekTo(val position: Long) : FeedbackIntent()
+    data class ChangePlaybackSpeed(val speed: Float) : FeedbackIntent()
 }
 
 sealed interface FeedbackSideEffect : UiSideEffect {
