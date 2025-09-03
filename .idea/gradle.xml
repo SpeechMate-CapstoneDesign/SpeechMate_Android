@@ -7,7 +7,7 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$PROJECT_DIR$/build-logic" name="speechmate">
+              <build path="$PROJECT_DIR$/build-logic" name="SpeechMate">
                 <projects>
                   <project path="$PROJECT_DIR$/build-logic" />
                 </projects>
@@ -35,7 +35,9 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/main" />
+            <option value="$PROJECT_DIR$/feature/mypage" />
             <option value="$PROJECT_DIR$/feature/practice" />
+            <option value="$PROJECT_DIR$/feature/splash" />
           </set>
         </option>
       </GradleProjectSettings>

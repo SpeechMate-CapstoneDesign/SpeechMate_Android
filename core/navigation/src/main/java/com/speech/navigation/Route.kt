@@ -1,7 +1,13 @@
 package com.speech.navigation
 
+import com.speech.domain.model.speech.Audience
+import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.speech.SpeechType
+import com.speech.domain.model.speech.Venue
 import kotlinx.serialization.Serializable
 import java.io.File
+import java.time.LocalDateTime
 
 sealed interface Route
 
@@ -34,7 +40,16 @@ sealed class PracticeGraph : Route {
     data object RecordVideoRoute : PracticeGraph()
 
     @Serializable
-    data class FeedbackRoute(val speechId: Int) : PracticeGraph()
+    data class FeedbackRoute(
+        val speechId: Int,
+        val speechFileType: SpeechFileType,
+        val date: String,
+        // SpeechConfig
+        val fileName: String = "",
+        val speechType: SpeechType? = null,
+        val audience: Audience? = null,
+        val venue: Venue? = null,
+    ) : PracticeGraph()
 }
 
 @Serializable

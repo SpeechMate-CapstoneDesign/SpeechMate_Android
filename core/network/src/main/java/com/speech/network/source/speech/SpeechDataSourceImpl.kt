@@ -1,11 +1,13 @@
 package com.speech.network.source.speech
 
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechToTextResponse
 import com.speech.network.model.speech.GetTextAnalysisResponse
+import com.speech.network.model.speech.UpdateSpeechConfigRequest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.InputStream
@@ -21,7 +23,7 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun uploadSpeechFile(
         url: String,
         speechFile: InputStream,
-        contentType: String
+        contentType: String,
     ) {
         val mediaType = contentType.toMediaTypeOrNull()
             ?: throw IllegalArgumentException("Invalid media type: $contentType")
@@ -30,8 +32,20 @@ class SpeechDataSourceImpl @Inject constructor(
         return s3Api.uploadSpeechFile(url, requestBody)
     }
 
-    override suspend fun uploadSpeechCallback(fileKey: String) =
-        speechMateApi.uploadSpeechCallback(fileKey).getData()
+    override suspend fun uploadSpeechCallback(fileKey: String, duration: Int) =
+        speechMateApi.uploadSpeechCallback(fileKey, duration).getData()
+
+    override suspend fun updateSpeechConfig(speechId: Int, speechConfig: SpeechConfig) =
+        speechMateApi.updateSpeechConfig(
+            speechId,
+            updateSpeechConfigRequest =
+                UpdateSpeechConfigRequest(
+                    title = speechConfig.fileName,
+                    presentationContext = speechConfig.speechType!!.name,
+                    audience = speechConfig.audience!!.name,
+                    location = speechConfig.venue!!.name,
+                ),
+        ).getData()
 
     override suspend fun getSpeechToText(speechId: Int): GetSpeechToTextResponse =
         speechMateApi.getSpeechToText(speechId).getData()

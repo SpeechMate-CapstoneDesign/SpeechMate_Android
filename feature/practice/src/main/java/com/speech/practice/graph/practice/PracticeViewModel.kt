@@ -21,8 +21,8 @@ import javax.inject.Inject
 class PracticeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
-) : ContainerHost<PractieState, PracticeSideEffect>, ViewModel() {
-    override val container = container<PractieState, PracticeSideEffect>(PractieState())
+) : ContainerHost<PracticeState, PracticeSideEffect>, ViewModel() {
+    override val container = container<PracticeState, PracticeSideEffect>(PracticeState())
 
     fun onIntent(event: PracticeIntent) {
         when (event) {
@@ -31,6 +31,7 @@ class PracticeViewModel @Inject constructor(
             is PracticeIntent.OnRecordAudioClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordAudio)
             }
+
             is PracticeIntent.OnRecordVideoClick -> intent {
                 postSideEffect(PracticeSideEffect.NavigateToRecordVideo)
             }
@@ -51,15 +52,24 @@ class PracticeViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(isUploadingFile = true)
+        }
+
+        val speechFileType = MediaUtil.getSpeechFileType(context, uri)
+
         suspendRunCatching {
-            speechRepository.uploadFromUri(uri.toString(), state.speechConfig)
+            speechRepository.uploadFromUri(uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt())
         }.onSuccess { speechId ->
-            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId))
+            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId, speechFileType))
         }.onFailure {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+        }.also {
+            reduce {
+                state.copy(isUploadingFile = false)
+            }
         }
     }
-
 }
 
 

@@ -117,14 +117,24 @@ class RecordVideoViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(isUploadingFile = true)
+        }
+
         suspendRunCatching {
             speechRepository.uploadFromPath(
-                filePath = state.videoFile!!.path, speechConfig = state.speechConfig
+                filePath = state.videoFile!!.path,
+                speechConfig = state.speechConfig,
+                duration = recordDuration.toInt()
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordVideoSideEffect.NavigateToFeedback(speechId))
         }.onFailure {
             postSideEffect(RecordVideoSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+        }.also {
+            reduce {
+                state.copy(isUploadingFile = false)
+            }
         }
     }
 

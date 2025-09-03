@@ -5,6 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import com.speech.mypage.graph.mypage.MyPageRoute
 import com.speech.mypage.graph.setting.SettingRoute
 import com.speech.navigation.MyPageBaseRoute
@@ -24,7 +26,7 @@ fun NavGraphBuilder.myPageNavGraph(
     navigateToPolicy: () -> Unit,
     navigateToInquiry: () -> Unit,
     navigateToSetting: () -> Unit,
-    navigateToFeedBack: (Int) -> Unit
+    navigateToFeedBack: (Int, SpeechFileType, SpeechConfig) -> Unit
 ) {
     navigation<MyPageBaseRoute>(startDestination = MyPageGraph.MyPageRoute) {
         composable<MyPageGraph.MyPageRoute> {

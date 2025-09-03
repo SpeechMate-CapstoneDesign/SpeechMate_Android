@@ -1,27 +1,19 @@
 package com.speech.practice.graph.recordaudio
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
-import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
-import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.io.File
@@ -31,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val speechRepository: SpeechRepository
+    private val speechRepository: SpeechRepository,
 ) : ContainerHost<RecordAudioState, RecordAudioSideEffect>, ViewModel() {
 
     override val container = container<RecordAudioState, RecordAudioSideEffect>(RecordAudioState())
@@ -49,7 +41,7 @@ class RecordAudioViewModel @Inject constructor(
             is RecordAudioIntent.PauseRecording -> pauseRecordAudio()
             is RecordAudioIntent.ResumeRecording -> resumeRecordAudio()
             is RecordAudioIntent.OnBackPressed -> intent {
-                postSideEffect(RecordAudioSideEffect.NavigateBack)
+                postSideEffect(RecordAudioSideEffect.NavigateToBack)
             }
 
             is RecordAudioIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
@@ -67,15 +59,24 @@ class RecordAudioViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(isUploadingFile = true)
+        }
+
         suspendRunCatching {
             speechRepository.uploadFromPath(
                 filePath = state.audioFile!!.path,
-                speechConfig = state.speechConfig
+                speechConfig = state.speechConfig,
+                duration = recordDuration.toInt(),
             )
         }.onSuccess { speechId ->
             postSideEffect(RecordAudioSideEffect.NavigateToFeedback(speechId))
         }.onFailure {
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+        }.also {
+            reduce {
+                state.copy(isUploadingFile = false)
+            }
         }
     }
 
@@ -92,8 +93,8 @@ class RecordAudioViewModel @Inject constructor(
             state.copy(
                 audioFile = File(
                     context.cacheDir,
-                    "record_${System.currentTimeMillis()}.mp4"
-                )
+                    "record_${System.currentTimeMillis()}.mp4",
+                ),
             )
         }
 
@@ -154,26 +155,27 @@ class RecordAudioViewModel @Inject constructor(
         recorder?.release()
         recorder = null
         recordDuration = 0
+        state.audioFile?.let { runCatching { it.delete() } }
 
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Ready, timeText = "00 : 00 . 00")
         }
     }
 
-    private fun startTimer() = intent {
+    private fun startTimer() {
         timerJob?.cancel()
-        timerJob = viewModelScope.launch {
+        timerJob = intent {
             while (state.recordingAudioState is RecordingAudioState.Recording) {
                 delay(10)
                 recordDuration += 10
 
-                if(recordDuration % 130 == 0L) {
+                if (recordDuration % 130 == 0L) {
                     reduce {
                         val m = (recordDuration / 1000) / 60
                         val s = (recordDuration / 1000) % 60
                         val ms = ((recordDuration % 1000) / 10).toInt()
                         state.copy(
-                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms)
+                            timeText = String.format(Locale.US, "%02d : %02d . %02d", m, s, ms),
                         )
                     }
                 }

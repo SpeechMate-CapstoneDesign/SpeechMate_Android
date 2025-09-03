@@ -11,7 +11,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -23,13 +22,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "speechmate"
+rootProject.name = "SpeechMate"
 
 include(":app")
-
-include(":feature")
-include(":feature:main")
-
 
 include(":core")
 include(":core:designsystem")
@@ -41,9 +36,9 @@ include(":core:network")
 include(":core:navigation")
 include(":core:datastore")
 
+include(":feature")
+include(":feature:main")
 include(":feature:practice")
 include(":feature:auth")
-
-
 include(":feature:mypage")
 include(":feature:splash")

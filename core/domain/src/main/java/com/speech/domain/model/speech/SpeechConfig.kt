@@ -1,5 +1,6 @@
 package com.speech.domain.model.speech
 
+
 data class SpeechConfig(
     val fileName: String = "",
     val speechType: SpeechType? = null,

@@ -43,7 +43,7 @@ internal fun OnBoardingRoute(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
-    val onboardingState by viewModel.collectAsState()
+    val state by viewModel.collectAsState()
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -61,7 +61,7 @@ internal fun OnBoardingRoute(
     }
 
     OnBoardingScreen(
-        state = onboardingState,
+        state = state,
         onVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleVerbalSkill(it)) },
         onNonVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleNonVerbalSkill(it)) },
         signUp = viewModel::signUp

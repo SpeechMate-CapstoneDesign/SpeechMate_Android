@@ -8,8 +8,9 @@ android {
 
 dependencies {
     implementation(libs.accompanist.permission)
-
-    implementation(libs.audio.waveform)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui.compose)
+    implementation(libs.media3.common)
 
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)

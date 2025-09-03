@@ -11,7 +11,8 @@ data class RecordAudioState(
     val audioFile: File? = null,
     val recordingAudioState: RecordingAudioState = RecordingAudioState.Ready,
     val timeText: String = "00 : 00 . 00",
-    val speechConfig: SpeechConfig = SpeechConfig()
+    val speechConfig: SpeechConfig = SpeechConfig(),
+    val isUploadingFile: Boolean = false,
 ) : UiState
 
 sealed class RecordingAudioState {
@@ -34,6 +35,6 @@ sealed class RecordAudioIntent : UiIntent {
 
 sealed interface RecordAudioSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : RecordAudioSideEffect
-    data object NavigateBack : RecordAudioSideEffect
+    data object NavigateToBack : RecordAudioSideEffect
     data class NavigateToFeedback(val speechId: Int) : RecordAudioSideEffect
 }
