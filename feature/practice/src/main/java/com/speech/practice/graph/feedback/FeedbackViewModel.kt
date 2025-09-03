@@ -288,10 +288,15 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-     fun clearResource() {
-        _exoPlayer?.clearVideoSurface()
-        _exoPlayer?.removeListener(playerListener)
-        _exoPlayer?.release()
+    fun clearResource() {
+        _exoPlayer?.apply {
+            stop()
+            setVideoSurfaceView(null)
+            clearVideoSurface()
+            removeListener(playerListener)
+            release()
+        }
+
         _exoPlayer = null
         stopProgressUpdate()
     }
