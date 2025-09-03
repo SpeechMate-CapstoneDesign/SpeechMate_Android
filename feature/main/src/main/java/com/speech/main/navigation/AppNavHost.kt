@@ -3,6 +3,7 @@ package com.speech.main.navigation
 import com.speech.practice.navigation.practiceNavGraph
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
@@ -57,7 +58,7 @@ fun AppNavHost(
             navigateToLogin = {
                 navController.navigateToLogin(
                     navOptions {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
                     },
                 )
             },

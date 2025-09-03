@@ -27,7 +27,7 @@ class SpeechRepositoryImpl @Inject constructor(
             Intent.FLAG_GRANT_READ_URI_PERMISSION,
         )
 
-t        try {
+        try {
             val fileExtension = getExtension(contentResolver, uri)
             val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
             val mimeType = when (val type = getMimeType(contentResolver, uri)) {
