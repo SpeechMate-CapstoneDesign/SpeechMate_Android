@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 data class SpeechDetail(
     val id: Int = 0,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val fileUrl: String = "https://speechmate-s3.s3.ap-northeast-2.amazonaws.com/user/4/speech/7c41daf5-9a1d-489d-a875-ff6a316256ff.mp4",
+    val fileUrl: String = "",
     val speechFileType: SpeechFileType = SpeechFileType.AUDIO,
     val speechConfig: SpeechConfig = SpeechConfig(),
     val script: String = "",
