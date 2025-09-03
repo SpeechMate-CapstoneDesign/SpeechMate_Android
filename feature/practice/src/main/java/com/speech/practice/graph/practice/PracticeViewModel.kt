@@ -21,8 +21,8 @@ import javax.inject.Inject
 class PracticeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
-) : ContainerHost<PractieState, PracticeSideEffect>, ViewModel() {
-    override val container = container<PractieState, PracticeSideEffect>(PractieState())
+) : ContainerHost<PracticeState, PracticeSideEffect>, ViewModel() {
+    override val container = container<PracticeState, PracticeSideEffect>(PracticeState())
 
     fun onIntent(event: PracticeIntent) {
         when (event) {

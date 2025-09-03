@@ -7,7 +7,7 @@ import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 
-data class PractieState(
+data class PracticeState(
     val speechConfig: SpeechConfig = SpeechConfig(),
     val isUploadingFile: Boolean = false
 ) : UiState
