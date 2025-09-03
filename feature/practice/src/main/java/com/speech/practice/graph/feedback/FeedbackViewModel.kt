@@ -121,6 +121,7 @@ class FeedbackViewModel @Inject constructor(
                 state.copy(
                     speechDetail = state.speechDetail.copy(
                         id = routeArgs.speechId,
+                        fileUrl = routeArgs.fileUrl,
                         speechFileType = routeArgs.speechFileType,
                         speechConfig = state.speechDetail.speechConfig.copy(
                             fileName = routeArgs.fileName,

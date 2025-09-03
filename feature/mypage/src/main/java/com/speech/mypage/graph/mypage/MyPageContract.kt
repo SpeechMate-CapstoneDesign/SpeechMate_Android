@@ -15,12 +15,13 @@ data class MyPageState(
     val speechFeeds: List<SpeechFeed> = listOf(
         SpeechFeed(
             id = 1,
-            fileName = "1분기 실적 발표",
+
             date = "23.10.27",
             fileLength = 123456L,
             fileUrl = "",
             speechFileType = SpeechFileType.VIDEO,
             speechConfig = SpeechConfig(
+                fileName = "1분기 실적 발표",
                 speechType = SpeechType.BUSINESS_PRESENTATION,
                 audience = Audience.EXPERT,
                 venue = Venue.CONFERENCE_ROOM,
@@ -28,12 +29,12 @@ data class MyPageState(
         ),
         SpeechFeed(
             id = 2,
-            fileName = "신입사원 온보딩",
             date = "23.10.27",
             fileLength = 234567L,
             fileUrl = "",
             speechFileType = SpeechFileType.AUDIO,
             speechConfig = SpeechConfig(
+                fileName = "신입사원 온보딩",
                 speechType = SpeechType.ACADEMIC_PRESENTATION,
                 audience = Audience.BEGINNER,
                 venue = Venue.EVENT_HALL,
@@ -41,12 +42,12 @@ data class MyPageState(
         ),
         SpeechFeed(
             id = 3,
-            fileName = "개발자 컨퍼런스 발표",
             date = "23.10.27",
             fileLength = 89012L,
             fileUrl = "",
             speechFileType = SpeechFileType.VIDEO,
             speechConfig = SpeechConfig(
+                fileName = "개발자 컨퍼런스 발표",
                 speechType = SpeechType.BUSINESS_PRESENTATION,
                 audience = Audience.INTERMEDIATE,
                 venue = Venue.LECTURE_HALL,
@@ -54,12 +55,12 @@ data class MyPageState(
         ),
         SpeechFeed(
             id = 4,
-            fileName = "투자 유치 발표",
             date = "23.10.27",
             fileLength = 345678L,
             fileUrl = "",
             speechFileType = SpeechFileType.VIDEO,
             speechConfig = SpeechConfig(
+                fileName = "투자 유치 발표",
                 speechType = SpeechType.BUSINESS_PRESENTATION,
                 audience = Audience.EXPERT,
                 venue = Venue.CONFERENCE_ROOM,
@@ -68,12 +69,12 @@ data class MyPageState(
 
         SpeechFeed(
             id = 5,
-            fileName = "팀 회의 발표",
             date = "23.10.27",
             fileLength = 500000L,
             fileUrl = "",
             speechFileType = SpeechFileType.AUDIO,
             speechConfig = SpeechConfig(
+                fileName = "팀 회의 발표",
                 speechType = SpeechType.BUSINESS_PRESENTATION,
                 audience = Audience.INTERMEDIATE,
                 venue = Venue.CONFERENCE_ROOM,

@@ -68,7 +68,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordAudioRoute(
-    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordAudioViewModel = hiltViewModel(),
 ) {
@@ -87,7 +87,7 @@ internal fun RecordAudioRoute(
 
             is RecordAudioSideEffect.NavigateToBack -> navigateBack()
             is RecordAudioSideEffect.NavigateToFeedback -> {
-                navigateToFeedback(sideEffect.speechId, SpeechFileType.AUDIO, state.speechConfig)
+                navigateToFeedback(sideEffect.speechId, sideEffect.fileUrl, sideEffect.speechFileType, state.speechConfig)
             }
         }
     }
@@ -120,7 +120,7 @@ internal fun RecordAudioRoute(
         },
     )
 
-    if(state.isUploadingFile) {
+    if (state.isUploadingFile) {
         UploadFileDialog()
     }
 }

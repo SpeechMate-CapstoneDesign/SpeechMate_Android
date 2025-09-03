@@ -60,7 +60,7 @@ data class SpeechMateTypography(
     ),
     val bodyXMM: TextStyle = TextStyle(
         fontFamily = PretendardMedium,
-        fontSize = 18.sp,
+        fontSize = 16.sp,
         lineHeight = 22.sp
     ),
     val bodySM: TextStyle = TextStyle(

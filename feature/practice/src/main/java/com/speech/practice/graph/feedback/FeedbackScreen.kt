@@ -319,6 +319,8 @@ private fun FeedbackScreen(
 
                     FeedbackTab.NON_VERBAL_ANALYSIS -> {}
                 }
+
+                Spacer(Modifier.height(50.dp))
             }
         }
     }

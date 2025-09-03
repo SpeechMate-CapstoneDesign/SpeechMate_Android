@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -69,8 +70,13 @@ class RecordAudioViewModel @Inject constructor(
                 speechConfig = state.speechConfig,
                 duration = recordDuration.toInt(),
             )
-        }.onSuccess { speechId ->
-            postSideEffect(RecordAudioSideEffect.NavigateToFeedback(speechId))
+        }.onSuccess { (speechId, fileUrl) ->
+            postSideEffect(RecordAudioSideEffect.NavigateToFeedback(
+                speechId= speechId,
+                fileUrl = fileUrl,
+                speechFileType = SpeechFileType.AUDIO,
+                speechConfig = state.speechConfig,
+            ))
         }.onFailure {
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {

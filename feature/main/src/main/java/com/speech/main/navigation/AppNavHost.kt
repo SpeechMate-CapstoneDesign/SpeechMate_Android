@@ -44,7 +44,7 @@ fun AppNavHost(
             navigateBack = navController::popBackStack,
             navigateToRecordAudio = navController::navigateToRecordAudio,
             navigateToRecordVideo = navController::navigateToRecordVideo,
-            navigateToFeedback = { speechId, speechFileType, speechConfig ->
+            navigateToFeedback = { speechId, fileUrl, speechFileType, speechConfig ->
                 navController.navigateToFeedback(
                     speechId = speechId,
                     speechFileType = speechFileType,

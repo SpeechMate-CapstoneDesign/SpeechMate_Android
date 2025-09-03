@@ -56,7 +56,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 internal fun PracticeRoute(
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     viewModel: PracticeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
@@ -74,7 +74,12 @@ internal fun PracticeRoute(
 
             is PracticeSideEffect.NavigateToRecordAudio -> navigateToRecordAudio()
             is PracticeSideEffect.NavigateToRecordVideo -> navigateToRecordVideo()
-            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(sideEffect.speechId, sideEffect.speechFileType, state.speechConfig)
+            is PracticeSideEffect.NavigateToFeedback -> navigateToFeedback(
+                sideEffect.speechId,
+                sideEffect.fileUrl,
+                sideEffect.speechFileType,
+                state.speechConfig,
+            )
         }
     }
 
@@ -86,7 +91,7 @@ internal fun PracticeRoute(
         onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) },
     )
 
-    if(state.isUploadingFile) {
+    if (state.isUploadingFile) {
         UploadFileDialog()
     }
 }

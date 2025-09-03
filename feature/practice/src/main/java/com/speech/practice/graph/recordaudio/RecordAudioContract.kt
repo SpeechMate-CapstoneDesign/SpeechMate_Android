@@ -4,6 +4,7 @@ import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import java.io.File
 import java.util.Locale
 
@@ -36,5 +37,10 @@ sealed class RecordAudioIntent : UiIntent {
 sealed interface RecordAudioSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : RecordAudioSideEffect
     data object NavigateToBack : RecordAudioSideEffect
-    data class NavigateToFeedback(val speechId: Int) : RecordAudioSideEffect
+    data class NavigateToFeedback(
+        val speechId: Int,
+        val fileUrl: String,
+        val speechFileType: SpeechFileType,
+        val speechConfig: SpeechConfig,
+    ) : RecordAudioSideEffect
 }

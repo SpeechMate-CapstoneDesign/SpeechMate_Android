@@ -78,7 +78,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordVideoRoute(
-    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordVideoViewModel = hiltViewModel(),
 ) {
@@ -97,7 +97,7 @@ internal fun RecordVideoRoute(
 
             is RecordVideoSideEffect.NavigateBack -> navigateBack()
             is RecordVideoSideEffect.NavigateToFeedback -> {
-                navigateToFeedback(sideEffect.speechId, SpeechFileType.VIDEO, state.speechConfig)
+                navigateToFeedback(sideEffect.speechId, sideEffect.fileUrl, sideEffect.speechFileType, state.speechConfig)
             }
         }
     }
