@@ -155,6 +155,7 @@ class RecordAudioViewModel @Inject constructor(
         recorder?.release()
         recorder = null
         recordDuration = 0
+        state.audioFile?.let { runCatching { it.delete() } }
 
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Ready, timeText = "00 : 00 . 00")
