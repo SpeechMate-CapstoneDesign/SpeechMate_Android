@@ -112,11 +112,11 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
+        val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
         initializePlayer()
-        loadMedia(container.stateFlow.value.speechDetail.fileUrl)
+        loadMedia(routeArgs.fileUrl)
 
         intent {
-            val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
             reduce {
                 state.copy(
                     speechDetail = state.speechDetail.copy(
@@ -134,6 +134,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
+
         getScript()
         getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
@@ -143,15 +144,23 @@ class FeedbackViewModel @Inject constructor(
 
     fun onIntent(event: FeedbackIntent) {
         when (event) {
-            is FeedbackIntent.OnBackPressed -> intent {
-                postSideEffect(FeedbackSideEffect.NavigateToBack)
-            }
-
+            is FeedbackIntent.OnBackPressed -> onBackPressed()
             is FeedbackIntent.OnTabSelected -> onTabSelected(event.feedbackTab)
             is FeedbackIntent.StartPlaying -> startPlaying()
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+        }
+    }
+
+    private fun onBackPressed() {
+        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
+        if (isPlaying) pausePlaying()
+        else {
+            clearResource()
+            intent {
+                postSideEffect(FeedbackSideEffect.NavigateToBack)
+            }
         }
     }
 
@@ -279,11 +288,16 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
+     fun clearResource() {
+        _exoPlayer?.clearVideoSurface()
         _exoPlayer?.removeListener(playerListener)
         _exoPlayer?.release()
         _exoPlayer = null
         stopProgressUpdate()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        clearResource()
     }
 }

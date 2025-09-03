@@ -1,5 +1,6 @@
 package com.speech.practice.graph.feedback
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -45,6 +47,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.BackButton
+import com.speech.common_ui.ui.SectionDivider
 import com.speech.common_ui.ui.SpeechMateTab
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
@@ -57,6 +60,7 @@ import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.graph.recrodvideo.RecordVideoIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -85,8 +89,12 @@ internal fun FeedbackRoute(
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.exoPlayer?.release()
+            viewModel.clearResource()
         }
+    }
+
+    BackHandler(enabled = true) {
+        viewModel.onIntent(FeedbackIntent.OnBackPressed)
     }
 
     FeedbackScreen(
@@ -156,7 +164,7 @@ private fun FeedbackScreen(
                                 "영상 또는 음성 파일을 불러오는데 실패했습니다.",
                                 modifier = Modifier.align(Alignment.Center),
                                 color = Color.White,
-                                style = SpeechMateTheme.typography.bodySM
+                                style = SpeechMateTheme.typography.bodySM,
                             )
                         }
 
@@ -274,40 +282,118 @@ private fun FeedbackScreen(
                                     style = SpeechMateTheme.typography.bodyXMM,
                                 )
                             } else {
-                                Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                                Column() {
                                     val analysis = state.speechDetail.scriptAnalysis!!
                                     Text(
-                                        text = "요약: ${analysis.summary}",
+                                        text = "키워드",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                        color = PrimaryActive,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+
+                                    Text(
+                                        text = analysis.keywords,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(15.dp))
+
                                     Text(
-                                        text = "키워드: ${analysis.keywords}",
+                                        text = "요약",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.summary,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
                                     Text(
-                                        text = "개선점: ${analysis.improvementPoints}",
+                                        text = "개선점",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.improvementPoints,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
                                     Text(
-                                        text = "논리적 일관성 점수: ${analysis.logicalCoherenceScore}",
+                                        text = "피드백",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.feedback,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
                                     Text(
-                                        text = "피드백: ${analysis.feedback}",
+                                        text = "논리적 일관성 점수",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = "${analysis.logicalCoherenceScore}점",
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(15.dp))
+
                                     Text(
-                                        text = "점수 설명: ${analysis.scoreExplanation}",
+                                        text = "점수 설명",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.scoreExplanation,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
 
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
                                     Text(
-                                        text = "예상 질문: ${analysis.expectedQuestions}",
+                                        text = "예상 질문",
+                                        style = SpeechMateTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.expectedQuestions,
                                         style = SpeechMateTheme.typography.bodyXMM,
                                     )
                                 }
@@ -320,7 +406,7 @@ private fun FeedbackScreen(
                     FeedbackTab.NON_VERBAL_ANALYSIS -> {}
                 }
 
-                Spacer(Modifier.height(50.dp))
+                Spacer(Modifier.height(80.dp))
             }
         }
     }

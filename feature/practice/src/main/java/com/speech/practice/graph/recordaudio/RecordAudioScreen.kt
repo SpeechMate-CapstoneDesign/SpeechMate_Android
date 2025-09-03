@@ -3,6 +3,7 @@ package com.speech.practice.graph.recordaudio
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -62,6 +63,7 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.graph.feedback.FeedbackIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -90,6 +92,10 @@ internal fun RecordAudioRoute(
                 navigateToFeedback(sideEffect.speechId, sideEffect.fileUrl, sideEffect.speechFileType, state.speechConfig)
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        viewModel.onIntent(RecordAudioIntent.OnBackPressed)
     }
 
     RecordAudioScreen(
