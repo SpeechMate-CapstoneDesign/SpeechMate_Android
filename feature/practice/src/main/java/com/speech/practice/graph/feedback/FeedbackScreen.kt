@@ -24,6 +24,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -79,6 +80,12 @@ internal fun FeedbackRoute(
             }
 
             is FeedbackSideEffect.NavigateToBack -> navigateToBack()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.exoPlayer?.release()
         }
     }
 

@@ -93,7 +93,7 @@ internal fun PracticeRoute(
 
 @Composable
 private fun PracticeScreen(
-    state: PractieState,
+    state: PracticeState,
     onRecordAudioClick: () -> Unit,
     onRecordVideoClick: () -> Unit,
     onUploadSpeechFile: (Uri) -> Unit,
@@ -267,7 +267,7 @@ private fun UploadFileButton(
 @Composable
 private fun PracticeScreenPreview() {
     PracticeScreen(
-        state = PractieState(),
+        state = PracticeState(),
         onRecordAudioClick = {},
         onRecordVideoClick = {},
         onUploadSpeechFile = {},

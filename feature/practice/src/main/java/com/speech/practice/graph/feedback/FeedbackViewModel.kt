@@ -280,9 +280,9 @@ class FeedbackViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopProgressUpdate()
         _exoPlayer?.removeListener(playerListener)
         _exoPlayer?.release()
         _exoPlayer = null
+        stopProgressUpdate()
     }
 }

@@ -31,9 +31,10 @@ fun NavController.navigateToRecordVideo(navOptions: NavOptions? = null) {
 
 fun NavController.navigateToFeedback(
     speechId: Int,
+    fileUrl : String = "",
+    date: String = "",
     speechFileType: SpeechFileType,
     speechConfig: SpeechConfig,
-    date: String = "",
     navOptions: NavOptions? = null,
 ) {
     val formattedDate =
@@ -46,6 +47,7 @@ fun NavController.navigateToFeedback(
         PracticeGraph.FeedbackRoute(
             speechId = speechId,
             speechFileType = speechFileType,
+            fileUrl = fileUrl,
             date = formattedDate,
             fileName = speechConfig.fileName,
             speechType = speechConfig.speechType,

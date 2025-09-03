@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.AuthRepository
 import com.speech.practice.graph.practice.PracticeSideEffect
-import com.speech.practice.graph.practice.PractieState
+import com.speech.practice.graph.practice.PracticeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import org.orbitmvi.orbit.ContainerHost
@@ -28,6 +28,5 @@ class MainViewModel @Inject constructor(
             postSideEffect(MainSideEffect.NavigateToLogin)
         }
     }
-
 
 }
