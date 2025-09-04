@@ -47,6 +47,7 @@ fun AppNavHost(
             navigateToFeedback = { speechId, fileUrl, speechFileType, speechConfig ->
                 navController.navigateToFeedback(
                     speechId = speechId,
+                    fileUrl = fileUrl,
                     speechFileType = speechFileType,
                     speechConfig = speechConfig,
                 )

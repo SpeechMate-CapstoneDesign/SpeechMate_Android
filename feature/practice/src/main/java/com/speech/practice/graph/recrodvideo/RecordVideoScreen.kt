@@ -470,6 +470,7 @@ fun RecordVideoScreen(
             SpeechConfigDialog(
                 onDone = { speechConfig ->
                     onSpeechConfigChange(speechConfig)
+                    showSpeechConfigDg = false
                     onRequestFeedback()
                 },
                 onDismiss = { showSpeechConfigDg = false },

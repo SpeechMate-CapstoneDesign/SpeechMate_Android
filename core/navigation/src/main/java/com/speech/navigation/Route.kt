@@ -43,7 +43,7 @@ sealed class PracticeGraph : Route {
     data class FeedbackRoute(
         val speechId: Int,
         val speechFileType: SpeechFileType,
-        val fileUrl: String = "",
+        val fileUrl: String,
         // SpeechConfig
         val fileName: String = "",
         val speechType: SpeechType? = null,
