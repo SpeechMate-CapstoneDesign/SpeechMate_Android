@@ -1,7 +1,5 @@
 package com.speech.network.api
 
-import com.google.android.gms.common.api.Api
-import com.speech.domain.model.speech.SpeechConfig
 import com.speech.network.model.ApiResponse
 import com.speech.network.model.auth.LoginKakaoRequest
 import com.speech.network.model.auth.LoginKakaoResponse
@@ -10,8 +8,10 @@ import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
-import com.speech.network.model.speech.GetSpeechToTextResponse
-import com.speech.network.model.speech.GetTextAnalysisResponse
+import com.speech.network.model.speech.GetSpeechConfigResponse
+import com.speech.network.model.speech.ProcessScriptAnalysisResponse
+import com.speech.network.model.speech.ScriptAnalysisResponse
+import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
 import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
@@ -52,9 +52,17 @@ interface SpeechMateApi {
     suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
 
     @POST("/api/speech/Whisperstt3/{speechId}")
-    suspend fun getSpeechToText(@Path("speechId") speechId: Int): ApiResponse<GetSpeechToTextResponse>
+    suspend fun processSpeechToScript(@Path("speechId") speechId: Int): ApiResponse<ScriptResponse>
 
     @POST("/api/speech/analyze/{speechId}")
-    suspend fun getTextAnalysis(@Path("speechId") speechId: Int): ApiResponse<GetTextAnalysisResponse>
+    suspend fun processScriptAnalysis(@Path("speechId") speechId: Int): ApiResponse<ProcessScriptAnalysisResponse>
 
+    @GET("/api/speech/{speechId}/speechConfig")
+    suspend fun getSpeechConfig(@Path("speechId") speechId: Int): ApiResponse<GetSpeechConfigResponse>
+
+    @GET("/api/speech/{speechId}/content")
+    suspend fun getScript(@Path("speechId") speechId: Int): ApiResponse<ScriptResponse>
+
+    @GET("/api/speech/{speechId}/contentAnalysis")
+    suspend fun getScriptAnalysis(@Path("speechId") speechId: Int): ApiResponse<ScriptAnalysisResponse>
 }

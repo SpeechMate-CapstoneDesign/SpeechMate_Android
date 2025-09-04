@@ -1,18 +1,11 @@
 package com.speech.network.model.speech
 
 import com.speech.domain.model.speech.ScriptAnalysis
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetTextAnalysisResponse(
-    val id: Int,
-    val sttContent: String,
-    val fileUrl: String,
-    val analysisResult: ScriptAnalysisResult
-)
-
-@Serializable
-data class ScriptAnalysisResult(
+data class ScriptAnalysisResponse(
     val summary: String,
     val keywords: String,
     val improvementPoints: String,

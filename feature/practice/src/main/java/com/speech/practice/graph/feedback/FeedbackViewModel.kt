@@ -15,6 +15,7 @@ import androidx.navigation.toRoute
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.repository.SpeechRepository
 import com.speech.navigation.PracticeGraph
@@ -112,15 +113,16 @@ class FeedbackViewModel @Inject constructor(
     }
 
     init {
+        val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
         initializePlayer()
-        loadMedia(container.stateFlow.value.speechDetail.fileUrl)
+        loadMedia(routeArgs.fileUrl)
 
         intent {
-            val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
             reduce {
                 state.copy(
                     speechDetail = state.speechDetail.copy(
                         id = routeArgs.speechId,
+                        fileUrl = routeArgs.fileUrl,
                         speechFileType = routeArgs.speechFileType,
                         speechConfig = state.speechDetail.speechConfig.copy(
                             fileName = routeArgs.fileName,
@@ -133,6 +135,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
+        getSpeechConfig()
         getScript()
         getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
@@ -142,15 +145,23 @@ class FeedbackViewModel @Inject constructor(
 
     fun onIntent(event: FeedbackIntent) {
         when (event) {
-            is FeedbackIntent.OnBackPressed -> intent {
-                postSideEffect(FeedbackSideEffect.NavigateToBack)
-            }
-
+            is FeedbackIntent.OnBackPressed -> onBackPressed()
             is FeedbackIntent.OnTabSelected -> onTabSelected(event.feedbackTab)
             is FeedbackIntent.StartPlaying -> startPlaying()
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+        }
+    }
+
+    private fun onBackPressed() {
+        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
+        if (isPlaying) pausePlaying()
+        else {
+            clearResource()
+            intent {
+                postSideEffect(FeedbackSideEffect.NavigateToBack)
+            }
         }
     }
 
@@ -194,11 +205,9 @@ class FeedbackViewModel @Inject constructor(
     fun seekTo(position: Long) {
         _exoPlayer?.seekTo(position)
         intent {
-            Log.d("FeedbackViewModel1", "seekTo - duration: ${state.duration}, currentPosition: $position")
             reduce {
                 state.copy(currentPosition = position)
             }
-            Log.d("FeedbackViewModel2", "seekTo - duration: ${state.duration}, currentPosition: $position")
         }
     }
 
@@ -219,6 +228,24 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
+    private fun getSpeechConfig() = intent {
+        suspendRunCatching {
+            speechRepository.getSpeechConfig(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(
+                    speechDetail = state.speechDetail.copy(
+                        speechConfig = SpeechConfig(
+                            speechType = it.speechConfig.speechType,
+                            audience = it.speechConfig.audience,
+                            venue = it.speechConfig.venue,
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
     private fun getScript() = intent {
         suspendRunCatching {
             speechRepository.getScript(state.speechDetail.id)
@@ -228,6 +255,31 @@ class FeedbackViewModel @Inject constructor(
             }
 
             getScriptAnalysis()
+        }.onFailure {
+            processSpeechToScript()
+        }
+    }
+
+    private fun getScriptAnalysis() = intent {
+        suspendRunCatching {
+            speechRepository.getScriptAnalysis(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+            }
+        }.onFailure {
+            processScriptAnalysis()
+        }
+    }
+
+    private fun processSpeechToScript() = intent {
+        suspendRunCatching {
+            speechRepository.processSpeechToScript(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(speechDetail = state.speechDetail.copy(script = it))
+            }
+            processScriptAnalysis()
         }.onFailure {
             reduce {
                 state.copy(
@@ -240,9 +292,9 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun getScriptAnalysis() = intent {
+    private fun processScriptAnalysis() = intent {
         suspendRunCatching {
-            speechRepository.getScriptAnalysis(state.speechDetail.id)
+            speechRepository.processScriptAnalysis(state.speechDetail.id)
         }.onSuccess {
             reduce {
                 state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
@@ -257,6 +309,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
     }
+
 
     private fun getAudioAnalysis() = intent {
         suspendRunCatching {
@@ -278,11 +331,21 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
+    fun clearResource() {
+        _exoPlayer?.apply {
+            stop()
+            setVideoSurfaceView(null)
+            clearVideoSurface()
+            removeListener(playerListener)
+            release()
+        }
+
+        _exoPlayer = null
+        stopProgressUpdate()
+    }
+
     override fun onCleared() {
         super.onCleared()
-        stopProgressUpdate()
-        _exoPlayer?.removeListener(playerListener)
-        _exoPlayer?.release()
-        _exoPlayer = null
+        clearResource()
     }
 }

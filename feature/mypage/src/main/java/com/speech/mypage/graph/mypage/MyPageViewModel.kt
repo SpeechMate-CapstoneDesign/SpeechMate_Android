@@ -20,7 +20,14 @@ class MyPageViewModel @Inject constructor(
             }
 
             is MyPageIntent.OnSpeechClick -> intent {
-                postSideEffect(MyPageSideEffect.NavigateToFeedback(event.speechId, event.speechFileType, event.speechConfig))
+                postSideEffect(
+                    MyPageSideEffect.NavigateToFeedback(
+                        event.speechId,
+                        event.fileUrl,
+                        event.speechFileType,
+                        event.speechConfig,
+                    ),
+                )
             }
         }
     }

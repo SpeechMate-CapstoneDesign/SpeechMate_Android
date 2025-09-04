@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.repository.SpeechRepository
 import com.speech.practice.graph.practice.PracticeSideEffect
 import com.speech.practice.graph.recordaudio.RecordAudioSideEffect
@@ -102,7 +103,7 @@ class RecordVideoViewModel @Inject constructor(
                     CameraSelector.DEFAULT_FRONT_CAMERA
                 } else {
                     CameraSelector.DEFAULT_BACK_CAMERA
-                }
+                },
             )
         }
     }
@@ -125,10 +126,17 @@ class RecordVideoViewModel @Inject constructor(
             speechRepository.uploadFromPath(
                 filePath = state.videoFile!!.path,
                 speechConfig = state.speechConfig,
-                duration = recordDuration.toInt()
+                duration = recordDuration.toInt(),
             )
-        }.onSuccess { speechId ->
-            postSideEffect(RecordVideoSideEffect.NavigateToFeedback(speechId))
+        }.onSuccess { (speechId, fileUrl) ->
+            postSideEffect(
+                RecordVideoSideEffect.NavigateToFeedback(
+                    speechId = speechId,
+                    fileUrl = fileUrl,
+                    speechFileType = SpeechFileType.VIDEO,
+                    speechConfig = state.speechConfig,
+                ),
+            )
         }.onFailure {
             postSideEffect(RecordVideoSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {
@@ -148,8 +156,8 @@ class RecordVideoViewModel @Inject constructor(
     private fun setupVideoCapture() {
         val recorder = Recorder.Builder().setQualitySelector(
             QualitySelector.from(
-                Quality.HD, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
-            )
+                Quality.HD, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD),
+            ),
         ).build()
 
         videoCapture = VideoCapture.withOutput(recorder)
@@ -158,7 +166,7 @@ class RecordVideoViewModel @Inject constructor(
     fun bindCamera(
         lifecycleOwner: LifecycleOwner,
         surfaceProvider: Preview.SurfaceProvider,
-        cameraSelector: CameraSelector
+        cameraSelector: CameraSelector,
     ) {
         cameraProvider?.let { provider ->
             provider.unbindAll()
@@ -168,7 +176,7 @@ class RecordVideoViewModel @Inject constructor(
             }
 
             provider.bindToLifecycle(
-                lifecycleOwner, cameraSelector, preview, videoCapture
+                lifecycleOwner, cameraSelector, preview, videoCapture,
             )
         }
     }
@@ -179,7 +187,7 @@ class RecordVideoViewModel @Inject constructor(
 
         val videoFile = File(
             context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
-            "video_${System.currentTimeMillis()}.mp4"
+            "video_${System.currentTimeMillis()}.mp4",
         )
 
         val outputOptions = FileOutputOptions.Builder(videoFile).build()
@@ -190,7 +198,7 @@ class RecordVideoViewModel @Inject constructor(
         reduce {
             state.copy(
                 recordingVideoState = RecordingVideoState.Recording,
-                videoFile = videoFile
+                videoFile = videoFile,
             )
         }
 
@@ -209,7 +217,7 @@ class RecordVideoViewModel @Inject constructor(
                 if (event.hasError()) {
                     Log.e(
                         "RecordVideoViewModel",
-                        "Recording failed with error: ${event.error}, cause : ${event.cause}"
+                        "Recording failed with error: ${event.error}, cause : ${event.cause}",
                     )
                     cancelRecordVideo()
                     videoFile.delete()
@@ -264,7 +272,7 @@ class RecordVideoViewModel @Inject constructor(
             state.copy(
                 timeText = "00 : 00",
                 recordingVideoState = RecordingVideoState.Ready,
-                videoFile = null
+                videoFile = null,
             )
         }
     }
@@ -290,7 +298,7 @@ class RecordVideoViewModel @Inject constructor(
                     val minutes = (recordDuration / 1000) / 60
                     val seconds = (recordDuration / 1000) % 60
                     state.copy(
-                        timeText = String.format(Locale.US, "%02d : %02d", minutes, seconds)
+                        timeText = String.format(Locale.US, "%02d : %02d", minutes, seconds),
                     )
                 }
 

@@ -8,6 +8,7 @@ import com.speech.domain.model.speech.SpeechConfig
 import com.speech.practice.graph.practice.PracticeIntent
 import java.io.File
 import androidx.camera.core.CameraSelector
+import com.speech.domain.model.speech.SpeechFileType
 
 data class RecordVideoState(
     val videoFile: File? = null,
@@ -40,5 +41,10 @@ sealed class RecordVideoIntent : UiIntent {
 sealed interface RecordVideoSideEffect : UiSideEffect {
     data class ShowSnackBar(val message: String) : RecordVideoSideEffect
     data object NavigateBack : RecordVideoSideEffect
-    data class NavigateToFeedback(val speechId: Int) : RecordVideoSideEffect
+    data class NavigateToFeedback(
+        val speechId: Int,
+        val fileUrl: String,
+        val speechFileType: SpeechFileType,
+        val speechConfig: SpeechConfig,
+    ) : RecordVideoSideEffect
 }

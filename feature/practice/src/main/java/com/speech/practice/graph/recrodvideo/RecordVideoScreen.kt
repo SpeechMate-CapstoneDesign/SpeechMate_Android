@@ -78,7 +78,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordVideoRoute(
-    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordVideoViewModel = hiltViewModel(),
 ) {
@@ -97,9 +97,13 @@ internal fun RecordVideoRoute(
 
             is RecordVideoSideEffect.NavigateBack -> navigateBack()
             is RecordVideoSideEffect.NavigateToFeedback -> {
-                navigateToFeedback(sideEffect.speechId, SpeechFileType.VIDEO, state.speechConfig)
+                navigateToFeedback(sideEffect.speechId, sideEffect.fileUrl, sideEffect.speechFileType, state.speechConfig)
             }
         }
+    }
+
+    BackHandler(enabled = true) {
+        viewModel.onIntent(RecordVideoIntent.OnBackPressed)
     }
 
     RecordVideoScreen(
@@ -112,7 +116,6 @@ internal fun RecordVideoRoute(
         onResumeRecording = { viewModel.onIntent(RecordVideoIntent.ResumeRecording) },
         onCancelRecording = { viewModel.onIntent(RecordVideoIntent.CancelRecording) },
         onRequestFeedback = { viewModel.onIntent(RecordVideoIntent.OnRequestFeedback) },
-        onBackPressed = { viewModel.onIntent(RecordVideoIntent.OnBackPressed) },
         onSpeechConfigChange = { viewModel.onIntent(RecordVideoIntent.OnSpeechConfigChange(it)) }
     )
 
@@ -137,7 +140,6 @@ fun RecordVideoScreen(
     onResumeRecording: () -> Unit,
     onCancelRecording: () -> Unit,
     onRequestFeedback: () -> Unit,
-    onBackPressed: () -> Unit,
     onSpeechConfigChange: (SpeechConfig) -> Unit
 ) {
     val cameraPermissionState = rememberPermissionState(
@@ -160,10 +162,6 @@ fun RecordVideoScreen(
             previewView.surfaceProvider,
             state.cameraSelector
         )
-    }
-
-    BackHandler(enabled = true) {
-        onBackPressed()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -472,6 +470,7 @@ fun RecordVideoScreen(
             SpeechConfigDialog(
                 onDone = { speechConfig ->
                     onSpeechConfigChange(speechConfig)
+                    showSpeechConfigDg = false
                     onRequestFeedback()
                 },
                 onDismiss = { showSpeechConfigDg = false },
@@ -521,7 +520,6 @@ private fun RecordVideoScreenReadyPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onBackPressed = {},
             onSpeechConfigChange = {}
         )
     }
@@ -541,7 +539,6 @@ private fun RecordVideoScreenRecordingPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onBackPressed = {},
             onSpeechConfigChange = {}
         )
     }
@@ -561,7 +558,6 @@ private fun RecordVideoScreenPausedPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onBackPressed = {},
             onSpeechConfigChange = {}
         )
     }
@@ -582,7 +578,6 @@ private fun RecordVideoScreenCompletedPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onBackPressed = {},
             onSpeechConfigChange = {}
         )
     }

@@ -60,13 +60,20 @@ class PracticeViewModel @Inject constructor(
 
         suspendRunCatching {
             speechRepository.uploadFromUri(uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt())
-        }.onSuccess { speechId ->
-            postSideEffect(PracticeSideEffect.NavigateToFeedback(speechId, speechFileType))
+        }.onSuccess { (speechId, fileUrl) ->
+            postSideEffect(
+                PracticeSideEffect.NavigateToFeedback(
+                    speechId = speechId,
+                    fileUrl = fileUrl,
+                    speechFileType = speechFileType,
+                    speechConfig = state.speechConfig,
+                ),
+            )
         }.onFailure {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {
             reduce {
-                state.copy(isUploadingFile = false)
+                state.copy(isUploadingFile = false, speechConfig = SpeechConfig())
             }
         }
     }

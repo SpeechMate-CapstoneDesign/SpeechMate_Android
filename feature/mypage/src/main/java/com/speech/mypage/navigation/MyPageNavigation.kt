@@ -26,13 +26,13 @@ fun NavGraphBuilder.myPageNavGraph(
     navigateToPolicy: () -> Unit,
     navigateToInquiry: () -> Unit,
     navigateToSetting: () -> Unit,
-    navigateToFeedBack: (Int, SpeechFileType, SpeechConfig) -> Unit
+    navigateToFeedBack: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
 ) {
     navigation<MyPageBaseRoute>(startDestination = MyPageGraph.MyPageRoute) {
         composable<MyPageGraph.MyPageRoute> {
             MyPageRoute(
                 navigateToSetting = navigateToSetting,
-                navigateToFeedBack = navigateToFeedBack
+                navigateToFeedBack = navigateToFeedBack,
             )
         }
 
@@ -41,7 +41,7 @@ fun NavGraphBuilder.myPageNavGraph(
                 navigateToBack = navigateBack,
                 navigateToLogin = navigateToLogin,
                 navigateToPolicy = navigateToPolicy,
-                navigateToInquiry = navigateToInquiry
+                navigateToInquiry = navigateToInquiry,
             )
         }
     }

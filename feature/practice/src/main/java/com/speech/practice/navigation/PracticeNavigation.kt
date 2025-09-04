@@ -31,22 +31,16 @@ fun NavController.navigateToRecordVideo(navOptions: NavOptions? = null) {
 
 fun NavController.navigateToFeedback(
     speechId: Int,
+    fileUrl : String = "",
     speechFileType: SpeechFileType,
     speechConfig: SpeechConfig,
-    date: String = "",
     navOptions: NavOptions? = null,
 ) {
-    val formattedDate =
-        date.ifEmpty {
-            LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"))
-        }
-
     navigate(
         PracticeGraph.FeedbackRoute(
             speechId = speechId,
             speechFileType = speechFileType,
-            date = formattedDate,
+            fileUrl = fileUrl,
             fileName = speechConfig.fileName,
             speechType = speechConfig.speechType,
             audience = speechConfig.audience,
@@ -61,7 +55,7 @@ fun NavGraphBuilder.practiceNavGraph(
     navigateBack: () -> Unit,
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedback: (Int, SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String,SpeechFileType, SpeechConfig) -> Unit,
 ) {
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {
