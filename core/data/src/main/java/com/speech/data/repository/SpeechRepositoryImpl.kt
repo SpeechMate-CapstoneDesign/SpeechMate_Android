@@ -7,7 +7,9 @@ import androidx.core.net.toUri
 import com.speech.common.util.suspendRunCatching
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
+import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.repository.SpeechRepository
 import com.speech.network.source.speech.SpeechDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -73,12 +75,22 @@ class SpeechRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun processSpeechToScript(speechId: Int): String =
+        speechDataSource.processSpeechToScript(speechId).toDomain()
+
+
+    override suspend fun processScriptAnalysis(speechId: Int): ScriptAnalysis =
+        speechDataSource.processScriptAnalysis(speechId).toDomain()
+
+    override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
+        speechDataSource.getSpeechConfig(speechId).toDomain()
+
     override suspend fun getScript(speechId: Int): String =
-        speechDataSource.getSpeechToText(speechId).content
+        speechDataSource.getScript(speechId).toDomain()
 
 
     override suspend fun getScriptAnalysis(speechId: Int) =
-        speechDataSource.getTextAnalysis(speechId).analysisResult.toDomain()
+        speechDataSource.getScriptAnalysis(speechId).toDomain()
 
 
     override suspend fun getVerbalAnalysis(speechId: Int) {

@@ -8,7 +8,7 @@ import okhttp3.Response
 import javax.inject.Inject
 
 class SpeechMateInterceptor @Inject constructor(
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originRequest = chain.request()
@@ -17,7 +17,7 @@ class SpeechMateInterceptor @Inject constructor(
         if (isAccessTokenUsed(originRequest)) {
             requestBuilder.addHeader(
                 "Authorization",
-                "Bearer ${runBlocking { tokenManager.getAccessToken() }}"
+                "Bearer ${runBlocking { tokenManager.getAccessToken() }}",
             )
         }
 
@@ -28,10 +28,8 @@ class SpeechMateInterceptor @Inject constructor(
         return when (request.url.encodedPath) {
             "/api/auth/oauth/kakao/login" -> false
             "/api/auth/oauth/kakao/signup" -> false
-//            "/api/v1/token/refresh" -> false
-//            "/api/v1/token/expiration" -> false
+            "/api/auth/reissue" -> false
             else -> true
         }
     }
-
 }

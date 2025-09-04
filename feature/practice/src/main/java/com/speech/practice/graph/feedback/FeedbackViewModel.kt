@@ -15,6 +15,7 @@ import androidx.navigation.toRoute
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
+import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.repository.SpeechRepository
 import com.speech.navigation.PracticeGraph
@@ -134,7 +135,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
-
+        getSpeechConfig()
         getScript()
         getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
@@ -204,11 +205,9 @@ class FeedbackViewModel @Inject constructor(
     fun seekTo(position: Long) {
         _exoPlayer?.seekTo(position)
         intent {
-            Log.d("FeedbackViewModel1", "seekTo - duration: ${state.duration}, currentPosition: $position")
             reduce {
                 state.copy(currentPosition = position)
             }
-            Log.d("FeedbackViewModel2", "seekTo - duration: ${state.duration}, currentPosition: $position")
         }
     }
 
@@ -229,6 +228,24 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
+    private fun getSpeechConfig() = intent {
+        suspendRunCatching {
+            speechRepository.getSpeechConfig(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(
+                    speechDetail = state.speechDetail.copy(
+                        speechConfig = SpeechConfig(
+                            speechType = it.speechConfig.speechType,
+                            audience = it.speechConfig.audience,
+                            venue = it.speechConfig.venue,
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
     private fun getScript() = intent {
         suspendRunCatching {
             speechRepository.getScript(state.speechDetail.id)
@@ -238,6 +255,31 @@ class FeedbackViewModel @Inject constructor(
             }
 
             getScriptAnalysis()
+        }.onFailure {
+            processSpeechToScript()
+        }
+    }
+
+    private fun getScriptAnalysis() = intent {
+        suspendRunCatching {
+            speechRepository.getScriptAnalysis(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+            }
+        }.onFailure {
+            processScriptAnalysis()
+        }
+    }
+
+    private fun processSpeechToScript() = intent {
+        suspendRunCatching {
+            speechRepository.processSpeechToScript(state.speechDetail.id)
+        }.onSuccess {
+            reduce {
+                state.copy(speechDetail = state.speechDetail.copy(script = it))
+            }
+            processScriptAnalysis()
         }.onFailure {
             reduce {
                 state.copy(
@@ -250,9 +292,9 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun getScriptAnalysis() = intent {
+    private fun processScriptAnalysis() = intent {
         suspendRunCatching {
-            speechRepository.getScriptAnalysis(state.speechDetail.id)
+            speechRepository.processScriptAnalysis(state.speechDetail.id)
         }.onSuccess {
             reduce {
                 state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
@@ -267,6 +309,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
     }
+
 
     private fun getAudioAnalysis() = intent {
         suspendRunCatching {
