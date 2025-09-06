@@ -72,6 +72,7 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -120,7 +121,7 @@ internal fun RecordVideoRoute(
     )
 
     if(state.isUploadingFile) {
-        UploadFileDialog()
+        UploadFileDialog(status = UploadFileStatus())
     }
 }
 

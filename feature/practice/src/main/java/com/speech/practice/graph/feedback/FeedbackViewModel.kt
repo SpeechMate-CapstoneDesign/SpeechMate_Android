@@ -83,7 +83,6 @@ class FeedbackViewModel @Inject constructor(
                 }
 
                 Player.STATE_BUFFERING -> {
-                    Log.d("FeedbackViewModel", "Playback state: BUFFERING")
                     intent {
                         reduce {
                             state.copy(playingState = PlayingState.Loading)

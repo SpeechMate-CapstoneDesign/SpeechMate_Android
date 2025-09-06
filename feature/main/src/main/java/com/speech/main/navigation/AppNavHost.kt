@@ -59,7 +59,7 @@ fun AppNavHost(
             navigateToLogin = {
                 navController.navigateToLogin(
                     navOptions {
-                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     },
                 )
             },

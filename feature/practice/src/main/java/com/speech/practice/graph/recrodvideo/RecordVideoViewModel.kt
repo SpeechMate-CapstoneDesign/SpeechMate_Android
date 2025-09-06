@@ -127,6 +127,7 @@ class RecordVideoViewModel @Inject constructor(
                 filePath = state.videoFile!!.path,
                 speechConfig = state.speechConfig,
                 duration = recordDuration.toInt(),
+                onProgressUpdate = {}
             )
         }.onSuccess { (speechId, fileUrl) ->
             postSideEffect(
@@ -156,7 +157,7 @@ class RecordVideoViewModel @Inject constructor(
     private fun setupVideoCapture() {
         val recorder = Recorder.Builder().setQualitySelector(
             QualitySelector.from(
-                Quality.HD, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD),
+                Quality.SD,
             ),
         ).build()
 
