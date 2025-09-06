@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui.compose)
     implementation(libs.media3.common)
+    implementation(libs.media3.transformer)
 
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)

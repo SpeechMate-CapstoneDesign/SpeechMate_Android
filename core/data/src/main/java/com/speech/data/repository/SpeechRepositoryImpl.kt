@@ -37,15 +37,13 @@ class SpeechRepositoryImpl @Inject constructor(
                 else -> type
             }
 
-            return contentResolver.openInputStream(uri)?.use { inputStream ->
-                speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
+            speechDataSource.uploadSpeechFile(uri, presignedUrl, mimeType)
 
-                val response = speechDataSource.uploadSpeechCallback(key, duration)
+            val response = speechDataSource.uploadSpeechCallback(key, duration)
 
-                speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
+            speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
 
-                Pair(response.speechId, response.fileUrl)
-            } ?: throw IllegalStateException("Could not open input stream from uri: $uri")
+            return Pair(response.speechId, response.fileUrl)
         } finally {
             contentResolver.releasePersistableUriPermission(
                 uri,
@@ -64,15 +62,11 @@ class SpeechRepositoryImpl @Inject constructor(
         val (presignedUrl, key) = speechDataSource.getPresignedUrl(fileExtension.uppercase())
         val mimeType = getMimeType(file)
 
-        return FileInputStream(file).use { inputStream ->
-            speechDataSource.uploadSpeechFile(presignedUrl, inputStream, mimeType)
+        speechDataSource.uploadSpeechFile(file, presignedUrl, mimeType)
+        val response = speechDataSource.uploadSpeechCallback(key, duration)
+        speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
 
-            val response = speechDataSource.uploadSpeechCallback(key, duration)
-
-            speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
-
-            Pair(response.speechId, response.fileUrl)
-        }
+        return Pair(response.speechId, response.fileUrl)
     }
 
     override suspend fun processSpeechToScript(speechId: Int): String =
