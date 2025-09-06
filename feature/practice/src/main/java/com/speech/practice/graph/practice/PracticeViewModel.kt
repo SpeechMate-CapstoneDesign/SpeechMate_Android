@@ -24,6 +24,7 @@ import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
+import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -76,7 +77,10 @@ class PracticeViewModel @Inject constructor(
         val speechFileType = MediaUtil.getSpeechFileType(context, uri)
 
         suspendRunCatching {
-            speechRepository.uploadFromUri(uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt())
+            speechRepository.uploadFromUri(
+                uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt(),
+                onProgressUpdate = ::onProgressUpdate,
+            )
         }.onSuccess { (speechId, fileUrl) ->
             postSideEffect(
                 PracticeSideEffect.NavigateToFeedback(
@@ -90,48 +94,54 @@ class PracticeViewModel @Inject constructor(
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {
             reduce {
-                state.copy(isUploadingFile = false, speechConfig = SpeechConfig())
+                state.copy(isUploadingFile = false, speechConfig = SpeechConfig(), uploadFileStatus = null)
             }
         }
     }
 
-    @OptIn(UnstableApi::class)
-    private fun changeVideoResolution(
-        inputVideoUri: Uri,
-        outputVideoFile: File,
-        targetHeight: Int = 480,
-        onResult: (resultUri: Uri?) -> Unit,
-    ) {
-        val listener = object : Transformer.Listener {
-            override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-                onResult(Uri.fromFile(outputVideoFile))
-            }
-
-            override fun onError(
-                composition: Composition,
-                exportResult: ExportResult,
-                exportException: ExportException,
-            ) {
-                Log.e("PracticeViewModel", "Video transformation failed.", exportException)
-            }
+    private fun onProgressUpdate(status: UploadFileStatus) = intent {
+        reduce {
+            state.copy(uploadFileStatus = status)
         }
-
-        val mediaItem = EditedMediaItem.Builder(MediaItem.fromUri(inputVideoUri))
-            .setEffects(
-                Effects(
-                    emptyList(),
-                    listOf(Presentation.createForHeight(targetHeight)),
-                ),
-            ).build()
-
-        Transformer.Builder(context)
-            .setVideoMimeType(MimeTypes.VIDEO_H264)
-            .setAudioMimeType(MimeTypes.AUDIO_AAC)
-            .addListener(listener)
-            .build()
-            .start(mediaItem, outputVideoFile.absolutePath)
-
     }
+
+//    @OptIn(UnstableApi::class)
+//    private fun changeVideoResolution(
+//        inputVideoUri: Uri,
+//        outputVideoFile: File,
+//        targetHeight: Int = 480,
+//        onResult: (resultUri: Uri?) -> Unit,
+//    ) {
+//        val listener = object : Transformer.Listener {
+//            override fun onCompleted(composition: Composition, exportResult: ExportResult) {
+//                onResult(Uri.fromFile(outputVideoFile))
+//            }
+//
+//            override fun onError(
+//                composition: Composition,
+//                exportResult: ExportResult,
+//                exportException: ExportException,
+//            ) {
+//                Log.e("PracticeViewModel", "Video transformation failed.", exportException)
+//            }
+//        }
+//
+//        val mediaItem = EditedMediaItem.Builder(MediaItem.fromUri(inputVideoUri))
+//            .setEffects(
+//                Effects(
+//                    emptyList(),
+//                    listOf(Presentation.createForHeight(targetHeight)),
+//                ),
+//            ).build()
+//
+//        Transformer.Builder(context)
+//            .setVideoMimeType(MimeTypes.VIDEO_H264)
+//            .setAudioMimeType(MimeTypes.AUDIO_AAC)
+//            .addListener(listener)
+//            .build()
+//            .start(mediaItem, outputVideoFile.absolutePath)
+//
+//    }
 }
 
 

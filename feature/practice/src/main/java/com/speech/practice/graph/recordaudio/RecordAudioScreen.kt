@@ -63,6 +63,7 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.practice.graph.feedback.FeedbackIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
@@ -127,7 +128,7 @@ internal fun RecordAudioRoute(
     )
 
     if (state.isUploadingFile) {
-        UploadFileDialog()
+        UploadFileDialog(status = UploadFileStatus())
     }
 }
 

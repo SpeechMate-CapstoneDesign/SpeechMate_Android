@@ -76,6 +76,9 @@ class RecordAudioViewModel @Inject constructor(
                 filePath = state.audioFile!!.path,
                 speechConfig = state.speechConfig,
                 duration = recordDuration.toInt(),
+                onProgressUpdate = {
+
+                },
             )
         }.onSuccess { (speechId, fileUrl) ->
             postSideEffect(

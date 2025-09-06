@@ -4,57 +4,115 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import com.speech.domain.model.upload.UploadFileStatus
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import okio.Buffer
 import okio.BufferedSink
+import okio.ForwardingSink
+import okio.ForwardingSource
+import okio.Sink
+import okio.Source
+import okio.buffer
 import okio.source
 import java.io.File
 import java.io.IOException
 
-internal fun File.asRequestBody(contentType: MediaType? = null): RequestBody {
-    return object : RequestBody() {
-        override fun contentType(): MediaType? = contentType
-
-        override fun contentLength(): Long = length()
-
-        override fun writeTo(sink: BufferedSink) {
-            Log.d("File", "${length()}")
-            source().use { source ->
-                sink.writeAll(source)
-            }
-        }
-    }
-}
-
-
-internal class StreamingRequestBody(
-    private val contentResolver: ContentResolver,
-    private val uri: Uri,
+internal class FileRequestBody(
+    private val file: File,
     private val contentType: MediaType?,
+    private val listener: (status: UploadFileStatus) -> Unit,
 ) : RequestBody() {
 
     override fun contentType(): MediaType? = contentType
-
-    override fun contentLength(): Long = getFileSize(contentResolver, uri)
+    override fun contentLength(): Long = file.length()
 
     override fun writeTo(sink: BufferedSink) {
-        val inputStream = contentResolver.openInputStream(uri)
-            ?: throw IOException("Could not open input stream for uri: $uri")
+        val contentLength = contentLength()
+        val source = file.source()
 
-        inputStream.source().use { source ->
-            sink.writeAll(source)
+        val startTime = System.currentTimeMillis()
+        val countingSource = CountingSource(source) { bytesWritten ->
+            if (contentLength > 0) {
+                val progress = (100 * bytesWritten / contentLength).toFloat()
+                val elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000
+                listener(
+                    UploadFileStatus(
+                        progress = progress,
+                        elapsedSeconds = elapsedSeconds,
+                        currentBytes = bytesWritten,
+                        totalBytes = contentLength,
+                    ),
+                )
+            }
+        }
+
+        countingSource.use {
+            sink.writeAll(it)
         }
     }
 }
 
-private fun getFileSize(contentResolver: ContentResolver, uri: Uri): Long {
-    return contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-        val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-        if (sizeIndex != -1) {
-            cursor.moveToFirst()
-            cursor.getLong(sizeIndex)
-        } else {
-            0L
+
+internal class UriRequestBody(
+    private val contentResolver: ContentResolver,
+    private val uri: Uri,
+    private val contentType: MediaType?,
+    private val listener: (status: UploadFileStatus) -> Unit,
+) : RequestBody() {
+
+    private val contentLength: Long by lazy {
+        contentResolver.openFileDescriptor(uri, "r")?.use {
+            it.statSize
+        } ?: -1L
+    }
+
+    override fun contentType(): MediaType? = contentType
+
+    override fun contentLength(): Long = contentLength
+
+    override fun writeTo(sink: BufferedSink) {
+        val source = contentResolver.openInputStream(uri)?.source()
+            ?: throw IOException("Failed to open input stream for $uri")
+
+        val startTime = System.currentTimeMillis()
+        val countingSource = CountingSource(source) { bytesWritten ->
+            val elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000
+            if (contentLength > 0) {
+                val progress = (100 * bytesWritten / contentLength).toFloat()
+                listener(
+                    UploadFileStatus(
+                        progress = progress,
+                        elapsedSeconds = elapsedSeconds,
+                        currentBytes = bytesWritten,
+                        totalBytes = contentLength,
+                    ),
+                )
+            }
         }
-    } ?: 0L
+
+        countingSource.use {
+            sink.writeAll(it)
+        }
+    }
 }
+
+private class CountingSource(
+    delegate: Source,
+    private val onProgressUpdate: (bytesRead: Long) -> Unit,
+) : ForwardingSource(delegate) {
+
+    private var totalBytesRead = 0L
+
+    @Throws(IOException::class)
+    override fun read(sink: Buffer, byteCount: Long): Long {
+        val bytesRead = super.read(sink, byteCount)
+
+        if (bytesRead != -1L) {
+            totalBytesRead += bytesRead
+            onProgressUpdate(totalBytesRead)
+        }
+        return bytesRead
+    }
+}
+

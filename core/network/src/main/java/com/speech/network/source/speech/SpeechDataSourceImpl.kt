@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
+import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
@@ -17,8 +18,8 @@ import com.speech.network.model.speech.ProcessScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
-import com.speech.network.util.StreamingRequestBody
-import com.speech.network.util.asRequestBody
+import com.speech.network.util.FileRequestBody
+import com.speech.network.util.UriRequestBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -38,24 +39,33 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun getPresignedUrl(fileExtension: String): GetPresignedUrlResponse =
         speechMateApi.getPresignedUrl(fileExtension).getData()
 
-    override suspend fun uploadSpeechFile(uri: Uri, presignedUrl: String, contentType: String) {
+    override suspend fun uploadSpeechFile(uri: Uri, presignedUrl: String, contentType: String, onProgressUpdate: (UploadFileStatus) -> Unit) {
         val mediaType = contentType.toMediaTypeOrNull()
             ?: throw IllegalArgumentException("Invalid media type: $contentType")
 
-        val requestBody = StreamingRequestBody(
+        val requestBody = UriRequestBody(
             contentResolver = context.contentResolver,
             uri = uri,
             contentType = mediaType,
+            listener = { status ->
+                onProgressUpdate(status)
+            },
         )
 
         return s3Api.uploadSpeechFile(presignedUrl, requestBody)
     }
 
-    override suspend fun uploadSpeechFile(file: File, presignedUrl: String, contentType: String) {
+    override suspend fun uploadSpeechFile(file: File, presignedUrl: String, contentType: String, onProgressUpdate: (UploadFileStatus) -> Unit) {
         val mediaType = contentType.toMediaTypeOrNull()
             ?: throw IllegalArgumentException("Invalid media type: $contentType")
 
-        val requestBody = file.asRequestBody(mediaType)
+        val requestBody = FileRequestBody(
+            file = file,
+            contentType = mediaType,
+            listener = { status ->
+                onProgressUpdate(status)
+            },
+        )
 
         return s3Api.uploadSpeechFile(presignedUrl, requestBody)
     }

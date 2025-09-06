@@ -71,11 +71,11 @@ object RetrofitModule {
             .writeTimeout(180, TimeUnit.SECONDS)
             .callTimeout(15, TimeUnit.SECONDS)
 
-        if (BuildConfig.DEBUG) {
-            val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            builder.addInterceptor(loggingInterceptor)
-        }
+//        if (BuildConfig.DEBUG) {
+//            val loggingInterceptor = HttpLoggingInterceptor()
+//            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+//            builder.addInterceptor(loggingInterceptor)
+//        }
 
         return builder.build()
     }
