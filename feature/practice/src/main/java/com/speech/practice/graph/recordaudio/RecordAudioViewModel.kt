@@ -67,10 +67,6 @@ class RecordAudioViewModel @Inject constructor(
             return@intent
         }
 
-        reduce {
-            state.copy(isUploadingFile = true)
-        }
-
         suspendRunCatching {
             speechRepository.uploadFromPath(
                 filePath = state.audioFile!!.path,
@@ -91,7 +87,7 @@ class RecordAudioViewModel @Inject constructor(
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {
             reduce {
-                state.copy(isUploadingFile = false, uploadFileStatus = null)
+                state.copy(uploadFileStatus = null)
             }
         }
     }

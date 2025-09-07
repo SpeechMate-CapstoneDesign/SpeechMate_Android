@@ -14,7 +14,6 @@ data class RecordAudioState(
     val recordingAudioState: RecordingAudioState = RecordingAudioState.Ready,
     val timeText: String = "00 : 00 . 00",
     val speechConfig: SpeechConfig = SpeechConfig(),
-    val isUploadingFile: Boolean = false,
     val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 

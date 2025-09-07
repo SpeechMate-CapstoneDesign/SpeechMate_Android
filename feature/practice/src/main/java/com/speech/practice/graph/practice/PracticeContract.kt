@@ -10,7 +10,6 @@ import com.speech.domain.model.upload.UploadFileStatus
 
 data class PracticeState(
     val speechConfig: SpeechConfig = SpeechConfig(),
-    val isUploadingFile: Boolean = false,
     val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 

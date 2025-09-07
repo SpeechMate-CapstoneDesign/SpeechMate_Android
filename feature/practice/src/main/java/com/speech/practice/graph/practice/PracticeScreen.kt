@@ -91,7 +91,7 @@ internal fun PracticeRoute(
         onSpeechConfigChange = { viewModel.onIntent(PracticeIntent.OnSpeechConfigChange(it)) },
     )
 
-    if (state.isUploadingFile && state.uploadFileStatus != null) {
+    if (state.uploadFileStatus != null) {
         UploadFileDialog(status = state.uploadFileStatus!!)
     }
 }

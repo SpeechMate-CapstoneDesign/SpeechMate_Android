@@ -72,8 +72,6 @@ media3 = "1.8.0"
 # https://developer.android.com/jetpack/androidx/releases/camera?hl=ko
 camerax = "1.5.0-rc01"
 
-# ffmpeg-kit
-ffmpeg = "6.0-2"
 
 # Test
 # https://github.com/junit-team/junit4

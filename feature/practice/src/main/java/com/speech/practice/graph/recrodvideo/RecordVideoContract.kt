@@ -17,7 +17,6 @@ data class RecordVideoState(
     val timeText: String = "00:00",
     val speechConfig: SpeechConfig = SpeechConfig(),
     val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
-    val isUploadingFile: Boolean = false,
     val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 

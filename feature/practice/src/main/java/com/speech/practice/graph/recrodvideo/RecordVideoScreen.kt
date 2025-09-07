@@ -120,7 +120,7 @@ internal fun RecordVideoRoute(
         onSpeechConfigChange = { viewModel.onIntent(RecordVideoIntent.OnSpeechConfigChange(it)) },
     )
 
-    if (state.isUploadingFile && state.uploadFileStatus != null) {
+    if (state.uploadFileStatus != null) {
         UploadFileDialog(status = state.uploadFileStatus!!)
     }
 }

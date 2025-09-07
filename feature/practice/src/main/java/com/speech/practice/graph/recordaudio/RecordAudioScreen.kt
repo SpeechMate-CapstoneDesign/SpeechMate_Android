@@ -127,7 +127,7 @@ internal fun RecordAudioRoute(
         },
     )
 
-    if (state.isUploadingFile && state.uploadFileStatus != null) {
+    if (state.uploadFileStatus != null) {
         UploadFileDialog(status = state.uploadFileStatus!!)
     }
 }
