@@ -47,9 +47,7 @@ class SpeechDataSourceImpl @Inject constructor(
             contentResolver = context.contentResolver,
             uri = uri,
             contentType = mediaType,
-            listener = { status ->
-                onProgressUpdate(status)
-            },
+            listener = onProgressUpdate,
         )
 
         return s3Api.uploadSpeechFile(presignedUrl, requestBody)
@@ -62,9 +60,7 @@ class SpeechDataSourceImpl @Inject constructor(
         val requestBody = FileRequestBody(
             file = file,
             contentType = mediaType,
-            listener = { status ->
-                onProgressUpdate(status)
-            },
+            listener = onProgressUpdate,
         )
 
         return s3Api.uploadSpeechFile(presignedUrl, requestBody)
