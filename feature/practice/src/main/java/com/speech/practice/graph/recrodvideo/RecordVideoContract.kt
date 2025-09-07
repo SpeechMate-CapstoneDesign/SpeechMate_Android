@@ -9,6 +9,7 @@ import com.speech.practice.graph.practice.PracticeIntent
 import java.io.File
 import androidx.camera.core.CameraSelector
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 
 data class RecordVideoState(
     val videoFile: File? = null,
@@ -16,7 +17,7 @@ data class RecordVideoState(
     val timeText: String = "00:00",
     val speechConfig: SpeechConfig = SpeechConfig(),
     val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
-    val isUploadingFile: Boolean = false,
+    val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 
 sealed class RecordingVideoState {

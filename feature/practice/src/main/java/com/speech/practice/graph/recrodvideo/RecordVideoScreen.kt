@@ -72,6 +72,7 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -116,11 +117,11 @@ internal fun RecordVideoRoute(
         onResumeRecording = { viewModel.onIntent(RecordVideoIntent.ResumeRecording) },
         onCancelRecording = { viewModel.onIntent(RecordVideoIntent.CancelRecording) },
         onRequestFeedback = { viewModel.onIntent(RecordVideoIntent.OnRequestFeedback) },
-        onSpeechConfigChange = { viewModel.onIntent(RecordVideoIntent.OnSpeechConfigChange(it)) }
+        onSpeechConfigChange = { viewModel.onIntent(RecordVideoIntent.OnSpeechConfigChange(it)) },
     )
 
-    if(state.isUploadingFile) {
-        UploadFileDialog()
+    if (state.uploadFileStatus != null) {
+        UploadFileDialog(status = state.uploadFileStatus!!)
     }
 }
 
@@ -140,13 +141,13 @@ fun RecordVideoScreen(
     onResumeRecording: () -> Unit,
     onCancelRecording: () -> Unit,
     onRequestFeedback: () -> Unit,
-    onSpeechConfigChange: (SpeechConfig) -> Unit
+    onSpeechConfigChange: (SpeechConfig) -> Unit,
 ) {
     val cameraPermissionState = rememberPermissionState(
-        Manifest.permission.CAMERA
+        Manifest.permission.CAMERA,
     )
     val micPermissionState = rememberPermissionState(
-        Manifest.permission.RECORD_AUDIO
+        Manifest.permission.RECORD_AUDIO,
     )
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -160,7 +161,7 @@ fun RecordVideoScreen(
         bindCamera(
             lifecycleOwner,
             previewView.surfaceProvider,
-            state.cameraSelector
+            state.cameraSelector,
         )
     }
 
@@ -175,24 +176,24 @@ fun RecordVideoScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
             ) {
                 Box(
                     modifier = Modifier
                         .clip(
-                            RoundedCornerShape(16.dp)
+                            RoundedCornerShape(16.dp),
                         )
                         .background(
                             if (state.recordingVideoState is RecordingVideoState.Recording) Color.Red else Color.Black.copy(
-                                0.5f
-                            )
+                                0.5f,
+                            ),
                         )
-                        .padding(horizontal = 5.dp, vertical = 3.dp)
+                        .padding(horizontal = 5.dp, vertical = 3.dp),
                 ) {
                     Text(
                         text = state.timeText,
                         style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                        color = Color.White
+                        color = Color.White,
                     )
                 }
 
@@ -200,7 +201,7 @@ fun RecordVideoScreen(
 
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
-                factory = { previewView }
+                factory = { previewView },
             )
         }
 
@@ -210,7 +211,7 @@ fun RecordVideoScreen(
                     .fillMaxWidth()
                     .background(Color.Black.copy(0.3f))
                     .align(BottomCenter)
-                    .height(160.dp)
+                    .height(160.dp),
             )
         }
 
@@ -220,7 +221,7 @@ fun RecordVideoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(BottomCenter)
-                        .padding(bottom = 40.dp)
+                        .padding(bottom = 40.dp),
                 ) {
                     RecordVideoButton(
                         modifier = Modifier.align(Center),
@@ -234,12 +235,12 @@ fun RecordVideoScreen(
                                 if (!cameraPermissionState.status.shouldShowRationale || !micPermissionState.status.shouldShowRationale) { // '다시 묻지 않음' 상태일 때 앱 설정 열기
                                     val intent = Intent(
                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                        Uri.fromParts("package", context.packageName, null)
+                                        Uri.fromParts("package", context.packageName, null),
                                     )
                                     context.startActivity(intent)
                                 }
                             }
-                        }
+                        },
                     )
 
                     var rotationState by remember { mutableStateOf(0f) }
@@ -251,22 +252,22 @@ fun RecordVideoScreen(
                                 onSwitchCamera()
                             }
                             .align(Alignment.CenterEnd)
-                            .padding(end = 45.dp)
+                            .padding(end = 45.dp),
                     ) {
                         val rotationAngle by animateFloatAsState(
                             targetValue = rotationState,
                             animationSpec = tween(
                                 durationMillis = 1500,
-                                easing = LinearOutSlowInEasing
+                                easing = LinearOutSlowInEasing,
                             ),
-                            label = "rotationAnimation"
+                            label = "rotationAnimation",
                         )
 
                         SimpleCircle(
                             diameter = 40.dp,
                             color = Color.Black.copy(alpha = 0.4f),
                             modifier = Modifier
-                                .align(Center)
+                                .align(Center),
                         )
 
                         Image(
@@ -276,9 +277,9 @@ fun RecordVideoScreen(
                             modifier = Modifier
                                 .size(24.dp)
                                 .align(
-                                    Center
+                                    Center,
                                 )
-                                .rotate(rotationAngle)
+                                .rotate(rotationAngle),
                         )
                     }
                 }
@@ -290,7 +291,7 @@ fun RecordVideoScreen(
                         .fillMaxWidth()
                         .align(BottomCenter)
                         .padding(bottom = 40.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.weight(1f))
 
@@ -299,23 +300,23 @@ fun RecordVideoScreen(
                             .clip(CircleShape)
                             .clickable(isRipple = true) {
                                 onCancelRecording()
-                            }
+                            },
                     ) {
                         SimpleCircle(
                             color = Color.White,
                             diameter = 50.dp,
                             modifier = Modifier
                                 .align(Center)
-                                .shadow(elevation = 4.dp, shape = CircleShape)
+                                .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "취소",
                             modifier = Modifier.align(
-                                Center
+                                Center,
                             ),
-                            tint = Color.Black
+                            tint = Color.Black,
                         )
                     }
 
@@ -325,13 +326,13 @@ fun RecordVideoScreen(
                         modifier = Modifier
                             .clickable {
                                 onFinishRecording()
-                            }
+                            },
                     ) {
                         SimpleCircle(
                             color = Color.White,
                             diameter = 70.dp,
                             modifier = Modifier
-                                .align(Center)
+                                .align(Center),
                         )
 
                         Image(
@@ -340,9 +341,9 @@ fun RecordVideoScreen(
                             modifier = Modifier
                                 .size(34.dp)
                                 .align(
-                                    Center
+                                    Center,
                                 ),
-                            colorFilter = ColorFilter.tint(PrimaryActive)
+                            colorFilter = ColorFilter.tint(PrimaryActive),
                         )
                     }
 
@@ -353,29 +354,29 @@ fun RecordVideoScreen(
                             .clip(CircleShape)
                             .clickable(isRipple = true) {
                                 if (state.recordingVideoState == RecordingVideoState.Recording) onPauseRecording() else onResumeRecording()
-                            }
+                            },
                     ) {
                         SimpleCircle(
                             color = Color.White,
                             diameter = 50.dp,
                             modifier = Modifier
                                 .align(Center)
-                                .shadow(elevation = 4.dp, shape = CircleShape)
+                                .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
                         Image(
                             painter = if (state.recordingVideoState == RecordingVideoState.Recording) painterResource(
-                                R.drawable.pause_audio
+                                R.drawable.pause_audio,
                             ) else painterResource(
-                                R.drawable.play_audio
+                                R.drawable.play_audio,
                             ),
                             contentDescription = if (state.recordingVideoState == RecordingVideoState.Recording) "일시 정지" else "재개",
                             modifier = Modifier
                                 .size(20.dp)
                                 .align(
-                                    Center
+                                    Center,
                                 ),
-                            colorFilter = ColorFilter.tint(Color.Black)
+                            colorFilter = ColorFilter.tint(Color.Black),
                         )
                     }
 
@@ -388,7 +389,7 @@ fun RecordVideoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(BottomCenter)
-                        .padding(bottom = 40.dp)
+                        .padding(bottom = 40.dp),
                 ) {
                     Box(
                         modifier = Modifier
@@ -399,19 +400,19 @@ fun RecordVideoScreen(
                             .background(PrimaryActive)
                             .clickable {
                                 showSpeechConfigDg = true
-                            }
+                            },
                     ) {
                         Row(
                             modifier = Modifier
                                 .align(Center),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.feedback),
                                 contentDescription = "피드백 받기",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(Color.White)
+                                colorFilter = ColorFilter.tint(Color.White),
                             )
 
                             Spacer(Modifier.width(8.dp))
@@ -419,7 +420,7 @@ fun RecordVideoScreen(
                             Text(
                                 "피드백 받기",
                                 style = SpeechMateTheme.typography.bodyMSB,
-                                color = Color.White
+                                color = Color.White,
                             )
                         }
 
@@ -436,20 +437,20 @@ fun RecordVideoScreen(
                             .background(Color.White)
                             .clickable {
                                 onCancelRecording()
-                            }
+                            },
                     ) {
                         Row(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
                                 .align(Center),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.record_video),
                                 contentDescription = "재녹화",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(PrimaryActive)
+                                colorFilter = ColorFilter.tint(PrimaryActive),
                             )
 
                             Spacer(Modifier.width(6.dp))
@@ -457,7 +458,7 @@ fun RecordVideoScreen(
                             Text(
                                 "재녹화",
                                 style = SpeechMateTheme.typography.bodyMM,
-                                color = PrimaryActive
+                                color = PrimaryActive,
                             )
                         }
 
@@ -482,18 +483,18 @@ fun RecordVideoScreen(
 @Composable
 private fun RecordVideoButton(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
             .clip(shape = CircleShape)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
     ) {
         SimpleCircle(
             color = Color.White,
             diameter = 80.dp,
             modifier = Modifier
-                .align(Center)
+                .align(Center),
         )
 
         SimpleCircle(
@@ -501,7 +502,7 @@ private fun RecordVideoButton(
             diameter = 36.dp,
             modifier = Modifier
                 .align(Center)
-                .shadow(elevation = 4.dp, shape = CircleShape)
+                .shadow(elevation = 4.dp, shape = CircleShape),
         )
     }
 }
@@ -520,7 +521,7 @@ private fun RecordVideoScreenReadyPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onSpeechConfigChange = {}
+            onSpeechConfigChange = {},
         )
     }
 }
@@ -539,7 +540,7 @@ private fun RecordVideoScreenRecordingPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onSpeechConfigChange = {}
+            onSpeechConfigChange = {},
         )
     }
 }
@@ -558,7 +559,7 @@ private fun RecordVideoScreenPausedPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onSpeechConfigChange = {}
+            onSpeechConfigChange = {},
         )
     }
 }
@@ -578,7 +579,7 @@ private fun RecordVideoScreenCompletedPreview() {
             onResumeRecording = {},
             onCancelRecording = {},
             onRequestFeedback = {},
-            onSpeechConfigChange = {}
+            onSpeechConfigChange = {},
         )
     }
 }

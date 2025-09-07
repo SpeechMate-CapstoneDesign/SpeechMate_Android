@@ -8,9 +8,11 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.annotation.WorkerThread
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
+import com.speech.domain.model.speech.SpeechFileRule.MAX_FILE_SIZE_BYTES
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileType
 import java.io.File
+import java.io.IOException
 
 object MediaUtil {
     @WorkerThread
@@ -36,7 +38,8 @@ object MediaUtil {
         val durationMs = getDuration(context, uri)
         return durationMs in MIN_DURATION_MS..MAX_DURATION_MS
     }
-    @androidx.annotation.WorkerThread
+
+    @WorkerThread
     fun getSpeechFileType(context: Context, uri: Uri): SpeechFileType {
         // 1. MIME 타입으로 확인
         context.contentResolver.getType(uri)?.let { mimeType ->
@@ -63,4 +66,6 @@ object MediaUtil {
 
         return SpeechFileType.AUDIO
     }
+
+
 }

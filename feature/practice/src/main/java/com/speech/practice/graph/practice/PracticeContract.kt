@@ -6,10 +6,11 @@ import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 
 data class PracticeState(
     val speechConfig: SpeechConfig = SpeechConfig(),
-    val isUploadingFile: Boolean = false,
+    val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 
 sealed class PracticeIntent : UiIntent {
