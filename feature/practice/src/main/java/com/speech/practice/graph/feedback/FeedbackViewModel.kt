@@ -262,9 +262,9 @@ class FeedbackViewModel @Inject constructor(
     private fun getScriptAnalysis() = intent {
         suspendRunCatching {
             speechRepository.getScriptAnalysis(state.speechDetail.id)
-        }.onSuccess {
+        }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
             }
         }.onFailure {
             processScriptAnalysis()
@@ -294,9 +294,9 @@ class FeedbackViewModel @Inject constructor(
     private fun processScriptAnalysis() = intent {
         suspendRunCatching {
             speechRepository.processScriptAnalysis(state.speechDetail.id)
-        }.onSuccess {
+        }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
             }
         }.onFailure {
             reduce {

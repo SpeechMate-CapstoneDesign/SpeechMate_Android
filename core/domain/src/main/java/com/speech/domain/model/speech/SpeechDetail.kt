@@ -21,14 +21,13 @@ data class SpeechDetail(
 data class ScriptAnalysis(
     val summary: String = "",
     val keywords: String = "",
-    val improvementPoints: String = "",
-    val logicalCoherenceScore: Int = 0,
+    val improvementPoints: List<String> = emptyList(),
     val feedback: String = "",
-    val scoreExplanation: String = "",
-    val expectedQuestions: String = "",
+    val expectedQuestions: List<String> = emptyList(),
     val isLoading: Boolean = true,
     val isError: Boolean = false,
 )
+
 data class VerbalAnalysis(
     val isLoading: Boolean = true,
     val score: Int = 0,
