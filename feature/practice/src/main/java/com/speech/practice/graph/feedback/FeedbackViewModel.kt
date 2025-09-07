@@ -134,7 +134,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
-        getSpeechConfig()
+        // getSpeechConfig()
         getScript()
         getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
@@ -262,9 +262,9 @@ class FeedbackViewModel @Inject constructor(
     private fun getScriptAnalysis() = intent {
         suspendRunCatching {
             speechRepository.getScriptAnalysis(state.speechDetail.id)
-        }.onSuccess {
+        }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
             }
         }.onFailure {
             processScriptAnalysis()
@@ -284,7 +284,7 @@ class FeedbackViewModel @Inject constructor(
                 state.copy(
                     speechDetail = state.speechDetail.copy(
                         script = "대본을 불러오는데 실패했습니다.",
-                        scriptAnalysis = state.speechDetail.scriptAnalysis?.copy(isError = true),
+                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }
@@ -294,15 +294,15 @@ class FeedbackViewModel @Inject constructor(
     private fun processScriptAnalysis() = intent {
         suspendRunCatching {
             speechRepository.processScriptAnalysis(state.speechDetail.id)
-        }.onSuccess {
+        }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = it))
+                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
             }
         }.onFailure {
             reduce {
                 state.copy(
                     speechDetail = state.speechDetail.copy(
-                        scriptAnalysis = state.speechDetail.scriptAnalysis?.copy(isError = true),
+                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }

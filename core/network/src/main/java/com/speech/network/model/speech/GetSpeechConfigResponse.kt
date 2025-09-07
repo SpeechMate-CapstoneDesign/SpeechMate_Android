@@ -7,6 +7,8 @@ import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechType
 import com.speech.domain.model.speech.Venue
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
@@ -14,8 +16,6 @@ data class GetSpeechConfigResponse(
     val presentationContext: String,
     val audience: String,
     val location: String,
-    // val fileUrl : String,
-    // val date : LocalDateTime,
 ) {
     fun toDomain(): SpeechDetail =
         SpeechDetail(

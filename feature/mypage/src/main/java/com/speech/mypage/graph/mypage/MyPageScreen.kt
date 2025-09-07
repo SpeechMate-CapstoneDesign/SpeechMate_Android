@@ -25,6 +25,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
@@ -50,6 +53,7 @@ import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.model.speech.SpeechType
 import com.speech.domain.model.speech.Venue
 import com.speech.mypage.graph.setting.SettingViewModel
+import kotlinx.coroutines.flow.flowOf
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -60,6 +64,9 @@ internal fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getSpeechFeeds()
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -95,6 +102,8 @@ private fun MyPageScreen(
     onSettingClick: () -> Unit,
     onSpeechClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
 ) {
+    val speechFeeds = state.speechFeeds.collectAsLazyPagingItems()
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -110,10 +119,13 @@ private fun MyPageScreen(
             }
 
             items(
-                count = state.speechFeeds.size,
-                key = { index -> state.speechFeeds[index].id },
+                count = speechFeeds.itemCount,
+                key = { index -> speechFeeds[index]?.id ?: index },
             ) { index ->
-                SpeechFeed(speechFeed = state.speechFeeds[index], onClick = onSpeechClick)
+                speechFeeds[index]?.let {
+                    SpeechFeed(speechFeed = it, onClick = onSpeechClick)
+
+                }
 
                 Spacer(Modifier.height(12.dp))
             }
@@ -277,77 +289,83 @@ private fun SpeechFeed(
 @Preview
 @Composable
 private fun MyPageScreenPreview() {
-    MyPageScreen(
-        state = MyPageState(
-            speechFeeds = listOf(
-                SpeechFeed(
-                    id = 1,
-                    date = "23.10.27",
-                    fileLength = 123456L,
-                    fileUrl = "",
-                    speechFileType = SpeechFileType.VIDEO,
-                    speechConfig = SpeechConfig(
-                        fileName = "1분기 실적 발표",
-                        speechType = SpeechType.BUSINESS_PRESENTATION,
-                        audience = Audience.EXPERT,
-                        venue = Venue.CONFERENCE_ROOM,
-                    ),
-                ),
-                SpeechFeed(
-                    id = 2,
-                    date = "23.10.27",
-                    fileLength = 234567L,
-                    fileUrl = "",
-                    speechFileType = SpeechFileType.AUDIO,
-                    speechConfig = SpeechConfig(
-                        fileName = "신입사원 온보딩",
-                        speechType = SpeechType.ACADEMIC_PRESENTATION,
-                        audience = Audience.BEGINNER,
-                        venue = Venue.EVENT_HALL,
-                    ),
-                ),
-                SpeechFeed(
-                    id = 3,
-                    date = "23.10.27",
-                    fileLength = 89012L,
-                    fileUrl = "",
-                    speechFileType = SpeechFileType.VIDEO,
-                    speechConfig = SpeechConfig(
-                        fileName = "개발자 컨퍼런스 발표",
-                        speechType = SpeechType.BUSINESS_PRESENTATION,
-                        audience = Audience.INTERMEDIATE,
-                        venue = Venue.LECTURE_HALL,
-                    ),
-                ),
-                SpeechFeed(
-                    id = 4,
-                    date = "23.10.27",
-                    fileLength = 345678L,
-                    fileUrl = "",
-                    speechFileType = SpeechFileType.VIDEO,
-                    speechConfig = SpeechConfig(
-                        fileName = "투자 유치 발표",
-                        speechType = SpeechType.BUSINESS_PRESENTATION,
-                        audience = Audience.EXPERT,
-                        venue = Venue.CONFERENCE_ROOM,
-                    ),
-                ),
-                SpeechFeed(
-                    id = 5,
-                    date = "23.10.27",
-                    fileLength = 500000L,
-                    fileUrl = "",
-                    speechFileType = SpeechFileType.AUDIO,
-                    speechConfig = SpeechConfig(
-                        fileName = "팀 회의 발표",
-                        speechType = SpeechType.BUSINESS_PRESENTATION,
-                        audience = Audience.INTERMEDIATE,
-                        venue = Venue.CONFERENCE_ROOM,
+    SpeechMateTheme {
+        MyPageScreen(
+            state = MyPageState(
+                speechFeeds = flowOf(
+                    PagingData.from(
+                        listOf(
+                            SpeechFeed(
+                                id = 1,
+                                date = "23.10.27",
+                                fileLength = 123456L,
+                                fileUrl = "",
+                                speechFileType = SpeechFileType.VIDEO,
+                                speechConfig = SpeechConfig(
+                                    fileName = "1분기 실적 발표",
+                                    speechType = SpeechType.BUSINESS_PRESENTATION,
+                                    audience = Audience.EXPERT,
+                                    venue = Venue.CONFERENCE_ROOM,
+                                ),
+                            ),
+                            SpeechFeed(
+                                id = 2,
+                                date = "23.10.27",
+                                fileLength = 234567L,
+                                fileUrl = "",
+                                speechFileType = SpeechFileType.AUDIO,
+                                speechConfig = SpeechConfig(
+                                    fileName = "신입사원 온보딩",
+                                    speechType = SpeechType.ACADEMIC_PRESENTATION,
+                                    audience = Audience.BEGINNER,
+                                    venue = Venue.EVENT_HALL,
+                                ),
+                            ),
+                            SpeechFeed(
+                                id = 3,
+                                date = "23.10.27",
+                                fileLength = 89012L,
+                                fileUrl = "",
+                                speechFileType = SpeechFileType.VIDEO,
+                                speechConfig = SpeechConfig(
+                                    fileName = "개발자 컨퍼런스 발표",
+                                    speechType = SpeechType.BUSINESS_PRESENTATION,
+                                    audience = Audience.INTERMEDIATE,
+                                    venue = Venue.LECTURE_HALL,
+                                ),
+                            ),
+                            SpeechFeed(
+                                id = 4,
+                                date = "23.10.27",
+                                fileLength = 345678L,
+                                fileUrl = "",
+                                speechFileType = SpeechFileType.VIDEO,
+                                speechConfig = SpeechConfig(
+                                    fileName = "투자 유치 발표",
+                                    speechType = SpeechType.BUSINESS_PRESENTATION,
+                                    audience = Audience.EXPERT,
+                                    venue = Venue.CONFERENCE_ROOM,
+                                ),
+                            ),
+                            SpeechFeed(
+                                id = 5,
+                                date = "23.10.27",
+                                fileLength = 500000L,
+                                fileUrl = "",
+                                speechFileType = SpeechFileType.AUDIO,
+                                speechConfig = SpeechConfig(
+                                    fileName = "팀 회의 발표",
+                                    speechType = SpeechType.BUSINESS_PRESENTATION,
+                                    audience = Audience.INTERMEDIATE,
+                                    venue = Venue.CONFERENCE_ROOM,
+                                ),
+                            ),
+                        ),
                     ),
                 ),
             ),
-        ),
-        onSettingClick = {},
-        onSpeechClick = { _, _, _, _ -> },
-    )
+            onSettingClick = {},
+            onSpeechClick = { _, _, _, _ -> },
+        )
+    }
 }

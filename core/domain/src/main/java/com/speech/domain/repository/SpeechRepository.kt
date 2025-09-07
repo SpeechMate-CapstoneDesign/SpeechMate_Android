@@ -1,9 +1,12 @@
 package com.speech.domain.repository
 
+import androidx.paging.PagingData
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
+import com.speech.domain.model.speech.SpeechFeed
 import com.speech.domain.model.upload.UploadFileStatus
+import kotlinx.coroutines.flow.Flow
 import kotlin.Pair
 
 interface SpeechRepository {
@@ -23,6 +26,7 @@ interface SpeechRepository {
 
     suspend fun processSpeechToScript(speechId: Int): String
     suspend fun processScriptAnalysis(speechId: Int): ScriptAnalysis
+    fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>>
 
     suspend fun getSpeechConfig(speechId: Int): SpeechDetail
     suspend fun getScript(speechId: Int): String

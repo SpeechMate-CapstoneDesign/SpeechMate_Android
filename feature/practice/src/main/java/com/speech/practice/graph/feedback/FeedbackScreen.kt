@@ -255,7 +255,7 @@ private fun FeedbackScreen(
 
                     FeedbackTab.SCRIPT_ANALYSIS -> {
                         val scriptAnalysis = state.speechDetail.scriptAnalysis
-                        if (scriptAnalysis == null) {
+                        if (scriptAnalysis.isLoading) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -324,10 +324,16 @@ private fun FeedbackScreen(
                                     )
                                     Spacer(Modifier.height(5.dp))
 
-                                    Text(
-                                        text = analysis.improvementPoints,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        analysis.improvementPoints.forEach { point ->
+                                            Text(
+                                                text = point,
+                                                style = SpeechMateTheme.typography.bodyXMM
+                                            )
+                                        }
+                                    }
 
                                     Spacer(Modifier.height(10.dp))
 
@@ -354,48 +360,22 @@ private fun FeedbackScreen(
                                     Spacer(Modifier.height(20.dp))
 
                                     Text(
-                                        text = "논리적 일관성 점수",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Text(
-                                        text = "${analysis.logicalCoherenceScore}점",
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
-
-                                    Spacer(Modifier.height(15.dp))
-
-                                    Text(
-                                        text = "점수 설명",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Text(
-                                        text = analysis.scoreExplanation,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
-
-                                    Spacer(Modifier.height(10.dp))
-
-                                    SectionDivider()
-
-                                    Spacer(Modifier.height(20.dp))
-
-                                    Text(
                                         text = "예상 질문",
                                         style = SpeechMateTheme.typography.bodyMSB,
                                     )
 
                                     Spacer(Modifier.height(5.dp))
 
-                                    Text(
-                                        text = analysis.expectedQuestions,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        analysis.expectedQuestions.forEach { question ->
+                                            Text(
+                                                text = question,
+                                                style = SpeechMateTheme.typography.bodyXMM
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
