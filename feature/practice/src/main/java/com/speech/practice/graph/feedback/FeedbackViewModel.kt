@@ -284,7 +284,7 @@ class FeedbackViewModel @Inject constructor(
                 state.copy(
                     speechDetail = state.speechDetail.copy(
                         script = "대본을 불러오는데 실패했습니다.",
-                        scriptAnalysis = state.speechDetail.scriptAnalysis?.copy(isError = true),
+                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }
@@ -302,7 +302,7 @@ class FeedbackViewModel @Inject constructor(
             reduce {
                 state.copy(
                     speechDetail = state.speechDetail.copy(
-                        scriptAnalysis = state.speechDetail.scriptAnalysis?.copy(isError = true),
+                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }

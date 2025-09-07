@@ -255,7 +255,7 @@ private fun FeedbackScreen(
 
                     FeedbackTab.SCRIPT_ANALYSIS -> {
                         val scriptAnalysis = state.speechDetail.scriptAnalysis
-                        if (scriptAnalysis == null) {
+                        if (scriptAnalysis.isLoading) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
