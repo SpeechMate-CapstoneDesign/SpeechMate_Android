@@ -134,7 +134,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
-        getSpeechConfig()
+        // getSpeechConfig()
         getScript()
         getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {

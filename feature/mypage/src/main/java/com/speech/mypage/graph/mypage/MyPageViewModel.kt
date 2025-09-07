@@ -18,7 +18,6 @@ class MyPageViewModel @Inject constructor(
 ) : ContainerHost<MyPageState, MyPageSideEffect>, ViewModel() {
     override val container = container<MyPageState, MyPageSideEffect>(MyPageState())
 
-
     fun getSpeechFeeds() = intent {
         reduce {
             state.copy(speechFeeds = speechRepository.getSpeechFeeds().cachedIn(viewModelScope))
