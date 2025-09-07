@@ -9,6 +9,7 @@ import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechConfigResponse
+import com.speech.network.model.speech.GetSpeechFeedResponse
 import com.speech.network.model.speech.ProcessScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
@@ -39,6 +40,13 @@ interface SpeechMateApi {
     suspend fun unRegisterUser(): ApiResponse<Unit>
 
     // Speech Analysis
+    @GET("/api/speech/myFeed")
+    suspend fun getSpeechFeeds(
+        @Query("lastSpeechId") lastSpeechId: Int,
+        @Query("limit") limit: Int,
+        @Query("sortType") sortType: String = "LATEST",
+    ): ApiResponse<GetSpeechFeedResponse>
+
     @POST("/api/speech/presignedWithS3")
     suspend fun getPresignedUrl(@Query("fileExtension") fileExtension: String): ApiResponse<GetPresignedUrlResponse>
 

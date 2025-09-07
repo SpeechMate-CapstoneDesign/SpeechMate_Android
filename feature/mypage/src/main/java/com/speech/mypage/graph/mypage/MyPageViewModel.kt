@@ -1,8 +1,13 @@
 package com.speech.mypage.graph.mypage
 
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.speech.domain.repository.SpeechRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flatMapLatest
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
@@ -12,6 +17,13 @@ class MyPageViewModel @Inject constructor(
     private val speechRepository: SpeechRepository,
 ) : ContainerHost<MyPageState, MyPageSideEffect>, ViewModel() {
     override val container = container<MyPageState, MyPageSideEffect>(MyPageState())
+
+
+    fun getSpeechFeeds() = intent {
+        reduce {
+            state.copy(speechFeeds = speechRepository.getSpeechFeeds().cachedIn(viewModelScope))
+        }
+    }
 
     fun onIntent(event: MyPageIntent) {
         when (event) {

@@ -4,16 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.speech.common.util.suspendRunCatching
+import com.speech.data.paging.SpeechFeedPagingSource
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
+import com.speech.domain.model.speech.SpeechFeed
 import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.domain.repository.SpeechRepository
 import com.speech.network.source.speech.SpeechDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.FileInputStream
 import javax.inject.Inject
@@ -87,6 +93,15 @@ class SpeechRepositoryImpl @Inject constructor(
     override suspend fun processScriptAnalysis(speechId: Int): ScriptAnalysis =
         speechDataSource.processScriptAnalysis(speechId).toDomain()
 
+    override fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>> {
+        return Pager(
+            config = PagingConfig(pageSize = DEFAULT_PAGE_SIZE),
+            pagingSourceFactory = {
+                SpeechFeedPagingSource(speechDataSource)
+            },
+        ).flow
+    }
+
     override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
         speechDataSource.getSpeechConfig(speechId).toDomain()
 
@@ -104,5 +119,9 @@ class SpeechRepositoryImpl @Inject constructor(
 
     override suspend fun getVideoAnalysis(speechId: Int) {
 
+    }
+
+    companion object {
+        private const val DEFAULT_PAGE_SIZE = 10
     }
 }
