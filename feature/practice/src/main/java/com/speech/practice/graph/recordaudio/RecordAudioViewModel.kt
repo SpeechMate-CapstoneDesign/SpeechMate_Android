@@ -10,6 +10,7 @@ import com.speech.common.util.suspendRunCatching
 import com.speech.common_ui.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.domain.repository.SpeechRepository
 import com.speech.practice.graph.feedback.FeedbackSideEffect
 import com.speech.practice.graph.feedback.PlayingState
@@ -34,7 +35,6 @@ class RecordAudioViewModel @Inject constructor(
     private var recordDuration = 0L
     private var timerJob: Job? = null
     private var recorder: MediaRecorder? = null
-
 
     fun onIntent(event: RecordAudioIntent) {
         when (event) {
@@ -76,9 +76,7 @@ class RecordAudioViewModel @Inject constructor(
                 filePath = state.audioFile!!.path,
                 speechConfig = state.speechConfig,
                 duration = recordDuration.toInt(),
-                onProgressUpdate = {
-
-                },
+                onProgressUpdate = ::onProgressUpdate,
             )
         }.onSuccess { (speechId, fileUrl) ->
             postSideEffect(
@@ -93,7 +91,7 @@ class RecordAudioViewModel @Inject constructor(
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
         }.also {
             reduce {
-                state.copy(isUploadingFile = false)
+                state.copy(isUploadingFile = false, uploadFileStatus = null)
             }
         }
     }
@@ -205,6 +203,12 @@ class RecordAudioViewModel @Inject constructor(
     private fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
+    }
+
+    private fun onProgressUpdate(status: UploadFileStatus) = intent {
+        reduce {
+            state.copy(uploadFileStatus = status)
+        }
     }
 
     override fun onCleared() {

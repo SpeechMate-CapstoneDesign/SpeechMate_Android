@@ -5,6 +5,7 @@ import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.model.upload.UploadFileStatus
 import java.io.File
 import java.util.Locale
 
@@ -14,6 +15,7 @@ data class RecordAudioState(
     val timeText: String = "00 : 00 . 00",
     val speechConfig: SpeechConfig = SpeechConfig(),
     val isUploadingFile: Boolean = false,
+    val uploadFileStatus: UploadFileStatus? = null,
 ) : UiState
 
 sealed class RecordingAudioState {
