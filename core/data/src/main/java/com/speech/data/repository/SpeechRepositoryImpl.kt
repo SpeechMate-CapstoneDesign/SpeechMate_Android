@@ -86,12 +86,6 @@ class SpeechRepositoryImpl @Inject constructor(
         return Pair(response.speechId, response.fileUrl)
     }
 
-    override suspend fun processSpeechToScript(speechId: Int): String =
-        speechDataSource.processSpeechToScript(speechId).toDomain()
-
-
-    override suspend fun processScriptAnalysis(speechId: Int): ScriptAnalysis =
-        speechDataSource.processScriptAnalysis(speechId).toDomain()
 
     override fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>> {
         return Pager(
@@ -102,8 +96,6 @@ class SpeechRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
-        speechDataSource.getSpeechConfig(speechId).toDomain()
 
     override suspend fun getScript(speechId: Int): String =
         speechDataSource.getScript(speechId).toDomain()

@@ -15,7 +15,6 @@ import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
-import com.speech.network.model.speech.ProcessScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
@@ -85,20 +84,12 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int): GetSpeechFeedResponse =
         speechMateApi.getSpeechFeeds(lastSpeechId, limit).getData()
 
-    override suspend fun getSpeechConfig(speechId: Int): GetSpeechConfigResponse =
-        speechMateApi.getSpeechConfig(speechId).getData()
-
     override suspend fun getScript(speechId: Int): ScriptResponse =
         speechMateApi.getScript(speechId).getData()
 
     override suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse =
         speechMateApi.getScriptAnalysis(speechId).getData()
 
-    override suspend fun processSpeechToScript(speechId: Int): ScriptResponse =
-        speechMateApi.processSpeechToScript(speechId).getData()
-
-    override suspend fun processScriptAnalysis(speechId: Int): ProcessScriptAnalysisResponse =
-        speechMateApi.processScriptAnalysis(speechId).getData()
 }
 
 
