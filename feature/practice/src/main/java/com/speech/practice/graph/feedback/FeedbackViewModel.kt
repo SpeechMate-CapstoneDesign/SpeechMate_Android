@@ -227,24 +227,6 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun getSpeechConfig() = intent {
-        suspendRunCatching {
-            speechRepository.getSpeechConfig(state.speechDetail.id)
-        }.onSuccess {
-            reduce {
-                state.copy(
-                    speechDetail = state.speechDetail.copy(
-                        speechConfig = SpeechConfig(
-                            speechType = it.speechConfig.speechType,
-                            audience = it.speechConfig.audience,
-                            venue = it.speechConfig.venue,
-                        ),
-                    ),
-                )
-            }
-        }
-    }
-
     private fun getScript() = intent {
         suspendRunCatching {
             speechRepository.getScript(state.speechDetail.id)
@@ -255,31 +237,6 @@ class FeedbackViewModel @Inject constructor(
 
             getScriptAnalysis()
         }.onFailure {
-            processSpeechToScript()
-        }
-    }
-
-    private fun getScriptAnalysis() = intent {
-        suspendRunCatching {
-            speechRepository.getScriptAnalysis(state.speechDetail.id)
-        }.onSuccess { scriptAnalysis ->
-            reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
-            }
-        }.onFailure {
-            processScriptAnalysis()
-        }
-    }
-
-    private fun processSpeechToScript() = intent {
-        suspendRunCatching {
-            speechRepository.processSpeechToScript(state.speechDetail.id)
-        }.onSuccess {
-            reduce {
-                state.copy(speechDetail = state.speechDetail.copy(script = it))
-            }
-            processScriptAnalysis()
-        }.onFailure {
             reduce {
                 state.copy(
                     speechDetail = state.speechDetail.copy(
@@ -288,12 +245,13 @@ class FeedbackViewModel @Inject constructor(
                     ),
                 )
             }
+
         }
     }
 
-    private fun processScriptAnalysis() = intent {
+    private fun getScriptAnalysis() = intent {
         suspendRunCatching {
-            speechRepository.processScriptAnalysis(state.speechDetail.id)
+            speechRepository.getScriptAnalysis(state.speechDetail.id)
         }.onSuccess { scriptAnalysis ->
             reduce {
                 state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))

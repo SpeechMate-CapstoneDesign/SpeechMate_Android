@@ -27,6 +27,7 @@ data class GetSpeechFeedResponse(
 data class SpeechFeedResult(
     val id: Int,
     val createdAt: LocalDateTime,
+    val duration : Long,
     val fileType: String,
     val fileUrl: String,
     val title: String,
@@ -37,7 +38,7 @@ data class SpeechFeedResult(
     fun toDomain(): SpeechFeed = SpeechFeed(
         id = id,
         date = date,
-        fileLength = 0,
+        fileLength = duration,
         fileUrl = fileUrl,
         speechFileType = SpeechFileType.fromString(fileType),
         speechConfig = SpeechConfig(
