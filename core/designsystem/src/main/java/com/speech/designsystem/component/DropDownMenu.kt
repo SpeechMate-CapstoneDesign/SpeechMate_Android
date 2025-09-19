@@ -31,7 +31,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
@@ -46,37 +48,45 @@ fun SMDropDownMenu(
     modifier: Modifier = Modifier,
     expanded: Boolean,
     onDismiss: () -> Unit,
+    alignment: Alignment = Alignment.Center,
+    offset: IntOffset = IntOffset(0, 0),
     width: Int = 120,
     items: List<SMDropdownMenuItem>,
 ) {
     if (expanded) {
-        Card(
-            modifier = Modifier
-                .wrapContentSize()
-                .widthIn(min = width.dp),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+        Popup(
+            alignment = alignment,
+            offset = offset,
+            onDismissRequest = onDismiss,
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
+            Card(
+                modifier = modifier
+                    .wrapContentSize()
+                    .widthIn(min = width.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
             ) {
-                items.forEachIndexed { index, item ->
-                    if (index != 0) Spacer(Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                ) {
+                    items.forEachIndexed { index, item ->
+                        if (index != 0) Spacer(Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .clickable {
-                                onDismiss()
-                                item.action()
-                            }
-                            .widthIn(min = width.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(item.labelRes),
-                            style = SpeechMateTheme.typography.bodyXMM,
-                        )
+                        Row(
+                            modifier = Modifier
+                                .clickable {
+                                    onDismiss()
+                                    item.action()
+                                }
+                                .widthIn(min = width.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(item.labelRes),
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                        }
                     }
                 }
             }

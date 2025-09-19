@@ -47,6 +47,7 @@ import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.combinedClickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.Green
@@ -173,6 +174,7 @@ private fun SpeechFeed(
     onDelete: (Int) -> Unit,
 ) {
     var showDropdownMenu by remember { mutableStateOf(false) }
+    var showDeleteDg by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -312,7 +314,7 @@ private fun SpeechFeed(
                 .align(Alignment.Center)
                 .background(Color.Transparent),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             SMDropDownMenu(
                 expanded = showDropdownMenu,
@@ -321,9 +323,17 @@ private fun SpeechFeed(
                 items = listOf(
                     SMDropdownMenuItem(
                         labelRes = R.string.delete,
-                        action = { onDelete(speechFeed.id) },
+                        action = { showDeleteDg = true },
                     ),
                 ),
+            )
+        }
+
+        if (showDeleteDg) {
+            CheckCancelDialog(
+                onCheck = { onDelete(speechFeed.id) },
+                onDismiss = { showDeleteDg = false },
+                content = "정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.",
             )
         }
     }
@@ -332,84 +342,82 @@ private fun SpeechFeed(
 @Preview
 @Composable
 private fun MyPageScreenPreview() {
-    SpeechMateTheme {
-        MyPageScreen(
-            state = MyPageState(
-                speechFeeds = flowOf(
-                    PagingData.from(
-                        listOf(
-                            SpeechFeed(
-                                id = 1,
-                                date = "23.10.27",
-                                fileLength = 123456L,
-                                fileUrl = "",
-                                speechFileType = SpeechFileType.VIDEO,
-                                speechConfig = SpeechConfig(
-                                    fileName = "1분기 실적 발표",
-                                    speechType = SpeechType.BUSINESS_PRESENTATION,
-                                    audience = Audience.EXPERT,
-                                    venue = Venue.CONFERENCE_ROOM,
-                                ),
+    MyPageScreen(
+        state = MyPageState(
+            speechFeeds = flowOf(
+                PagingData.from(
+                    listOf(
+                        SpeechFeed(
+                            id = 1,
+                            date = "23.10.27",
+                            fileLength = 123456L,
+                            fileUrl = "",
+                            speechFileType = SpeechFileType.VIDEO,
+                            speechConfig = SpeechConfig(
+                                fileName = "1분기 실적 발표",
+                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                audience = Audience.EXPERT,
+                                venue = Venue.CONFERENCE_ROOM,
                             ),
-                            SpeechFeed(
-                                id = 2,
-                                date = "23.10.27",
-                                fileLength = 234567L,
-                                fileUrl = "",
-                                speechFileType = SpeechFileType.AUDIO,
-                                speechConfig = SpeechConfig(
-                                    fileName = "신입사원 온보딩",
-                                    speechType = SpeechType.ACADEMIC_PRESENTATION,
-                                    audience = Audience.BEGINNER,
-                                    venue = Venue.EVENT_HALL,
-                                ),
+                        ),
+                        SpeechFeed(
+                            id = 2,
+                            date = "23.10.27",
+                            fileLength = 234567L,
+                            fileUrl = "",
+                            speechFileType = SpeechFileType.AUDIO,
+                            speechConfig = SpeechConfig(
+                                fileName = "신입사원 온보딩",
+                                speechType = SpeechType.ACADEMIC_PRESENTATION,
+                                audience = Audience.BEGINNER,
+                                venue = Venue.EVENT_HALL,
                             ),
-                            SpeechFeed(
-                                id = 3,
-                                date = "23.10.27",
-                                fileLength = 89012L,
-                                fileUrl = "",
-                                speechFileType = SpeechFileType.VIDEO,
-                                speechConfig = SpeechConfig(
-                                    fileName = "개발자 컨퍼런스 발표",
-                                    speechType = SpeechType.BUSINESS_PRESENTATION,
-                                    audience = Audience.INTERMEDIATE,
-                                    venue = Venue.LECTURE_HALL,
-                                ),
+                        ),
+                        SpeechFeed(
+                            id = 3,
+                            date = "23.10.27",
+                            fileLength = 89012L,
+                            fileUrl = "",
+                            speechFileType = SpeechFileType.VIDEO,
+                            speechConfig = SpeechConfig(
+                                fileName = "개발자 컨퍼런스 발표",
+                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                audience = Audience.INTERMEDIATE,
+                                venue = Venue.LECTURE_HALL,
                             ),
-                            SpeechFeed(
-                                id = 4,
-                                date = "23.10.27",
-                                fileLength = 345678L,
-                                fileUrl = "",
-                                speechFileType = SpeechFileType.VIDEO,
-                                speechConfig = SpeechConfig(
-                                    fileName = "투자 유치 발표",
-                                    speechType = SpeechType.BUSINESS_PRESENTATION,
-                                    audience = Audience.EXPERT,
-                                    venue = Venue.CONFERENCE_ROOM,
-                                ),
+                        ),
+                        SpeechFeed(
+                            id = 4,
+                            date = "23.10.27",
+                            fileLength = 345678L,
+                            fileUrl = "",
+                            speechFileType = SpeechFileType.VIDEO,
+                            speechConfig = SpeechConfig(
+                                fileName = "투자 유치 발표",
+                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                audience = Audience.EXPERT,
+                                venue = Venue.CONFERENCE_ROOM,
                             ),
-                            SpeechFeed(
-                                id = 5,
-                                date = "23.10.27",
-                                fileLength = 500000L,
-                                fileUrl = "",
-                                speechFileType = SpeechFileType.AUDIO,
-                                speechConfig = SpeechConfig(
-                                    fileName = "팀 회의 발표",
-                                    speechType = SpeechType.BUSINESS_PRESENTATION,
-                                    audience = Audience.INTERMEDIATE,
-                                    venue = Venue.CONFERENCE_ROOM,
-                                ),
+                        ),
+                        SpeechFeed(
+                            id = 5,
+                            date = "23.10.27",
+                            fileLength = 500000L,
+                            fileUrl = "",
+                            speechFileType = SpeechFileType.AUDIO,
+                            speechConfig = SpeechConfig(
+                                fileName = "팀 회의 발표",
+                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                audience = Audience.INTERMEDIATE,
+                                venue = Venue.CONFERENCE_ROOM,
                             ),
                         ),
                     ),
                 ),
             ),
-            onSettingClick = {},
-            onSpeechClick = { _, _, _, _ -> },
-            onDeleteSpeech = {},
-        )
-    }
+        ),
+        onSettingClick = {},
+        onSpeechClick = { _, _, _, _ -> },
+        onDeleteSpeech = {},
+    )
 }

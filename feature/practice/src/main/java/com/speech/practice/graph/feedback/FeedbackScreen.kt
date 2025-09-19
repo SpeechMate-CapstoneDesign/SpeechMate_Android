@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,9 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
@@ -53,6 +58,7 @@ import com.speech.designsystem.component.SpeechMateTab
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.LightGray
@@ -144,6 +150,17 @@ private fun FeedbackScreen(
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
 ) {
+    var showDeleteDg by remember { mutableStateOf(false) }
+    if (showDeleteDg) {
+        CheckCancelDialog(
+            onCheck = {
+                onDeleteClick()
+            },
+            onDismiss = { showDeleteDg = false },
+            content = "정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.",
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -436,10 +453,12 @@ private fun FeedbackScreen(
             SMDropDownMenu(
                 expanded = state.showDropdownMenu,
                 onDismiss = onDismissDropDownMenu,
+                alignment = Alignment.TopEnd,
+                offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
                 items = listOf(
                     SMDropdownMenuItem(
                         labelRes = R.string.delete,
-                        action = onDeleteClick,
+                        action = { showDeleteDg = true },
                     ),
                 ),
             )
