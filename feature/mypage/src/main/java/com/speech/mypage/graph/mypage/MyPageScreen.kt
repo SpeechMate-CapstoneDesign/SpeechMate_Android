@@ -1,6 +1,7 @@
 package com.speech.mypage.graph.mypage
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,11 +28,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,8 +44,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.speech.common_ui.util.clickable
+import com.speech.common_ui.util.combinedClickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.SMDropDownMenu
+import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.Green
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
@@ -93,6 +101,11 @@ internal fun MyPageRoute(
                 ),
             )
         },
+        onDeleteSpeech = { speechId ->
+            viewModel.onIntent(
+                MyPageIntent.OnDeleteClick(speechId),
+            )
+        },
     )
 }
 
@@ -101,6 +114,7 @@ private fun MyPageScreen(
     state: MyPageState,
     onSettingClick: () -> Unit,
     onSpeechClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
+    onDeleteSpeech: (Int) -> Unit,
 ) {
     val speechFeeds = state.speechFeeds.collectAsLazyPagingItems()
 
@@ -123,7 +137,7 @@ private fun MyPageScreen(
                 key = { index -> speechFeeds[index]?.id ?: index },
             ) { index ->
                 speechFeeds[index]?.let {
-                    SpeechFeed(speechFeed = it, onClick = onSpeechClick)
+                    SpeechFeed(speechFeed = it, onClick = onSpeechClick, onDelete = onDeleteSpeech)
 
                 }
 
@@ -156,14 +170,22 @@ private fun MyPageScreen(
 private fun SpeechFeed(
     speechFeed: SpeechFeed,
     onClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
+    onDelete: (Int) -> Unit,
 ) {
+    var showDropdownMenu by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, PrimaryDefault, RoundedCornerShape(8.dp))
-            .clickable {
-                onClick(speechFeed.id, speechFeed.fileUrl, speechFeed.speechFileType, speechFeed.speechConfig)
-            }
+            .combinedClickable(
+                onClick = {
+                    onClick(speechFeed.id, speechFeed.fileUrl, speechFeed.speechFileType, speechFeed.speechConfig)
+                },
+                onLongClick = {
+                    showDropdownMenu = true
+                },
+            )
             .padding(16.dp),
     ) {
         Column(
@@ -283,6 +305,27 @@ private fun SpeechFeed(
                 }
             }
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+                .background(Color.Transparent),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            SMDropDownMenu(
+                expanded = showDropdownMenu,
+                onDismiss = { showDropdownMenu = false },
+                width = 160,
+                items = listOf(
+                    SMDropdownMenuItem(
+                        labelRes = R.string.delete,
+                        action = { onDelete(speechFeed.id) },
+                    ),
+                ),
+            )
+        }
     }
 }
 
@@ -366,6 +409,7 @@ private fun MyPageScreenPreview() {
             ),
             onSettingClick = {},
             onSpeechClick = { _, _, _, _ -> },
+            onDeleteSpeech = {},
         )
     }
 }

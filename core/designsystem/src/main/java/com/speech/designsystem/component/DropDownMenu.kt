@@ -4,15 +4,20 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -38,41 +43,44 @@ data class SMDropdownMenuItem(
 
 @Composable
 fun SMDropDownMenu(
+    modifier: Modifier = Modifier,
     expanded: Boolean,
     onDismiss: () -> Unit,
     width: Int = 120,
     items: List<SMDropdownMenuItem>,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismiss,
-        shadowElevation = 1.dp,
-        containerColor = Color.White,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.padding(horizontal = 16.dp),
-    ) {
-        Spacer(Modifier.height(8.dp))
-
-        items.forEachIndexed { index, item ->
-            if (index != 0) Spacer(Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier
-                    .clickable {
-                        onDismiss()
-                        item.action()
-                    }
-                    .widthIn(min = width.dp),
-                verticalAlignment = Alignment.CenterVertically,
+    if (expanded) {
+        Card(
+            modifier = Modifier
+                .wrapContentSize()
+                .widthIn(min = width.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
             ) {
-                Text(
-                    text = stringResource(item.labelRes),
-                    style = SpeechMateTheme.typography.bodyXMM,
-                )
+                items.forEachIndexed { index, item ->
+                    if (index != 0) Spacer(Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .clickable {
+                                onDismiss()
+                                item.action()
+                            }
+                            .widthIn(min = width.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(item.labelRes),
+                            style = SpeechMateTheme.typography.bodyXMM,
+                        )
+                    }
+                }
             }
         }
-
-        Spacer(Modifier.height(12.dp))
     }
 }
 

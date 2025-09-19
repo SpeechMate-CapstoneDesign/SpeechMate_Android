@@ -144,12 +144,6 @@ private fun FeedbackScreen(
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
 ) {
-    val items = listOf(
-        SMDropdownMenuItem(
-            labelRes = R.string.delete,
-            action = onDeleteClick,
-        ),
-    )
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -300,7 +294,7 @@ private fun FeedbackScreen(
                                     style = SpeechMateTheme.typography.bodyXMM,
                                 )
                             } else {
-                                Column() {
+                                Column {
                                     val analysis = state.speechDetail.scriptAnalysis!!
                                     Text(
                                         text = "키워드",
@@ -442,7 +436,12 @@ private fun FeedbackScreen(
             SMDropDownMenu(
                 expanded = state.showDropdownMenu,
                 onDismiss = onDismissDropDownMenu,
-                items = items,
+                items = listOf(
+                    SMDropdownMenuItem(
+                        labelRes = R.string.delete,
+                        action = onDeleteClick,
+                    ),
+                ),
             )
         }
     }

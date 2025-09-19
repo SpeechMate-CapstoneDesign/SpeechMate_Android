@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.speech.domain.repository.SpeechRepository
+import com.speech.mypage.graph.mypage.MyPageSideEffect.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flatMapLatest
 import org.orbitmvi.orbit.ContainerHost
@@ -32,7 +33,7 @@ class MyPageViewModel @Inject constructor(
 
             is MyPageIntent.OnSpeechClick -> intent {
                 postSideEffect(
-                    MyPageSideEffect.NavigateToFeedback(
+                    NavigateToFeedback(
                         event.speechId,
                         event.fileUrl,
                         event.speechFileType,
@@ -40,7 +41,13 @@ class MyPageViewModel @Inject constructor(
                     ),
                 )
             }
+
+
+            is MyPageIntent.OnDeleteClick -> onDeleteClick(event.speechId)
         }
     }
 
+    private fun onDeleteClick(speechId: Int) = intent {
+
+    }
 }
