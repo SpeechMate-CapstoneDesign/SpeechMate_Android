@@ -16,12 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -43,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
@@ -122,6 +128,7 @@ internal fun MyPageRoute(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun MyPageScreen(
     state: MyPageState,
@@ -130,8 +137,26 @@ private fun MyPageScreen(
     onDeleteSpeech: (Int) -> Unit,
 ) {
     val speechFeeds = state.speechFeeds.collectAsLazyPagingItems()
+    val isRefreshing = speechFeeds.loadState.refresh is LoadState.Loading
+    val isAppending = speechFeeds.loadState.append is LoadState.Loading
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            speechFeeds.refresh()
+        })
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState),
+    ) {
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            contentColor = PrimaryDefault,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -174,6 +199,14 @@ private fun MyPageScreen(
                             onSettingClick()
                         },
                     ),
+            )
+        }
+
+        if (isRefreshing || isAppending) {
+            CircularProgressIndicator(
+                color = PrimaryDefault, modifier = Modifier.align(
+                    if (isRefreshing) Alignment.Center else Alignment.BottomCenter
+                )
             )
         }
     }
