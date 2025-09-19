@@ -53,6 +53,8 @@ import com.speech.designsystem.component.SpeechMateTab
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.SMDropDownMenu
+import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
@@ -121,6 +123,10 @@ internal fun FeedbackRoute(
         onMenuClick = {
             viewModel.onIntent(FeedbackIntent.OnMenuClick)
         },
+        onDeleteClick = {
+            viewModel.onIntent(FeedbackIntent.OnDeleteClick)
+        },
+        onDismissDropDownMenu = viewModel::onDismissDropdownMenu,
     )
 }
 
@@ -135,7 +141,15 @@ private fun FeedbackScreen(
     onSeekTo: (Long) -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
     onMenuClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onDismissDropDownMenu: () -> Unit,
 ) {
+    val items = listOf(
+        SMDropdownMenuItem(
+            labelRes = R.string.delete,
+            action = onDeleteClick,
+        ),
+    )
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -421,14 +435,16 @@ private fun FeedbackScreen(
                 painter = painterResource(R.drawable.menu_ic),
                 contentDescription = "메뉴",
                 modifier = Modifier.clickable(isRipple = true) {
+                    onMenuClick()
                 },
             )
 
-            if(state.showDropdownMenu) {
-
-            }
+            SMDropDownMenu(
+                expanded = state.showDropdownMenu,
+                onDismiss = onDismissDropDownMenu,
+                items = items,
+            )
         }
-
     }
 }
 
@@ -562,6 +578,8 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onSeekTo = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -587,6 +605,8 @@ private fun FeedbackScreenScriptPreview() {
         onSeekTo = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -610,6 +630,8 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onSeekTo = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -633,6 +655,8 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onSeekTo = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -656,5 +680,7 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onSeekTo = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }

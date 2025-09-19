@@ -151,6 +151,7 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.SeekTo -> seekTo(event.position)
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
+            is FeedbackIntent.OnDeleteClick -> onDeleteClick()
         }
     }
 
@@ -168,6 +169,16 @@ class FeedbackViewModel @Inject constructor(
     private fun onMenuClick() = intent {
         reduce {
             state.copy(showDropdownMenu = true)
+        }
+    }
+
+    private fun onDeleteClick() = intent {
+
+    }
+
+    fun onDismissDropdownMenu() = intent {
+        reduce {
+            state.copy(showDropdownMenu = false)
         }
     }
 
