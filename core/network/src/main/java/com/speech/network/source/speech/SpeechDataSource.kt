@@ -22,4 +22,5 @@ interface SpeechDataSource {
     suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int) : GetSpeechFeedResponse
     suspend fun getScript(speechId: Int): ScriptResponse
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse
+    suspend fun deleteSpeech(speechId: Int)
 }

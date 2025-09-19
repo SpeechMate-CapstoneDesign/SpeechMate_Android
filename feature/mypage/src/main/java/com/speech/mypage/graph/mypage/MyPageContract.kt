@@ -32,6 +32,7 @@ sealed class MyPageIntent : UiIntent {
 }
 
 sealed interface MyPageSideEffect : UiSideEffect {
+    data class ShowSnackbar(val message: String) : MyPageSideEffect
     data object NavigateToSetting : MyPageSideEffect
     data class NavigateToFeedback(
         val speechId: Int,

@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,9 +41,10 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.combinedClickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
@@ -63,6 +65,7 @@ import com.speech.domain.model.speech.SpeechType
 import com.speech.domain.model.speech.Venue
 import com.speech.mypage.graph.setting.SettingViewModel
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -73,12 +76,21 @@ internal fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
+    val snackbarHostState = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         viewModel.getSpeechFeeds()
     }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
+            is MyPageSideEffect.ShowSnackbar -> {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(sideEffect.message)
+                }
+            }
             is MyPageSideEffect.NavigateToSetting -> navigateToSetting()
             is MyPageSideEffect.NavigateToFeedback -> navigateToFeedBack(
                 sideEffect.speechId,

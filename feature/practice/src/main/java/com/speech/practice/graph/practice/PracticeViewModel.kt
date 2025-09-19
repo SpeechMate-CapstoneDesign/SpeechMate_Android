@@ -101,43 +101,6 @@ class PracticeViewModel @Inject constructor(
         }
     }
 
-//    @OptIn(UnstableApi::class)
-//    private fun changeVideoResolution(
-//        inputVideoUri: Uri,
-//        outputVideoFile: File,
-//        targetHeight: Int = 480,
-//        onResult: (resultUri: Uri?) -> Unit,
-//    ) {
-//        val listener = object : Transformer.Listener {
-//            override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-//                onResult(Uri.fromFile(outputVideoFile))
-//            }
-//
-//            override fun onError(
-//                composition: Composition,
-//                exportResult: ExportResult,
-//                exportException: ExportException,
-//            ) {
-//                Log.e("PracticeViewModel", "Video transformation failed.", exportException)
-//            }
-//        }
-//
-//        val mediaItem = EditedMediaItem.Builder(MediaItem.fromUri(inputVideoUri))
-//            .setEffects(
-//                Effects(
-//                    emptyList(),
-//                    listOf(Presentation.createForHeight(targetHeight)),
-//                ),
-//            ).build()
-//
-//        Transformer.Builder(context)
-//            .setVideoMimeType(MimeTypes.VIDEO_H264)
-//            .setAudioMimeType(MimeTypes.AUDIO_AAC)
-//            .addListener(listener)
-//            .build()
-//            .start(mediaItem, outputVideoFile.absolutePath)
-//
-//    }
 }
 
 

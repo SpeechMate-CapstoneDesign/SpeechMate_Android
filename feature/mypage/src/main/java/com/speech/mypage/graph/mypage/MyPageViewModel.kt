@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.SpeechRepository
 import com.speech.mypage.graph.mypage.MyPageSideEffect.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +49,12 @@ class MyPageViewModel @Inject constructor(
     }
 
     private fun onDeleteClick(speechId: Int) = intent {
+        suspendRunCatching {
+            speechRepository.deleteSpeech(speechId)
+        }.onSuccess {
 
+        }.onFailure {
+            postSideEffect(ShowSnackbar("스피치 삭제에 실패했습니다."))
+        }
     }
 }

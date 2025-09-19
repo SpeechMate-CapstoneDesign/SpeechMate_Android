@@ -173,7 +173,13 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun onDeleteClick() = intent {
-
+        suspendRunCatching {
+            speechRepository.deleteSpeech(state.speechDetail.id)
+        }.onSuccess {
+            postSideEffect(FeedbackSideEffect.NavigateToBack)
+        }.onFailure {
+            postSideEffect(FeedbackSideEffect.ShowSnackbar("스피치 삭제에 실패했습니다."))
+        }
     }
 
     fun onDismissDropdownMenu() = intent {

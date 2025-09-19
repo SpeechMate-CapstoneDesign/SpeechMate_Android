@@ -90,6 +90,7 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse =
         speechMateApi.getScriptAnalysis(speechId).getData()
 
+    override suspend fun deleteSpeech(speechId: Int) = speechMateApi.deleteSpeech(speechId)
 }
 
 

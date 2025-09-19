@@ -29,4 +29,5 @@ interface SpeechRepository {
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysis
     suspend fun getVerbalAnalysis(speechId: Int)
     suspend fun getVideoAnalysis(speechId: Int)
+    suspend fun deleteSpeech(speechId: Int)
 }
