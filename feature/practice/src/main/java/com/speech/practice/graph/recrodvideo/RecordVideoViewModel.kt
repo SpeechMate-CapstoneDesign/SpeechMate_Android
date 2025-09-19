@@ -25,7 +25,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.speech.common.util.suspendRunCatching
-import com.speech.common_ui.util.MediaUtil
+import com.speech.practice.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.domain.model.upload.UploadFileStatus

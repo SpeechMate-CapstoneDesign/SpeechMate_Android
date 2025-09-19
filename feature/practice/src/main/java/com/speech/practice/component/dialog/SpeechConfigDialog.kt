@@ -1,4 +1,4 @@
-package com.speech.common_ui.ui.dialog
+package com.speech.practice.component.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.speech.common_ui.ui.SMOutlineButton
-import com.speech.common_ui.ui.SMOutlinedTextField
+import com.speech.designsystem.component.SMOutlineButton
+import com.speech.designsystem.component.SMOutlinedTextField
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.theme.SpeechMateTheme

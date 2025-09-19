@@ -150,6 +150,7 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+            is FeedbackIntent.OnMenuClick -> onMenuClick()
         }
     }
 
@@ -161,6 +162,12 @@ class FeedbackViewModel @Inject constructor(
             intent {
                 postSideEffect(FeedbackSideEffect.NavigateToBack)
             }
+        }
+    }
+
+    private fun onMenuClick() = intent {
+        reduce {
+            state.copy(showDropdownMenu = true)
         }
     }
 

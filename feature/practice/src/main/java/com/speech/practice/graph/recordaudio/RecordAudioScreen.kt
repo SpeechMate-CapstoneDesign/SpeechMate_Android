@@ -48,12 +48,12 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.BackButton
-import com.speech.common_ui.ui.SimpleCircle
-import com.speech.common_ui.ui.dialog.SpeechConfigDialog
-import com.speech.common_ui.ui.StrokeCircle
-import com.speech.common_ui.ui.StrokeRoundRectangle
-import com.speech.common_ui.ui.dialog.UploadFileDialog
+import com.speech.designsystem.component.BackButton
+import com.speech.designsystem.component.SimpleCircle
+import com.speech.practice.component.dialog.SpeechConfigDialog
+import com.speech.designsystem.component.StrokeCircle
+import com.speech.designsystem.component.StrokeRoundRectangle
+import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.DarkGray
@@ -63,8 +63,6 @@ import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
-import com.speech.domain.model.upload.UploadFileStatus
-import com.speech.practice.graph.feedback.FeedbackIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect

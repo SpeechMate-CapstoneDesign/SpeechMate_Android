@@ -1,4 +1,4 @@
-package com.speech.common_ui.ui
+package com.speech.designsystem.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.HorizontalDivider
