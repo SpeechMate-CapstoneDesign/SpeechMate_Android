@@ -54,6 +54,7 @@ import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.combinedClickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
+import com.speech.common_ui.util.rememberLazyListState
 import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
@@ -97,6 +98,7 @@ internal fun MyPageRoute(
                     snackbarHostState.showSnackbar(sideEffect.message)
                 }
             }
+
             is MyPageSideEffect.NavigateToSetting -> navigateToSetting()
             is MyPageSideEffect.NavigateToFeedback -> navigateToFeedBack(
                 sideEffect.speechId,
@@ -143,7 +145,9 @@ private fun MyPageScreen(
         refreshing = isRefreshing,
         onRefresh = {
             speechFeeds.refresh()
-        })
+        },
+    )
+    val listState = speechFeeds.rememberLazyListState()
 
     Box(
         modifier = Modifier
@@ -154,10 +158,11 @@ private fun MyPageScreen(
             refreshing = isRefreshing,
             state = pullRefreshState,
             contentColor = PrimaryDefault,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier.align(Alignment.TopCenter),
         )
 
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 20.dp, end = 20.dp, top = 48.dp),
@@ -204,9 +209,10 @@ private fun MyPageScreen(
 
         if (isRefreshing || isAppending) {
             CircularProgressIndicator(
-                color = PrimaryDefault, modifier = Modifier.align(
-                    if (isRefreshing) Alignment.Center else Alignment.BottomCenter
-                )
+                color = PrimaryDefault,
+                modifier = Modifier.align(
+                    if (isRefreshing) Alignment.Center else Alignment.BottomCenter,
+                ),
             )
         }
     }
