@@ -242,15 +242,15 @@ private fun FeedbackScreen(
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "발표 상황: ${config.speechType!!.label}",
+                                "발표 상황: ${config.speechType?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "청중: ${config.audience!!.label}",
+                                "청중: ${config.audience?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "발표 장소: ${config.venue!!.label}",
+                                "발표 장소: ${config.venue?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                         }
