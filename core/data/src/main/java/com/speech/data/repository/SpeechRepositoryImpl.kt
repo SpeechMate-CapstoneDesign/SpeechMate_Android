@@ -113,6 +113,8 @@ class SpeechRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun deleteSpeech(speechId: Int) = speechDataSource.deleteSpeech(speechId)
+
     companion object {
         private const val DEFAULT_PAGE_SIZE = 10
     }

@@ -13,6 +13,7 @@ data class FeedbackState(
     val playbackSpeed: Float = 1.0f,
     val currentPosition: Long = 0L,
     val duration: Long = 0L,
+    val showDropdownMenu: Boolean = false,
 ) : UiState {
     val progress: Float
         get() = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
@@ -46,6 +47,8 @@ sealed class FeedbackIntent : UiIntent {
     data object PausePlaying : FeedbackIntent()
     data class SeekTo(val position: Long) : FeedbackIntent()
     data class ChangePlaybackSpeed(val speed: Float) : FeedbackIntent()
+    data object OnMenuClick : FeedbackIntent()
+    data object OnDeleteClick : FeedbackIntent()
 }
 
 sealed interface FeedbackSideEffect : UiSideEffect {

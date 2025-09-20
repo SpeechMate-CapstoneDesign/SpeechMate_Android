@@ -1,6 +1,7 @@
 package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -12,17 +13,19 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,19 +42,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.BackButton
-import com.speech.common_ui.ui.SectionDivider
-import com.speech.common_ui.ui.SpeechMateTab
+import com.speech.designsystem.component.BackButton
+import com.speech.designsystem.component.SectionDivider
+import com.speech.designsystem.component.SpeechMateTab
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.CheckCancelDialog
+import com.speech.designsystem.component.SMDropDownMenu
+import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.LightGray
 import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
@@ -60,7 +69,6 @@ import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
-import com.speech.practice.graph.recrodvideo.RecordVideoIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -118,6 +126,13 @@ internal fun FeedbackRoute(
         onChangePlaybackSpeed = { speed ->
             viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
+        onMenuClick = {
+            viewModel.onIntent(FeedbackIntent.OnMenuClick)
+        },
+        onDeleteClick = {
+            viewModel.onIntent(FeedbackIntent.OnDeleteClick)
+        },
+        onDismissDropDownMenu = viewModel::onDismissDropdownMenu,
     )
 }
 
@@ -131,7 +146,21 @@ private fun FeedbackScreen(
     onPausePlaying: () -> Unit,
     onSeekTo: (Long) -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
+    onMenuClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onDismissDropDownMenu: () -> Unit,
 ) {
+    var showDeleteDg by remember { mutableStateOf(false) }
+    if (showDeleteDg) {
+        CheckCancelDialog(
+            onCheck = {
+                onDeleteClick()
+            },
+            onDismiss = { showDeleteDg = false },
+            content = "정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.",
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -213,15 +242,15 @@ private fun FeedbackScreen(
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "발표 상황: ${config.speechType!!.label}",
+                                "발표 상황: ${config.speechType?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "청중: ${config.audience!!.label}",
+                                "청중: ${config.audience?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
-                                "발표 장소: ${config.venue!!.label}",
+                                "발표 장소: ${config.venue?.label ?: ""}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                         }
@@ -282,7 +311,7 @@ private fun FeedbackScreen(
                                     style = SpeechMateTheme.typography.bodyXMM,
                                 )
                             } else {
-                                Column() {
+                                Column {
                                     val analysis = state.speechDetail.scriptAnalysis!!
                                     Text(
                                         text = "키워드",
@@ -325,12 +354,12 @@ private fun FeedbackScreen(
                                     Spacer(Modifier.height(5.dp))
 
                                     Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         analysis.improvementPoints.forEach { point ->
                                             Text(
                                                 text = point,
-                                                style = SpeechMateTheme.typography.bodyXMM
+                                                style = SpeechMateTheme.typography.bodyXMM,
                                             )
                                         }
                                     }
@@ -367,12 +396,12 @@ private fun FeedbackScreen(
                                     Spacer(Modifier.height(5.dp))
 
                                     Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         analysis.expectedQuestions.forEach { question ->
                                             Text(
                                                 text = question,
-                                                style = SpeechMateTheme.typography.bodyXMM
+                                                style = SpeechMateTheme.typography.bodyXMM,
                                             )
                                         }
                                     }
@@ -394,7 +423,7 @@ private fun FeedbackScreen(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 5.dp),
+            .padding(start = 5.dp, end = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
@@ -403,7 +432,37 @@ private fun FeedbackScreen(
 
         Spacer(Modifier.width(5.dp))
 
-        Text(state.speechDetail.speechConfig.fileName, style = SpeechMateTheme.typography.headingSB)
+        Text(
+            state.speechDetail.speechConfig.fileName,
+            style = SpeechMateTheme.typography.headingSB,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        Box {
+            Image(
+                painter = painterResource(R.drawable.menu_ic),
+                contentDescription = "메뉴",
+                modifier = Modifier.clickable(isRipple = true) {
+                    onMenuClick()
+                },
+            )
+
+            SMDropDownMenu(
+                expanded = state.showDropdownMenu,
+                onDismiss = onDismissDropDownMenu,
+                alignment = Alignment.TopEnd,
+                offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
+                items = listOf(
+                    SMDropdownMenuItem(
+                        labelRes = R.string.delete,
+                        action = { showDeleteDg = true },
+                    ),
+                ),
+            )
+        }
     }
 }
 
@@ -536,6 +595,9 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onPausePlaying = {},
         onSeekTo = {},
         onChangePlaybackSpeed = {},
+        onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -560,6 +622,9 @@ private fun FeedbackScreenScriptPreview() {
         onPausePlaying = {},
         onSeekTo = {},
         onChangePlaybackSpeed = {},
+        onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -582,6 +647,9 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onPausePlaying = {},
         onSeekTo = {},
         onChangePlaybackSpeed = {},
+        onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -604,6 +672,9 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onPausePlaying = {},
         onSeekTo = {},
         onChangePlaybackSpeed = {},
+        onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }
 
@@ -626,5 +697,8 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onPausePlaying = {},
         onSeekTo = {},
         onChangePlaybackSpeed = {},
+        onMenuClick = {},
+        onDeleteClick = {},
+        onDismissDropDownMenu = {},
     )
 }

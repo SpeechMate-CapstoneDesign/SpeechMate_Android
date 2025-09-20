@@ -150,6 +150,8 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+            is FeedbackIntent.OnMenuClick -> onMenuClick()
+            is FeedbackIntent.OnDeleteClick -> onDeleteClick()
         }
     }
 
@@ -161,6 +163,28 @@ class FeedbackViewModel @Inject constructor(
             intent {
                 postSideEffect(FeedbackSideEffect.NavigateToBack)
             }
+        }
+    }
+
+    private fun onMenuClick() = intent {
+        reduce {
+            state.copy(showDropdownMenu = true)
+        }
+    }
+
+    private fun onDeleteClick() = intent {
+        suspendRunCatching {
+            speechRepository.deleteSpeech(state.speechDetail.id)
+        }.onSuccess {
+            postSideEffect(FeedbackSideEffect.NavigateToBack)
+        }.onFailure {
+            postSideEffect(FeedbackSideEffect.ShowSnackbar("스피치 삭제에 실패했습니다."))
+        }
+    }
+
+    fun onDismissDropdownMenu() = intent {
+        reduce {
+            state.copy(showDropdownMenu = false)
         }
     }
 

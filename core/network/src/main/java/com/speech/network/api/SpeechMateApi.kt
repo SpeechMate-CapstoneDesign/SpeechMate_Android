@@ -15,6 +15,7 @@ import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
 import com.speech.network.model.speech.UploadSpeechCallbackResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -63,6 +64,9 @@ interface SpeechMateApi {
 
     @POST("/api/speech/analyze/{speechId}")
     suspend fun getScriptAnalysis(@Path("speechId") speechId: Int): ApiResponse<ScriptAnalysisResponse>
+
+    @DELETE("/api/speech/delete/{speechId}")
+    suspend fun deleteSpeech(@Path("speechId") speechId: Int)
 
 //    @GET("/api/speech/{speechId}/speechConfig")
 //    suspend fun getSpeechConfig(@Path("speechId") speechId: Int): ApiResponse<GetSpeechConfigResponse>

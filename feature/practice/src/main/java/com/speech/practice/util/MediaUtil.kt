@@ -1,18 +1,13 @@
-package com.speech.common_ui.util
+package com.speech.practice.util
 
-import android.content.ContentResolver
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.annotation.WorkerThread
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
-import com.speech.domain.model.speech.SpeechFileRule.MAX_FILE_SIZE_BYTES
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileType
-import java.io.File
-import java.io.IOException
 
 object MediaUtil {
     @WorkerThread

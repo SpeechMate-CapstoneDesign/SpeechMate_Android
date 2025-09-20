@@ -20,7 +20,7 @@ import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.TransformationRequest
 import androidx.media3.transformer.Transformer
 import com.speech.common.util.suspendRunCatching
-import com.speech.common_ui.util.MediaUtil
+import com.speech.practice.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileRule.MAX_DURATION_MS
 import com.speech.domain.model.speech.SpeechFileRule.MIN_DURATION_MS
@@ -101,43 +101,6 @@ class PracticeViewModel @Inject constructor(
         }
     }
 
-//    @OptIn(UnstableApi::class)
-//    private fun changeVideoResolution(
-//        inputVideoUri: Uri,
-//        outputVideoFile: File,
-//        targetHeight: Int = 480,
-//        onResult: (resultUri: Uri?) -> Unit,
-//    ) {
-//        val listener = object : Transformer.Listener {
-//            override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-//                onResult(Uri.fromFile(outputVideoFile))
-//            }
-//
-//            override fun onError(
-//                composition: Composition,
-//                exportResult: ExportResult,
-//                exportException: ExportException,
-//            ) {
-//                Log.e("PracticeViewModel", "Video transformation failed.", exportException)
-//            }
-//        }
-//
-//        val mediaItem = EditedMediaItem.Builder(MediaItem.fromUri(inputVideoUri))
-//            .setEffects(
-//                Effects(
-//                    emptyList(),
-//                    listOf(Presentation.createForHeight(targetHeight)),
-//                ),
-//            ).build()
-//
-//        Transformer.Builder(context)
-//            .setVideoMimeType(MimeTypes.VIDEO_H264)
-//            .setAudioMimeType(MimeTypes.AUDIO_AAC)
-//            .addListener(listener)
-//            .build()
-//            .start(mediaItem, outputVideoFile.absolutePath)
-//
-//    }
 }
 
 

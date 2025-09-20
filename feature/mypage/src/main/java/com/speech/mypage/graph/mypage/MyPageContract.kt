@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.emptyFlow
 
 data class MyPageState(
     val speechFeeds: Flow<PagingData<SpeechFeed>> = emptyFlow(),
+    val showDropDownMenu: Boolean = false,
 ) : UiState
 
 sealed class MyPageIntent : UiIntent {
@@ -26,9 +27,12 @@ sealed class MyPageIntent : UiIntent {
         val speechFileType: SpeechFileType,
         val speechConfig: SpeechConfig,
     ) : MyPageIntent()
+
+    data class OnDeleteClick(val speechId: Int) : MyPageIntent()
 }
 
 sealed interface MyPageSideEffect : UiSideEffect {
+    data class ShowSnackbar(val message: String) : MyPageSideEffect
     data object NavigateToSetting : MyPageSideEffect
     data class NavigateToFeedback(
         val speechId: Int,
