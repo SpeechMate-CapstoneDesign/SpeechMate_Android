@@ -328,7 +328,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.speechType!!.label,
+                        text = speechFeed.speechConfig.speechType?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
@@ -346,7 +346,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.audience!!.label,
+                        text = speechFeed.speechConfig.audience?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
@@ -364,7 +364,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.venue!!.label,
+                        text = speechFeed.speechConfig.venue?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
