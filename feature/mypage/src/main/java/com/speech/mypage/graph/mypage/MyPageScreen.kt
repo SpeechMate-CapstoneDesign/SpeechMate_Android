@@ -1,5 +1,11 @@
 package com.speech.mypage.graph.mypage
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -86,10 +92,6 @@ internal fun MyPageRoute(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.getSpeechFeeds()
-    }
-
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MyPageSideEffect.ShowSnackbar -> {
@@ -112,6 +114,7 @@ internal fun MyPageRoute(
     MyPageScreen(
         state = state,
         onSettingClick = { viewModel.onIntent(MyPageIntent.OnSettingClick) },
+        onRefresh = viewModel::onRefresh,
         onSpeechClick = { speechId, fileUrl, speechFileType, speechConfig ->
             viewModel.onIntent(
                 MyPageIntent.OnSpeechClick(
@@ -135,6 +138,7 @@ internal fun MyPageRoute(
 private fun MyPageScreen(
     state: MyPageState,
     onSettingClick: () -> Unit,
+    onRefresh: () -> Unit,
     onSpeechClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     onDeleteSpeech: (Int) -> Unit,
 ) {
@@ -145,6 +149,7 @@ private fun MyPageScreen(
         refreshing = isRefreshing,
         onRefresh = {
             speechFeeds.refresh()
+            onRefresh()
         },
     )
     val listState = speechFeeds.rememberLazyListState()
@@ -155,7 +160,7 @@ private fun MyPageScreen(
             .pullRefresh(pullRefreshState),
     ) {
         PullRefreshIndicator(
-            refreshing = isRefreshing,
+            refreshing = false,
             state = pullRefreshState,
             contentColor = PrimaryDefault,
             modifier = Modifier.align(Alignment.TopCenter),
@@ -172,6 +177,7 @@ private fun MyPageScreen(
                     "나의 스피치",
                     style = SpeechMateTheme.typography.headingMB,
                 )
+
                 Spacer(Modifier.height(20.dp))
             }
 
@@ -180,8 +186,14 @@ private fun MyPageScreen(
                 key = { index -> speechFeeds[index]?.id ?: index },
             ) { index ->
                 speechFeeds[index]?.let {
-                    SpeechFeed(speechFeed = it, onClick = onSpeechClick, onDelete = onDeleteSpeech)
-
+                    SpeechFeed(
+                        speechFeed = it, onClick = onSpeechClick, onDelete = onDeleteSpeech,
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing),
+                            placementSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
+                            fadeOutSpec = tween(durationMillis = 400, easing = FastOutLinearInEasing),
+                        ),
+                    )
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -220,6 +232,7 @@ private fun MyPageScreen(
 
 @Composable
 private fun SpeechFeed(
+    modifier: Modifier = Modifier,
     speechFeed: SpeechFeed,
     onClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     onDelete: (Int) -> Unit,
@@ -228,7 +241,7 @@ private fun SpeechFeed(
     var showDeleteDg by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(1.dp, PrimaryDefault, RoundedCornerShape(8.dp))
             .combinedClickable(
@@ -315,7 +328,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.speechType!!.label,
+                        text = speechFeed.speechConfig.speechType?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
@@ -333,7 +346,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.audience!!.label,
+                        text = speechFeed.speechConfig.audience?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
@@ -351,7 +364,7 @@ private fun SpeechFeed(
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.venue!!.label,
+                        text = speechFeed.speechConfig.venue?.label ?: "",
                         style = SpeechMateTheme.typography.bodySM,
                         color = Color.Gray,
                     )
@@ -470,5 +483,6 @@ private fun MyPageScreenPreview() {
         onSettingClick = {},
         onSpeechClick = { _, _, _, _ -> },
         onDeleteSpeech = {},
+        onRefresh = {},
     )
 }

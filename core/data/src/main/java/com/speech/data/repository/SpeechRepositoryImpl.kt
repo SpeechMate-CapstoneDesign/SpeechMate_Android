@@ -19,15 +19,27 @@ import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.domain.repository.SpeechRepository
 import com.speech.network.source.speech.SpeechDataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.io.File
 import java.io.FileInputStream
 import javax.inject.Inject
+import com.speech.domain.repository.SpeechRepository.SpeechUpdateEvent
 
 class SpeechRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechDataSource: SpeechDataSource,
 ) : SpeechRepository {
+    private val _speechUpdateEvents = MutableSharedFlow<SpeechUpdateEvent>(
+        replay = 1,
+        extraBufferCapacity = 4,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    override val speechUpdateEvents: SharedFlow<SpeechUpdateEvent> = _speechUpdateEvents.asSharedFlow()
+
     override suspend fun uploadFromUri(
         uriString: String,
         speechConfig: SpeechConfig,
@@ -50,13 +62,14 @@ class SpeechRepositoryImpl @Inject constructor(
             }
 
             speechDataSource.uploadSpeechFile(uri, presignedUrl, mimeType, onProgressUpdate)
-
             val response = speechDataSource.uploadSpeechCallback(key, duration)
-
             speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
+
+            _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
             return Pair(response.speechId, response.fileUrl)
         } finally {
+
             contentResolver.releasePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION,
@@ -82,6 +95,8 @@ class SpeechRepositoryImpl @Inject constructor(
         speechDataSource.uploadSpeechFile(file, presignedUrl, mimeType, onProgressUpdate)
         val response = speechDataSource.uploadSpeechCallback(key, duration)
         speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
+
+        _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
         return Pair(response.speechId, response.fileUrl)
     }
@@ -113,7 +128,10 @@ class SpeechRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun deleteSpeech(speechId: Int) = speechDataSource.deleteSpeech(speechId)
+    override suspend fun deleteSpeech(speechId: Int) {
+        speechDataSource.deleteSpeech(speechId)
+        _speechUpdateEvents.tryEmit(SpeechUpdateEvent.SpeechDeleted(speechId))
+    }
 
     companion object {
         private const val DEFAULT_PAGE_SIZE = 10
