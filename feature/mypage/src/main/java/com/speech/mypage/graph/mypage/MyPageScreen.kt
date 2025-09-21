@@ -147,6 +147,7 @@ private fun MyPageScreen(
         refreshing = isRefreshing,
         onRefresh = {
             speechFeeds.refresh()
+            onRefresh()
         },
     )
     val listState = speechFeeds.rememberLazyListState()
@@ -157,7 +158,7 @@ private fun MyPageScreen(
             .pullRefresh(pullRefreshState),
     ) {
         PullRefreshIndicator(
-            refreshing = isRefreshing,
+            refreshing = false,
             state = pullRefreshState,
             contentColor = PrimaryDefault,
             modifier = Modifier.align(Alignment.TopCenter),
