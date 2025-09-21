@@ -86,10 +86,6 @@ internal fun MyPageRoute(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.getSpeechFeeds()
-    }
-
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MyPageSideEffect.ShowSnackbar -> {

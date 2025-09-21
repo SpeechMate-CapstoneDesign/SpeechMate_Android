@@ -23,10 +23,26 @@ class MyPageViewModel @Inject constructor(
 ) : ContainerHost<MyPageState, MyPageSideEffect>, ViewModel() {
     override val container = container<MyPageState, MyPageSideEffect>(MyPageState())
 
+    init {
+        intent {
+            speechRepository.speechUpdateEvents.collect { event ->
+                when (event) {
+                    is SpeechRepository.SpeechUpdateEvent.SpeechAdded -> getSpeechFeeds()
+                    is SpeechRepository.SpeechUpdateEvent.SpeechDeleted -> {
+                        Log.d("speechUpdateEvent", "speech deleted: ${event.speechId})")
+                        deletedSpeechIds.value += event.speechId
+                    }
+                }
+            }
+        }
+
+        getSpeechFeeds()
+    }
+
     fun onIntent(event: MyPageIntent) {
         when (event) {
             is MyPageIntent.OnSettingClick -> intent {
-                postSideEffect(MyPageSideEffect.NavigateToSetting)
+                postSideEffect(NavigateToSetting)
             }
 
             is MyPageIntent.OnSpeechClick -> intent {
@@ -63,7 +79,7 @@ class MyPageViewModel @Inject constructor(
         }
     }
 
-    fun onRefresh()  {
+    fun onRefresh() {
         deletedSpeechIds.value = emptySet()
     }
 

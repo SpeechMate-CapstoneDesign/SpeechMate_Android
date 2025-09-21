@@ -7,9 +7,11 @@ import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFeed
 import com.speech.domain.model.upload.UploadFileStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlin.Pair
 
 interface SpeechRepository {
+    val speechUpdateEvents: SharedFlow<SpeechUpdateEvent>
     suspend fun uploadFromUri(
         uriString: String,
         speechConfig: SpeechConfig,
@@ -30,4 +32,8 @@ interface SpeechRepository {
     suspend fun getVerbalAnalysis(speechId: Int)
     suspend fun getVideoAnalysis(speechId: Int)
     suspend fun deleteSpeech(speechId: Int)
+    sealed class SpeechUpdateEvent {
+        data class SpeechDeleted(val speechId: Int) : SpeechUpdateEvent()
+        data object SpeechAdded : SpeechUpdateEvent()
+    }
 }
