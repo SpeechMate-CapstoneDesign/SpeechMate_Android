@@ -112,6 +112,7 @@ internal fun MyPageRoute(
     MyPageScreen(
         state = state,
         onSettingClick = { viewModel.onIntent(MyPageIntent.OnSettingClick) },
+        onRefresh = viewModel::onRefresh,
         onSpeechClick = { speechId, fileUrl, speechFileType, speechConfig ->
             viewModel.onIntent(
                 MyPageIntent.OnSpeechClick(
@@ -135,6 +136,7 @@ internal fun MyPageRoute(
 private fun MyPageScreen(
     state: MyPageState,
     onSettingClick: () -> Unit,
+    onRefresh : () -> Unit,
     onSpeechClick: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     onDeleteSpeech: (Int) -> Unit,
 ) {
@@ -470,5 +472,6 @@ private fun MyPageScreenPreview() {
         onSettingClick = {},
         onSpeechClick = { _, _, _, _ -> },
         onDeleteSpeech = {},
+        onRefresh = {}
     )
 }
