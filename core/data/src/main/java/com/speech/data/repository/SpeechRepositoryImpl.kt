@@ -69,7 +69,7 @@ class SpeechRepositoryImpl @Inject constructor(
 
             return Pair(response.speechId, response.fileUrl)
         } finally {
-            _speechUpdateEvents.tryEmit(SpeechUpdateEvent.SpeechAdded)
+            _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
             contentResolver.releasePersistableUriPermission(
                 uri,
@@ -97,7 +97,7 @@ class SpeechRepositoryImpl @Inject constructor(
         val response = speechDataSource.uploadSpeechCallback(key, duration)
         speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
 
-        _speechUpdateEvents.tryEmit(SpeechUpdateEvent.SpeechAdded)
+        _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
         return Pair(response.speechId, response.fileUrl)
     }
