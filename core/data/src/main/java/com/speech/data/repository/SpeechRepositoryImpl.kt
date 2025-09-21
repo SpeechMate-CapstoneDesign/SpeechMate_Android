@@ -62,14 +62,13 @@ class SpeechRepositoryImpl @Inject constructor(
             }
 
             speechDataSource.uploadSpeechFile(uri, presignedUrl, mimeType, onProgressUpdate)
-
             val response = speechDataSource.uploadSpeechCallback(key, duration)
-
             speechDataSource.updateSpeechConfig(response.speechId, speechConfig)
+
+            _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
             return Pair(response.speechId, response.fileUrl)
         } finally {
-            _speechUpdateEvents.emit(SpeechUpdateEvent.SpeechAdded)
 
             contentResolver.releasePersistableUriPermission(
                 uri,
