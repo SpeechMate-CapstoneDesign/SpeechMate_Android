@@ -12,9 +12,9 @@ data class SpeechDetail(
     val script: String = "",
     val scriptAnalysis: ScriptAnalysis = ScriptAnalysis(),
     val verbalAnalysis: VerbalAnalysis = VerbalAnalysis(),
-    val nonVerbalAnalysis: NonVerbalAnalysis = NonVerbalAnalysis(),
+    val nonVerbalAnalysis: String = "",
 ) {
-    val fornattedTime: String =
+    val formattedDate: String =
         createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"))
 }
 
@@ -24,16 +24,6 @@ data class ScriptAnalysis(
     val improvementPoints: List<String> = emptyList(),
     val feedback: String = "",
     val expectedQuestions: List<String> = emptyList(),
-    val isLoading: Boolean = true,
-    val isError: Boolean = false,
 )
 
-data class VerbalAnalysis(
-    val isLoading: Boolean = true,
-    val score: Int = 0,
-)
 
-data class NonVerbalAnalysis(
-    val isLoading: Boolean = true,
-    val score: Int = 0,
-)

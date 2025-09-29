@@ -13,6 +13,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.milliseconds
 
 @Serializable
 data class GetSpeechFeedResponse(
@@ -27,7 +28,7 @@ data class GetSpeechFeedResponse(
 data class SpeechFeedResult(
     val id: Int,
     val createdAt: LocalDateTime,
-    val duration : Long,
+    val duration : Int,
     val fileType: String,
     val fileUrl: String,
     val title: String,
@@ -38,7 +39,7 @@ data class SpeechFeedResult(
     fun toDomain(): SpeechFeed = SpeechFeed(
         id = id,
         date = date,
-        fileLength = duration,
+        fileLength = duration.milliseconds,
         fileUrl = fileUrl,
         speechFileType = SpeechFileType.fromString(fileType),
         speechConfig = SpeechConfig(

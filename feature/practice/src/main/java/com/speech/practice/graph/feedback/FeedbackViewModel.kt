@@ -28,6 +28,9 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
@@ -64,18 +67,18 @@ class FeedbackViewModel @Inject constructor(
                         reduce {
                             state.copy(
                                 playingState = PlayingState.Ready,
-                                currentPosition = 0L,
+                                playerState = state.playerState.copy(currentPosition = 0.seconds),
                             )
                         }
                     }
                 }
 
                 Player.STATE_READY -> {
-                    val duration = _exoPlayer?.duration ?: 0L
+                    val duration = _exoPlayer?.duration ?: 0
                     intent {
                         reduce {
                             state.copy(
-                                duration = duration,
+                                playerState = state.playerState.copy(duration = duration.milliseconds),
                                 playingState = PlayingState.Ready,
                             )
                         }
@@ -134,9 +137,7 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
-        // getSpeechConfig()
         getScript()
-        getAudioAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
             getVideoAnalysis()
         }
@@ -197,7 +198,7 @@ class FeedbackViewModel @Inject constructor(
 
                     intent {
                         reduce {
-                            state.copy(currentPosition = currentPosition)
+                            state.copy(playerState = state.playerState.copy(currentPosition = currentPosition.milliseconds))
                         }
                     }
                 }
@@ -229,7 +230,7 @@ class FeedbackViewModel @Inject constructor(
         _exoPlayer?.seekTo(position)
         intent {
             reduce {
-                state.copy(currentPosition = position)
+                state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
             }
         }
     }
@@ -238,7 +239,7 @@ class FeedbackViewModel @Inject constructor(
         _exoPlayer?.setPlaybackSpeed(speed)
         intent {
             reduce {
-                state.copy(playbackSpeed = speed)
+                state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
             }
         }
     }
@@ -260,12 +261,19 @@ class FeedbackViewModel @Inject constructor(
             }
 
             getScriptAnalysis()
+            getVerbalAnalysis()
         }.onFailure {
             reduce {
                 state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )) + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
                     speechDetail = state.speechDetail.copy(
                         script = "대본을 불러오는데 실패했습니다.",
-                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }
@@ -278,27 +286,51 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.getScriptAnalysis(state.speechDetail.id)
         }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis),
+                )
             }
         }.onFailure {
             reduce {
                 state.copy(
-                    speechDetail = state.speechDetail.copy(
-                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
-                    ),
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
                 )
             }
         }
     }
 
 
-    private fun getAudioAnalysis() = intent {
+    private fun getVerbalAnalysis() = intent {
         suspendRunCatching {
-
+            speechRepository.getVerbalAnalysis(state.speechDetail.id)
         }.onSuccess {
-
+            reduce {
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(
+                        verbalAnalysis = it,
+                    ),
+                )
+            }
         }.onFailure {
-
+            reduce {
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
+                )
+            }
         }
     }
 

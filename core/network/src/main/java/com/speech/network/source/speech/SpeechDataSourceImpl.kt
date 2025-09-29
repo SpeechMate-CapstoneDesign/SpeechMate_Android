@@ -13,8 +13,8 @@ import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
-import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
+import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
@@ -75,9 +75,9 @@ class SpeechDataSourceImpl @Inject constructor(
             updateSpeechConfigRequest =
                 UpdateSpeechConfigRequest(
                     title = speechConfig.fileName,
-                    presentationContext = speechConfig.speechType!!.name,
-                    audience = speechConfig.audience!!.name,
-                    location = speechConfig.venue!!.name,
+                    presentationContext = speechConfig.speechType?.name ?: "",
+                    audience = speechConfig.audience?.name ?: "",
+                    location = speechConfig.venue?.name ?: "",
                 ),
         ).getData()
 
@@ -89,6 +89,9 @@ class SpeechDataSourceImpl @Inject constructor(
 
     override suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse =
         speechMateApi.getScriptAnalysis(speechId).getData()
+
+    override suspend fun getVerbalAnalysis(speechId: Int): GetVerbalAnalysisResponse =
+        speechMateApi.getVerbalAnalysis(speechId).getData()
 
     override suspend fun deleteSpeech(speechId: Int) = speechMateApi.deleteSpeech(speechId)
 }

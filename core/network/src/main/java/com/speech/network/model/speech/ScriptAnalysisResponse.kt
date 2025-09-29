@@ -19,8 +19,6 @@ data class ScriptAnalysisResponse(
             improvementPoints = improvementPoints,
             feedback = feedback,
             expectedQuestions = expectedQuestions,
-            isLoading = false,
-            isError = false,
         )
     }
 }

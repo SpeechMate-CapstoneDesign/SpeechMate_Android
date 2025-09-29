@@ -1,13 +1,18 @@
 package com.speech.domain.model.upload
 
 import java.util.Locale
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class UploadFileStatus(
-    val progress: Float = 0f,
-    val elapsedSeconds: Long = 0L,
+    val elapsedSeconds: Duration = 0.seconds,
     val currentBytes: Long = 0,
-    val totalBytes: Long = 0
+    val totalBytes: Long = 0,
 ) {
+    val progress =
+        if (totalBytes <= 0) 0f
+        else 100f * (currentBytes.toFloat() / totalBytes.toFloat())
+
     val formattedBytes: String
         get() = "${formatBytes(currentBytes)} / ${formatBytes(totalBytes)}"
 

@@ -100,7 +100,6 @@ class PracticeViewModel @Inject constructor(
             state.copy(uploadFileStatus = status)
         }
     }
-
 }
 
 

@@ -17,6 +17,8 @@ import okio.buffer
 import okio.source
 import java.io.File
 import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal class FileRequestBody(
     private val file: File,
@@ -34,12 +36,10 @@ internal class FileRequestBody(
         val startTime = System.currentTimeMillis()
         val countingSource = CountingSource(source) { bytesWritten ->
             if (contentLength > 0) {
-                val progress = (100 * bytesWritten / contentLength).toFloat()
-                val elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000
+                val elapsedTimeMills = System.currentTimeMillis() - startTime
                 listener(
                     UploadFileStatus(
-                        progress = progress,
-                        elapsedSeconds = elapsedSeconds,
+                        elapsedSeconds = elapsedTimeMills.milliseconds,
                         currentBytes = bytesWritten,
                         totalBytes = contentLength,
                     ),
@@ -77,13 +77,11 @@ internal class UriRequestBody(
 
         val startTime = System.currentTimeMillis()
         val countingSource = CountingSource(source) { bytesWritten ->
-            val elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000
+            val elapsedTimeMills = System.currentTimeMillis() - startTime
             if (contentLength > 0) {
-                val progress = (100 * bytesWritten / contentLength).toFloat()
                 listener(
                     UploadFileStatus(
-                        progress = progress,
-                        elapsedSeconds = elapsedSeconds,
+                        elapsedSeconds = elapsedTimeMills.milliseconds,
                         currentBytes = bytesWritten,
                         totalBytes = contentLength,
                     ),
@@ -101,7 +99,6 @@ private class CountingSource(
     delegate: Source,
     private val onProgressUpdate: (bytesRead: Long) -> Unit,
 ) : ForwardingSource(delegate) {
-
     private var totalBytesRead = 0L
 
     @Throws(IOException::class)

@@ -52,12 +52,12 @@ class RecordVideoViewModel @Inject constructor(
 ) : ContainerHost<RecordVideoState, RecordVideoSideEffect>, ViewModel() {
     override val container = container<RecordVideoState, RecordVideoSideEffect>(RecordVideoState())
 
-    // CameraX 관련 객체들
+    // CameraX
     private var cameraProvider: ProcessCameraProvider? = null
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
 
-    // Recording에 필요
+    // Recording 관련
     private var recordDuration = 0L
     private var timerJob: Job? = null
 
