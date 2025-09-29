@@ -13,8 +13,8 @@ import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
-import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
+import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
@@ -32,7 +32,7 @@ import java.io.File
 import java.io.IOException
 
 class SpeechDataSourceImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @field:ApplicationContext private val context: Context,
     private val speechMateApi: SpeechMateApi,
     private val s3Api: S3Api,
 ) : SpeechDataSource {
@@ -89,6 +89,9 @@ class SpeechDataSourceImpl @Inject constructor(
 
     override suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse =
         speechMateApi.getScriptAnalysis(speechId).getData()
+
+    override suspend fun getVerbalAnalysis(speechId: Int): GetVerbalAnalysisResponse =
+        speechMateApi.getVerbalAnalysis(speechId).getData()
 
     override suspend fun deleteSpeech(speechId: Int) = speechMateApi.deleteSpeech(speechId)
 }

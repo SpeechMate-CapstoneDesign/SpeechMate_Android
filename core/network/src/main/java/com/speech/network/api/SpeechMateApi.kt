@@ -8,8 +8,8 @@ import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
-import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
+import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
 import com.speech.network.model.speech.ScriptResponse
 import com.speech.network.model.speech.UpdateSpeechConfigRequest
@@ -59,15 +59,15 @@ interface SpeechMateApi {
     @PUT("/api/speech/metadata/{speechId}")
     suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
 
-    @POST("/api/speech/Whisperstt3/{speechId}")
+    @POST("/api/speech/rtzrstt/{speechId}")
     suspend fun getScript(@Path("speechId") speechId: Int): ApiResponse<ScriptResponse>
 
     @POST("/api/speech/analyze/{speechId}")
     suspend fun getScriptAnalysis(@Path("speechId") speechId: Int): ApiResponse<ScriptAnalysisResponse>
 
+    @GET("/api/speech/{speechId}/verbalAnalysis")
+    suspend fun getVerbalAnalysis(@Path("speechId") speechId: Int) : ApiResponse<GetVerbalAnalysisResponse>
+
     @DELETE("/api/speech/delete/{speechId}")
     suspend fun deleteSpeech(@Path("speechId") speechId: Int)
-
-//    @GET("/api/speech/{speechId}/speechConfig")
-//    suspend fun getSpeechConfig(@Path("speechId") speechId: Int): ApiResponse<GetSpeechConfigResponse>
 }

@@ -64,7 +64,7 @@ class FeedbackViewModel @Inject constructor(
                         reduce {
                             state.copy(
                                 playingState = PlayingState.Ready,
-                                currentPosition = 0L,
+                                playerState = state.playerState.copy(currentPosition = 0L),
                             )
                         }
                     }
@@ -75,7 +75,7 @@ class FeedbackViewModel @Inject constructor(
                     intent {
                         reduce {
                             state.copy(
-                                duration = duration,
+                                playerState = state.playerState.copy(duration = duration),
                                 playingState = PlayingState.Ready,
                             )
                         }
@@ -134,9 +134,8 @@ class FeedbackViewModel @Inject constructor(
             }
         }
 
-        // getSpeechConfig()
         getScript()
-        getAudioAnalysis()
+        getVerbalAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
             getVideoAnalysis()
         }
@@ -197,7 +196,7 @@ class FeedbackViewModel @Inject constructor(
 
                     intent {
                         reduce {
-                            state.copy(currentPosition = currentPosition)
+                            state.copy(playerState = state.playerState.copy(currentPosition = currentPosition))
                         }
                     }
                 }
@@ -229,7 +228,7 @@ class FeedbackViewModel @Inject constructor(
         _exoPlayer?.seekTo(position)
         intent {
             reduce {
-                state.copy(currentPosition = position)
+                state.copy(playerState = state.playerState.copy(currentPosition = position))
             }
         }
     }
@@ -238,7 +237,7 @@ class FeedbackViewModel @Inject constructor(
         _exoPlayer?.setPlaybackSpeed(speed)
         intent {
             reduce {
-                state.copy(playbackSpeed = speed)
+                state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
             }
         }
     }
@@ -263,9 +262,15 @@ class FeedbackViewModel @Inject constructor(
         }.onFailure {
             reduce {
                 state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )) + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
                     speechDetail = state.speechDetail.copy(
                         script = "대본을 불러오는데 실패했습니다.",
-                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
                     ),
                 )
             }
@@ -283,22 +288,36 @@ class FeedbackViewModel @Inject constructor(
         }.onFailure {
             reduce {
                 state.copy(
-                    speechDetail = state.speechDetail.copy(
-                        scriptAnalysis = state.speechDetail.scriptAnalysis.copy(isLoading = false, isError = true),
-                    ),
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
                 )
             }
         }
     }
 
 
-    private fun getAudioAnalysis() = intent {
+    private fun getVerbalAnalysis() = intent {
         suspendRunCatching {
-
+            speechRepository.getVerbalAnalysis(state.speechDetail.id)
         }.onSuccess {
-
+            reduce {
+                state.copy(
+                    speechDetail = state.speechDetail.copy(
+                        verbalAnalysis = it
+                    )
+                )
+            }
         }.onFailure {
-
+            reduce {
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
+                )
+            }
         }
     }
 

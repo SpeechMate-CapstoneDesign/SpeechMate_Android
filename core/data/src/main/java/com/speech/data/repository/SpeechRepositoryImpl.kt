@@ -15,6 +15,7 @@ import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFeed
+import com.speech.domain.model.speech.VerbalAnalysis
 import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.domain.repository.SpeechRepository
 import com.speech.network.source.speech.SpeechDataSource
@@ -120,9 +121,8 @@ class SpeechRepositoryImpl @Inject constructor(
         speechDataSource.getScriptAnalysis(speechId).toDomain()
 
 
-    override suspend fun getVerbalAnalysis(speechId: Int) {
-
-    }
+    override suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis =
+        speechDataSource.getVerbalAnalysis(speechId).toDomain()
 
     override suspend fun getVideoAnalysis(speechId: Int) {
 

@@ -283,7 +283,7 @@ private fun FeedbackScreen(
                     }
 
                     FeedbackTab.SCRIPT_ANALYSIS -> {
-                        val scriptAnalysis = state.speechDetail.scriptAnalysis
+                        val scriptAnalysis = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
                         if (scriptAnalysis.isLoading) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -478,9 +478,9 @@ private fun MediaControls(
     var sliderValue by remember { mutableFloatStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.progress) {
+    LaunchedEffect(state.playerState.progress) {
         if (!isDragging) {
-            sliderValue = state.progress
+            sliderValue = state.playerState.progress
         }
     }
 
@@ -520,7 +520,7 @@ private fun MediaControls(
                 },
                 onValueChangeFinished = {
                     isDragging = false
-                    val newPosition = (sliderValue * state.duration).toLong()
+                    val newPosition = (sliderValue * state.playerState.duration).toLong()
                     onSeekTo(newPosition)
                 },
                 colors = SliderDefaults.colors(
@@ -563,12 +563,12 @@ private fun MediaControls(
 
         Row {
             Text(
-                text = state.formattedCurrentPosition,
+                text = state.playerState.formattedCurrentPosition,
                 style = SpeechMateTheme.typography.bodySM,
             )
 
             Text(
-                text = " / ${state.formattedDuration}",
+                text = " / ${state.playerState.formattedDuration}",
                 style = SpeechMateTheme.typography.bodySM,
             )
         }
@@ -586,8 +586,11 @@ private fun FeedbackScreenSpeechConfigPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-
+            playerState = PlayerState(
+                currentPosition = 100000,
+                duration = 200000,
             ),
+        ),
         exoPlayer = null,
         onBackPressed = {},
         onTabSelected = {},
@@ -612,8 +615,10 @@ private fun FeedbackScreenScriptPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-            currentPosition = 100000,
-            duration = 200000,
+            playerState = PlayerState(
+                currentPosition = 100000,
+                duration = 200000,
+            ),
         ),
         exoPlayer = null,
         onBackPressed = {},
@@ -638,6 +643,10 @@ private fun FeedbackScreenScriptAnalysisPreview() {
                 speechConfig = SpeechConfig(
                     fileName = "중간 발표 1",
                 ),
+            ),
+            playerState = PlayerState(
+                currentPosition = 100000,
+                duration = 200000,
             ),
         ),
         exoPlayer = null,
@@ -664,6 +673,10 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
+            playerState = PlayerState(
+                currentPosition = 100000,
+                duration = 200000,
+            ),
         ),
         exoPlayer = null,
         onBackPressed = {},
@@ -688,6 +701,10 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
                 speechConfig = SpeechConfig(
                     fileName = "중간 발표 1",
                 ),
+            ),
+            playerState = PlayerState(
+                currentPosition = 100000,
+                duration = 200000,
             ),
         ),
         exoPlayer = null,

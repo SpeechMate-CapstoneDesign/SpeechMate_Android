@@ -9,12 +9,22 @@ import com.speech.domain.model.speech.SpeechDetail
 data class FeedbackState(
     val speechDetail: SpeechDetail = SpeechDetail(),
     val feedbackTab: FeedbackTab = FeedbackTab.SCRIPT,
+    val tabStates: Map<FeedbackTab, TabState> = FeedbackTab.entries.associateWith { TabState() },
     val playingState: PlayingState = PlayingState.Ready,
+    val playerState: PlayerState = PlayerState(),
+    val showDropdownMenu: Boolean = false,
+) : UiState
+
+data class TabState(
+    val isLoading: Boolean = true,
+    val isError: Boolean = false,
+)
+
+data class PlayerState(
     val playbackSpeed: Float = 1.0f,
     val currentPosition: Long = 0L,
     val duration: Long = 0L,
-    val showDropdownMenu: Boolean = false,
-) : UiState {
+) {
     val progress: Float
         get() = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
 
@@ -24,7 +34,7 @@ data class FeedbackState(
     val formattedDuration: String
         get() = formatTime(duration)
 
-    fun formatTime(time: Long): String {
+    private fun formatTime(time: Long): String {
         val totalSeconds = time / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
