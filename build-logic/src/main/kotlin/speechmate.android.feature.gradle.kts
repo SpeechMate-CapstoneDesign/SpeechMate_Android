@@ -22,7 +22,6 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:common-ui"))
 //    implementation(project(":core:analytics"))
-//
 
     val libs = project.extensions.libs
     implementation(libs.findLibrary("hilt-navigation-compose").get())
@@ -33,7 +32,7 @@ dependencies {
 
     androidTestImplementation(libs.findLibrary("androidx.compose.ui.test").get())
     debugImplementation(libs.findLibrary("androidx.compose.ui.test.manifest").get())
-    
+
     implementation(libs.findLibrary("orbit-core").get())
     implementation(libs.findLibrary("orbit-viewModel").get())
     implementation(libs.findLibrary("orbit-compose").get())

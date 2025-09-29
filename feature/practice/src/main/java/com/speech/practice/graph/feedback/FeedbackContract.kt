@@ -1,10 +1,15 @@
 package com.speech.practice.graph.feedback
 
+import androidx.core.util.TimeUtils.formatDuration
 import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechDetail
+import com.speech.common.util.formatDuration
+import com.speech.common.util.getProgress
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class FeedbackState(
     val speechDetail: SpeechDetail = SpeechDetail(),
@@ -25,24 +30,16 @@ data class TabState(
 
 data class PlayerState(
     val playbackSpeed: Float = 1.0f,
-    val currentPosition: Long = 0L,
-    val duration: Long = 0L,
+    val currentPosition: Duration = 0.seconds,
+    val duration: Duration = 0.seconds,
 ) {
     val progress: Float
-        get() = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
+        get() = getProgress(currentPosition, duration)
 
     val formattedCurrentPosition: String
-        get() = formatTime(currentPosition)
+        get() = formatDuration(currentPosition)
 
-    val formattedDuration: String
-        get() = formatTime(duration)
-
-    private fun formatTime(time: Long): String {
-        val totalSeconds = time / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return "%02d:%02d".format(minutes, seconds)
-    }
+    val formattedDuration: String by lazy { formatDuration(duration) }
 }
 
 sealed class PlayingState {

@@ -23,12 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -81,6 +75,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun MyPageRoute(
@@ -414,7 +409,7 @@ private fun MyPageScreenPreview() {
                         SpeechFeed(
                             id = 1,
                             date = "23.10.27",
-                            fileLength = 123456L,
+                            fileLength = 123456L.milliseconds,
                             fileUrl = "",
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
@@ -427,7 +422,7 @@ private fun MyPageScreenPreview() {
                         SpeechFeed(
                             id = 2,
                             date = "23.10.27",
-                            fileLength = 234567L,
+                            fileLength = 234567L.milliseconds,
                             fileUrl = "",
                             speechFileType = SpeechFileType.AUDIO,
                             speechConfig = SpeechConfig(
@@ -440,7 +435,7 @@ private fun MyPageScreenPreview() {
                         SpeechFeed(
                             id = 3,
                             date = "23.10.27",
-                            fileLength = 89012L,
+                            fileLength = 89012L.milliseconds,
                             fileUrl = "",
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
@@ -453,7 +448,7 @@ private fun MyPageScreenPreview() {
                         SpeechFeed(
                             id = 4,
                             date = "23.10.27",
-                            fileLength = 345678L,
+                            fileLength = 345678L.milliseconds,
                             fileUrl = "",
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
@@ -466,7 +461,7 @@ private fun MyPageScreenPreview() {
                         SpeechFeed(
                             id = 5,
                             date = "23.10.27",
-                            fileLength = 500000L,
+                            fileLength = 500000L.milliseconds,
                             fileUrl = "",
                             speechFileType = SpeechFileType.AUDIO,
                             speechConfig = SpeechConfig(

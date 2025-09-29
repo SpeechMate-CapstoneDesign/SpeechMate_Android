@@ -72,6 +72,7 @@ import com.speech.domain.model.speech.SpeechFileType
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import kotlin.time.Duration
 
 @Composable
 internal fun FeedbackRoute(
@@ -234,7 +235,7 @@ private fun FeedbackScreen(
                         val config = state.speechDetail.speechConfig
                         Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
                             Text(
-                                "날짜: ${state.speechDetail.fornattedTime}",
+                                "날짜: ${state.speechDetail.formattedDate}",
                                 style = SpeechMateTheme.typography.bodyXMM,
                             )
                             Text(
@@ -591,7 +592,7 @@ private fun MediaControls(
                 },
                 onValueChangeFinished = {
                     isDragging = false
-                    val newPosition = (sliderValue * state.playerState.duration).toLong()
+                    val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
                     onSeekTo(newPosition)
                 },
                 colors = SliderDefaults.colors(

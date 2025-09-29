@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -309,13 +307,12 @@ fun RecordVideoScreen(
                                 .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
-                        Icon(
-                            imageVector = Icons.Default.Close,
+                        Image(
+                            painter = painterResource(R.drawable.close_ic),
                             contentDescription = "취소",
                             modifier = Modifier.align(
                                 Center,
                             ),
-                            tint = Color.Black,
                         )
                     }
 

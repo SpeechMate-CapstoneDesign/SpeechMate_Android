@@ -56,7 +56,7 @@ fun UploadFileDialog(
                     Spacer(Modifier.width(8.dp))
 
                     Text(
-                        text = "(${status.elapsedSeconds}초)",
+                        text = "(${status.elapsedSeconds.inWholeSeconds}초)",
                         style = SpeechMateTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
@@ -106,7 +106,6 @@ fun UploadFileDialog(
 fun UploadFileDialogPreview() {
     UploadFileDialog(
         status = UploadFileStatus(
-            progress = 10f,
             currentBytes = 250000,
             totalBytes = 5000000,
         ),

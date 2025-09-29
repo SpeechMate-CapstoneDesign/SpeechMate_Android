@@ -11,6 +11,7 @@ import com.speech.domain.model.speech.SpeechType
 import com.speech.domain.model.speech.Venue
 import com.speech.domain.model.speech.VerbalAnalysis
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.milliseconds
 
 @Serializable
 data class GetVerbalAnalysisResponse(
@@ -38,7 +39,9 @@ data class FillerResponse(
     fun toDomain(): Filler =
         Filler(
             word = word,
-            timestamps = timestamps
+            timestamps = timestamps.map {
+                it.milliseconds
+            }
         )
 }
 
@@ -64,9 +67,9 @@ data class SilenceResponse(
 ) {
     fun toDomain(): Silence =
         Silence(
-            duration = duration,
-            startTime = startTime,
-            endTime = endTime,
+            duration = duration.milliseconds,
+            startTime = startTime.milliseconds,
+            endTime = endTime.milliseconds,
             wordBefore = wordBefore,
             wordAfter = wordAfter
         )

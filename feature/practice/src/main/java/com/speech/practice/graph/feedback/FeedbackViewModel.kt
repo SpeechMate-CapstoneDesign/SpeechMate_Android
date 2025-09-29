@@ -28,6 +28,9 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
@@ -64,18 +67,18 @@ class FeedbackViewModel @Inject constructor(
                         reduce {
                             state.copy(
                                 playingState = PlayingState.Ready,
-                                playerState = state.playerState.copy(currentPosition = 0L),
+                                playerState = state.playerState.copy(currentPosition = 0.seconds),
                             )
                         }
                     }
                 }
 
                 Player.STATE_READY -> {
-                    val duration = _exoPlayer?.duration ?: 0L
+                    val duration = _exoPlayer?.duration ?: 0
                     intent {
                         reduce {
                             state.copy(
-                                playerState = state.playerState.copy(duration = duration),
+                                playerState = state.playerState.copy(duration = duration.milliseconds),
                                 playingState = PlayingState.Ready,
                             )
                         }
@@ -195,7 +198,7 @@ class FeedbackViewModel @Inject constructor(
 
                     intent {
                         reduce {
-                            state.copy(playerState = state.playerState.copy(currentPosition = currentPosition))
+                            state.copy(playerState = state.playerState.copy(currentPosition = currentPosition.milliseconds))
                         }
                     }
                 }
@@ -227,7 +230,7 @@ class FeedbackViewModel @Inject constructor(
         _exoPlayer?.seekTo(position)
         intent {
             reduce {
-                state.copy(playerState = state.playerState.copy(currentPosition = position))
+                state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
             }
         }
     }

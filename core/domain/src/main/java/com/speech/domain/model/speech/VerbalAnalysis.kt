@@ -1,5 +1,7 @@
 package com.speech.domain.model.speech
 
+import kotlin.time.Duration
+
 data class VerbalAnalysis(
     val wordCount: Int = 0,
     val syllableCount: Int = 0,
@@ -10,7 +12,7 @@ data class VerbalAnalysis(
 
 data class Filler(
     val word: String,
-    val timestamps: List<Int>,
+    val timestamps: List<Duration>,
 )
 
 data class RepeatedWord(
@@ -19,9 +21,9 @@ data class RepeatedWord(
 )
 
 data class Silence(
-    val duration: Int,
-    val startTime: Int,
-    val endTime: Int,
+    val duration: Duration,
+    val startTime: Duration,
+    val endTime: Duration,
     val wordBefore: String,
     val wordAfter: String,
 )

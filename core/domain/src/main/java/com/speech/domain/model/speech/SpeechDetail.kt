@@ -14,7 +14,7 @@ data class SpeechDetail(
     val verbalAnalysis: VerbalAnalysis = VerbalAnalysis(),
     val nonVerbalAnalysis: String = "",
 ) {
-    val fornattedTime: String =
+    val formattedDate: String =
         createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"))
 }
 
