@@ -135,7 +135,6 @@ class FeedbackViewModel @Inject constructor(
         }
 
         getScript()
-        getVerbalAnalysis()
         if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
             getVideoAnalysis()
         }
@@ -259,6 +258,7 @@ class FeedbackViewModel @Inject constructor(
             }
 
             getScriptAnalysis()
+            getVerbalAnalysis()
         }.onFailure {
             reduce {
                 state.copy(
@@ -283,12 +283,18 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.getScriptAnalysis(state.speechDetail.id)
         }.onSuccess { scriptAnalysis ->
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis))
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(scriptAnalysis = scriptAnalysis),
+                )
             }
         }.onFailure {
             reduce {
                 state.copy(
-                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
                         isLoading = false,
                         isError = true,
                     )),
@@ -304,9 +310,13 @@ class FeedbackViewModel @Inject constructor(
         }.onSuccess {
             reduce {
                 state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
                     speechDetail = state.speechDetail.copy(
-                        verbalAnalysis = it
-                    )
+                        verbalAnalysis = it,
+                    ),
                 )
             }
         }.onFailure {

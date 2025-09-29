@@ -32,7 +32,7 @@ import java.io.File
 import java.io.IOException
 
 class SpeechDataSourceImpl @Inject constructor(
-    @field:ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val speechMateApi: SpeechMateApi,
     private val s3Api: S3Api,
 ) : SpeechDataSource {
@@ -75,9 +75,9 @@ class SpeechDataSourceImpl @Inject constructor(
             updateSpeechConfigRequest =
                 UpdateSpeechConfigRequest(
                     title = speechConfig.fileName,
-                    presentationContext = speechConfig.speechType!!.name,
-                    audience = speechConfig.audience!!.name,
-                    location = speechConfig.venue!!.name,
+                    presentationContext = speechConfig.speechType?.name ?: "",
+                    audience = speechConfig.audience?.name ?: "",
+                    location = speechConfig.venue?.name ?: "",
                 ),
         ).getData()
 

@@ -33,12 +33,12 @@ data class GetVerbalAnalysisResponse(
 @Serializable
 data class FillerResponse(
     val word: String,
-    val timestamp: List<Int>
+    val timestamps: List<Int>
 ) {
     fun toDomain(): Filler =
         Filler(
             word = word,
-            timestamps = timestamp
+            timestamps = timestamps
         )
 }
 

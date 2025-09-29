@@ -283,8 +283,9 @@ private fun FeedbackScreen(
                     }
 
                     FeedbackTab.SCRIPT_ANALYSIS -> {
-                        val scriptAnalysis = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
-                        if (scriptAnalysis.isLoading) {
+                        val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
+
+                        if (scriptAnalysisTab.isLoading) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -304,115 +305,185 @@ private fun FeedbackScreen(
                                     style = SpeechMateTheme.typography.bodyXMM,
                                 )
                             }
+                        } else if (scriptAnalysisTab.isError) {
+                            Text(
+                                "대본을 분석한 결과를 불러오는데 실패했습니다.",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
                         } else {
-                            if (scriptAnalysis.isError) {
+                            Column {
+                                val analysis = state.speechDetail.scriptAnalysis
                                 Text(
-                                    "대본을 분석한 결과를 불러오는데 실패했습니다.",
+                                    text = "키워드",
+                                    style = SpeechMateTheme.typography.bodyMSB,
+                                    color = PrimaryActive,
+                                )
+
+                                Spacer(Modifier.height(5.dp))
+
+                                Text(
+                                    text = analysis.keywords,
                                     style = SpeechMateTheme.typography.bodyXMM,
                                 )
-                            } else {
-                                Column {
-                                    val analysis = state.speechDetail.scriptAnalysis!!
-                                    Text(
-                                        text = "키워드",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                        color = PrimaryActive,
-                                    )
 
-                                    Spacer(Modifier.height(5.dp))
+                                Spacer(Modifier.height(15.dp))
 
+                                Text(
+                                    text = "요약",
+                                    style = SpeechMateTheme.typography.bodyMSB,
+                                )
 
-                                    Text(
-                                        text = analysis.keywords,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
+                                Spacer(Modifier.height(5.dp))
 
-                                    Spacer(Modifier.height(15.dp))
+                                Text(
+                                    text = analysis.summary,
+                                    style = SpeechMateTheme.typography.bodyXMM,
+                                )
 
-                                    Text(
-                                        text = "요약",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
+                                Spacer(Modifier.height(10.dp))
 
-                                    Spacer(Modifier.height(5.dp))
+                                SectionDivider()
 
-                                    Text(
-                                        text = analysis.summary,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
+                                Spacer(Modifier.height(20.dp))
 
-                                    Spacer(Modifier.height(10.dp))
+                                Text(
+                                    text = "개선점",
+                                    style = SpeechMateTheme.typography.bodyMSB,
+                                )
+                                Spacer(Modifier.height(5.dp))
 
-                                    SectionDivider()
-
-                                    Spacer(Modifier.height(20.dp))
-
-                                    Text(
-                                        text = "개선점",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        analysis.improvementPoints.forEach { point ->
-                                            Text(
-                                                text = point,
-                                                style = SpeechMateTheme.typography.bodyXMM,
-                                            )
-                                        }
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    analysis.improvementPoints.forEach { point ->
+                                        Text(
+                                            text = point,
+                                            style = SpeechMateTheme.typography.bodyXMM,
+                                        )
                                     }
+                                }
 
-                                    Spacer(Modifier.height(10.dp))
+                                Spacer(Modifier.height(10.dp))
 
-                                    SectionDivider()
+                                SectionDivider()
 
-                                    Spacer(Modifier.height(20.dp))
+                                Spacer(Modifier.height(20.dp))
 
-                                    Text(
-                                        text = "피드백",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
+                                Text(
+                                    text = "피드백",
+                                    style = SpeechMateTheme.typography.bodyMSB,
+                                )
 
-                                    Spacer(Modifier.height(5.dp))
+                                Spacer(Modifier.height(5.dp))
 
-                                    Text(
-                                        text = analysis.feedback,
-                                        style = SpeechMateTheme.typography.bodyXMM,
-                                    )
+                                Text(
+                                    text = analysis.feedback,
+                                    style = SpeechMateTheme.typography.bodyXMM,
+                                )
 
-                                    Spacer(Modifier.height(10.dp))
+                                Spacer(Modifier.height(10.dp))
 
-                                    SectionDivider()
+                                SectionDivider()
 
-                                    Spacer(Modifier.height(20.dp))
+                                Spacer(Modifier.height(20.dp))
 
-                                    Text(
-                                        text = "예상 질문",
-                                        style = SpeechMateTheme.typography.bodyMSB,
-                                    )
+                                Text(
+                                    text = "예상 질문",
+                                    style = SpeechMateTheme.typography.bodyMSB,
+                                )
 
-                                    Spacer(Modifier.height(5.dp))
+                                Spacer(Modifier.height(5.dp))
 
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        analysis.expectedQuestions.forEach { question ->
-                                            Text(
-                                                text = question,
-                                                style = SpeechMateTheme.typography.bodyXMM,
-                                            )
-                                        }
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    analysis.expectedQuestions.forEach { question ->
+                                        Text(
+                                            text = question,
+                                            style = SpeechMateTheme.typography.bodyXMM,
+                                        )
                                     }
                                 }
                             }
                         }
                     }
 
-                    FeedbackTab.VERBAL_ANALYSIS -> {}
+                    FeedbackTab.VERBAL_ANALYSIS -> {
+                        val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
+                        if (verbalAnalysisTab.isLoading) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Spacer(Modifier.height(100.dp))
 
-                    FeedbackTab.NON_VERBAL_ANALYSIS -> {}
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(48.dp),
+                                    color = PrimaryDefault,
+                                )
+
+                                Spacer(Modifier.height(15.dp))
+
+                                Text(
+                                    "언어적 특징을 분석 중입니다.",
+                                    style = SpeechMateTheme.typography.bodyXMM,
+                                )
+                            }
+                        } else if (verbalAnalysisTab.isError) {
+                            Text(
+                                "언어적 특징을 분석한 결과를 불러오는데 실패했습니다.",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                        } else {
+                            // TODO: Implement Verbal Analysis Content
+                        }
+                    }
+
+                    FeedbackTab.NON_VERBAL_ANALYSIS -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Spacer(Modifier.height(50.dp))
+
+                            Text(
+                                text = "비언어적 행동 분석은 아직 준비중입니다!",
+                                style = SpeechMateTheme.typography.bodyXMM,
+                            )
+                        }
+
+//                        val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
+//                        if (nonVerbalAnalysisTab.isLoading) {
+//                            Column(
+//                                modifier = Modifier.fillMaxWidth(),
+//                                horizontalAlignment = Alignment.CenterHorizontally,
+//                                verticalArrangement = Arrangement.Center,
+//                            ) {
+//                                Spacer(Modifier.height(100.dp))
+//
+//                                CircularProgressIndicator(
+//                                    modifier = Modifier.size(48.dp),
+//                                    color = PrimaryDefault,
+//                                )
+//
+//                                Spacer(Modifier.height(15.dp))
+//
+//                                Text(
+//                                    "비언어적 행동을 분석 중입니다.",
+//                                    style = SpeechMateTheme.typography.bodyXMM,
+//                                )
+//                            }
+//                        } else if (nonVerbalAnalysisTab.isError) {
+//                            Text(
+//                                "비언어적 을 분석한 결과를 불러오는데 실패했습니다.",
+//                                style = SpeechMateTheme.typography.bodyXMM,
+//                            )
+//                        } else {
+//                            // TODO: Implement Non-Verbal Analysis Content
+//                        }
+                    }
                 }
 
                 Spacer(Modifier.height(80.dp))
@@ -586,11 +657,8 @@ private fun FeedbackScreenSpeechConfigPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-            playerState = PlayerState(
-                currentPosition = 100000,
-                duration = 200000,
+
             ),
-        ),
         exoPlayer = null,
         onBackPressed = {},
         onTabSelected = {},
@@ -614,10 +682,6 @@ private fun FeedbackScreenScriptPreview() {
                 speechConfig = SpeechConfig(
                     fileName = "중간 발표 1",
                 ),
-            ),
-            playerState = PlayerState(
-                currentPosition = 100000,
-                duration = 200000,
             ),
         ),
         exoPlayer = null,
@@ -644,10 +708,6 @@ private fun FeedbackScreenScriptAnalysisPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-            playerState = PlayerState(
-                currentPosition = 100000,
-                duration = 200000,
-            ),
         ),
         exoPlayer = null,
         onBackPressed = {},
@@ -673,10 +733,6 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-            playerState = PlayerState(
-                currentPosition = 100000,
-                duration = 200000,
-            ),
         ),
         exoPlayer = null,
         onBackPressed = {},
@@ -701,10 +757,6 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
                 speechConfig = SpeechConfig(
                     fileName = "중간 발표 1",
                 ),
-            ),
-            playerState = PlayerState(
-                currentPosition = 100000,
-                duration = 200000,
             ),
         ),
         exoPlayer = null,

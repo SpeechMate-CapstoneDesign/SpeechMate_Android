@@ -9,7 +9,10 @@ import com.speech.domain.model.speech.SpeechDetail
 data class FeedbackState(
     val speechDetail: SpeechDetail = SpeechDetail(),
     val feedbackTab: FeedbackTab = FeedbackTab.SCRIPT,
-    val tabStates: Map<FeedbackTab, TabState> = FeedbackTab.entries.associateWith { TabState() },
+    val tabStates: Map<FeedbackTab, TabState> =
+        FeedbackTab.entries
+            .filterNot { it == FeedbackTab.SPEECH_CONFIG || it == FeedbackTab.SCRIPT }
+            .associateWith { TabState() },
     val playingState: PlayingState = PlayingState.Ready,
     val playerState: PlayerState = PlayerState(),
     val showDropdownMenu: Boolean = false,
