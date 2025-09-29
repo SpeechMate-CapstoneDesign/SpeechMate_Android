@@ -7,9 +7,11 @@ import kotlin.time.Duration.Companion.seconds
 data class UploadFileStatus(
     val elapsedSeconds: Duration = 0.seconds,
     val currentBytes: Long = 0,
-    val totalBytes: Long = 0
+    val totalBytes: Long = 0,
 ) {
-    val progress = (100 * currentBytes / totalBytes).toFloat()
+    val progress =
+        if (totalBytes <= 0) 0f
+        else 100f * (currentBytes.toFloat() / totalBytes.toFloat())
 
     val formattedBytes: String
         get() = "${formatBytes(currentBytes)} / ${formatBytes(totalBytes)}"
