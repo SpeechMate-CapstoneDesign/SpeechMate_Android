@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.SMOutlineButton
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.auth.NonVerbalSkill
 import com.speech.domain.model.auth.VerbalSkill
@@ -34,7 +33,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 internal fun OnBoardingRoute(
     viewModel: OnBoardingViewModel = hiltViewModel(),
-    navigateToPractice: () -> Unit
+    navigateToPractice: () -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -59,7 +58,7 @@ internal fun OnBoardingRoute(
         state = state,
         onVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleVerbalSkill(it)) },
         onNonVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleNonVerbalSkill(it)) },
-        signUp = viewModel::signUp
+        signUp = viewModel::signUp,
     )
 }
 
@@ -68,7 +67,7 @@ fun OnBoardingScreen(
     state: OnBoardingState,
     onVerbalSkillClick: (VerbalSkill) -> Unit,
     onNonVerbalSkillClick: (NonVerbalSkill) -> Unit,
-    signUp: () -> Unit
+    signUp: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -79,7 +78,7 @@ fun OnBoardingScreen(
             Spacer(modifier = Modifier.height(25.dp))
 
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("발표 목표 설정", style = SpeechMateTheme.typography.headingMB)
+                Text("발표 목표 설정", style = SmTheme.typography.headingMB)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -87,15 +86,15 @@ fun OnBoardingScreen(
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     "발표 실력을 키우고 싶은 부분을 선택해주세요!",
-                    style = SpeechMateTheme.typography.bodyXMM,
-                    color = Color.Gray
+                    style = SmTheme.typography.bodyXMM,
+                    color = Color.Gray,
                 )
             }
 
             Spacer(modifier = Modifier.height(25.dp))
 
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                Text("언어적 목표 \uD83D\uDDE3\uFE0F", style = SpeechMateTheme.typography.headingSB)
+                Text("언어적 목표 \uD83D\uDDE3\uFE0F", style = SmTheme.typography.headingSB)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -104,7 +103,8 @@ fun OnBoardingScreen(
                 SMOutlineButton(
                     label = skill.label,
                     isSelected = state.selectedVerbalSkills.contains(skill),
-                    onClick = { onVerbalSkillClick(skill) })
+                    onClick = { onVerbalSkillClick(skill) },
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -112,7 +112,7 @@ fun OnBoardingScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                Text("비언어적 목표 \uD83E\uDDCD", style = SpeechMateTheme.typography.headingSB)
+                Text("비언어적 목표 \uD83E\uDDCD", style = SmTheme.typography.headingSB)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -121,7 +121,8 @@ fun OnBoardingScreen(
                 SMOutlineButton(
                     label = skill.label,
                     isSelected = state.selectedNonVerbalSkills.contains(skill),
-                    onClick = { onNonVerbalSkillClick(skill) })
+                    onClick = { onNonVerbalSkillClick(skill) },
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -134,17 +135,17 @@ fun OnBoardingScreen(
                 },
                 enabled = state.signUpAvailable,
                 colors = ButtonDefaults.buttonColors(
-                    if (state.signUpAvailable) PrimaryActive else PrimaryDefault
+                    if (state.signUpAvailable) SmTheme.colors.primaryActive else SmTheme.colors.primaryDefault,
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 20.dp),
             ) {
                 Text(
                     "완료",
                     color = Color.White,
-                    style = SpeechMateTheme.typography.bodyXMM
+                    style = SmTheme.typography.bodyXMM,
                 )
             }
 
