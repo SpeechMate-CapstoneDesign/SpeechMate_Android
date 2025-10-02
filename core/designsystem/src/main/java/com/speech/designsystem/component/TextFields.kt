@@ -59,12 +59,12 @@ fun SMOutlinedTextField(
             modifier = modifier
                 .height(40.dp)
                 .background(
-                    Color.White,
+                    SmTheme.colors.surface,
                     RoundedCornerShape(12.dp)
                 )
                 .border(
                     width = 1.dp,
-                    color = if (isFocused) SmTheme.colors.primaryDefault else Color.LightGray,
+                    color = if (isFocused) SmTheme.colors.primaryDefault else SmTheme.colors.border,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 10.dp)
@@ -93,7 +93,7 @@ fun SMOutlinedTextField(
                         Text(
                             text = hint,
                             style = SmTheme.typography.bodySM,
-                            color = Color.Gray
+                            color = SmTheme.colors.textHint
                         )
                     }
 

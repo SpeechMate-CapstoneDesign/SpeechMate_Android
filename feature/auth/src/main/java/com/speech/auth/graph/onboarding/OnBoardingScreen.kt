@@ -10,9 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -116,10 +117,13 @@ fun OnBoardingScreen(
                 VerbalSkill.entries.forEach { skill ->
                     SMOutlineButton(
                         modifier = Modifier.fillMaxWidth(),
-                        label = skill.label,
                         isSelected = state.selectedVerbalSkills.contains(skill),
                         onClick = { onVerbalSkillClick(skill) },
-                    )
+                    ) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                            Text(skill.label, style = SmTheme.typography.bodySM)
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -137,10 +141,13 @@ fun OnBoardingScreen(
                 NonVerbalSkill.entries.forEach { skill ->
                     SMOutlineButton(
                         modifier = Modifier.fillMaxWidth(),
-                        label = skill.label,
                         isSelected = state.selectedNonVerbalSkills.contains(skill),
                         onClick = { onNonVerbalSkillClick(skill) },
-                    )
+                    ) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                            Text(skill.label, style = SmTheme.typography.bodySM)
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -155,7 +162,7 @@ fun OnBoardingScreen(
                 .padding(bottom = 12.dp)
                 .align(Alignment.BottomCenter),
         ) {
-            Divider(
+            HorizontalDivider(
                 color = SmTheme.colors.border,
                 thickness = 1.dp,
             )

@@ -20,6 +20,14 @@
     <string name="upload_file">파일 업로드</string>
     <string name="upload_file_description">저장된 파일 불러오기</string>
 
+    <!--스피치 설정-->
+    <string name="speech_config">스피치 설정</string>
+    <string name="speech_name">스피치 이름</string>
+    <string name="speech_name_hint">스피치 파일 이름</string>
+    <string name="speech_context">스피치 상황</string>
+    <string name="audience">청중</string>
+    <string name="speech_venue">스피치 장소</string>
+
     <!-- 다이얼로그 -->
     <string name="dialog_confirm">확인</string>
     <string name="dialog_cancel">취소</string>

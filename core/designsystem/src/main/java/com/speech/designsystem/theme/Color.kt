@@ -31,7 +31,7 @@ val lightColorScheme = SpeechMateColors(
     border = LightGray,
     textPrimary = Black,
     textSecondary = Gray400,
-    textHint = Gray200,
+    textHint = Gray400,
     bottomIconDefault = Gray200,
     iconDefault = Gray300,
 )
@@ -44,7 +44,7 @@ val darkColorScheme = SpeechMateColors(
     border = Gray700,
     textPrimary = White,
     textSecondary = Gray400,
-    textHint = Gray200,
+    textHint = Gray400,
     bottomIconDefault = Gray500,
     iconDefault = Gray300,
 )

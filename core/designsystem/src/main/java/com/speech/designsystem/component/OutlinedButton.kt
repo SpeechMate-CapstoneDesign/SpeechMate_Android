@@ -19,13 +19,12 @@ import com.speech.designsystem.theme.SpeechMateTheme
 fun SMOutlineButton(
     modifier: Modifier = Modifier,
     cornerRadius: Int = 8,
-    label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
+    content : @Composable () -> Unit
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(36.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = SmTheme.colors.surface,
             contentColor = if (isSelected) SmTheme.colors.primaryDefault else SmTheme.colors.textSecondary,
@@ -35,10 +34,8 @@ fun SMOutlineButton(
             color = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray,
         ),
         shape = RoundedCornerShape(cornerRadius.dp),
-        contentPadding = PaddingValues(start = 18.dp),
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp),
     ) {
-        Text(label, style = SmTheme.typography.bodySM)
-
-        Spacer(Modifier.weight(1f))
+        content()
     }
 }
