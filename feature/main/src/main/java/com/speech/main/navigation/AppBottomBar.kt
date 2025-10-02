@@ -67,13 +67,17 @@ internal fun AppBottomBar(
                     icon = {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 2.dp),
+                            modifier = Modifier.padding(top = 3.dp),
                         ) {
                             Icon(
                                 painter = painterResource(topLevelRoute.icon),
                                 contentDescription = topLevelRoute.contentDescription,
-                                modifier = Modifier.size(32.dp),
+                                modifier = Modifier.size(24.dp),
                             )
+
+                            Spacer(Modifier.height(3.dp))
+
+                            Text(topLevelRoute.label, style = SmTheme.typography.bodyXSM)
                         }
                     },
                     onClick = {

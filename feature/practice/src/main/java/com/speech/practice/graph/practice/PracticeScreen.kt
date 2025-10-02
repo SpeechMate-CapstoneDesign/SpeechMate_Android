@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -40,6 +43,8 @@ import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
+import com.speech.designsystem.component.PrimaryIcon
+import com.speech.designsystem.component.SMCard
 import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
@@ -105,103 +110,97 @@ private fun PracticeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = 32.dp),
         ) {
             item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Spacer(Modifier.height(50.dp))
+                Spacer(Modifier.height(32.dp))
 
-                    Image(
-                        painter = painterResource(R.drawable.presenter),
-                        contentDescription = "발표자",
-                    )
+                Text(stringResource(R.string.home_title), style = SmTheme.typography.headingMB, color = SmTheme.colors.textPrimary)
 
-                    Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
-                    Text("발표를 연습하고", style = SmTheme.typography.headingMB)
+                Text(stringResource(R.string.home_sub_title), style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textSecondary)
 
-                    Text(
-                        text = buildAnnotatedString {
-                            append("즉시 ")
-                            withStyle(style = SpanStyle(color = SmTheme.colors.primaryDefault)) {
-                                append("피드백")
-                            }
-                            append("을 받아보세요!")
+                Spacer(Modifier.height(40.dp))
+
+                SMCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onRecordAudioClick()
                         },
-                        style = SmTheme.typography.headingMB,
-                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        PrimaryIcon(icon = R.drawable.record_audio_ic)
 
-                    Spacer(Modifier.height(35.dp))
+                        Spacer(Modifier.width(13.dp))
 
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Spacer(Modifier.weight(1f))
+                        Column {
+                            Text(
+                                stringResource(R.string.record_audio),
+                                style = SmTheme.typography.headingSB,
+                                color = SmTheme.colors.textPrimary,
+                            )
 
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(SmTheme.colors.primaryDefault)
-                                .padding(20.dp)
-                                .clickable(
-                                    onClick = rememberDebouncedOnClick {
-                                        onRecordAudioClick()
-                                    },
-                                ),
+                            Spacer(Modifier.height(4.dp))
 
-                            ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Image(
-                                    modifier = Modifier.size(18.dp),
-                                    painter = painterResource(R.drawable.record_audio),
-                                    contentDescription = "녹음",
-                                )
-
-                                Spacer(Modifier.width(6.dp))
-
-                                Text("녹음", style = SmTheme.typography.bodyMM)
-                            }
+                            Text(
+                                stringResource(R.string.record_audio_description),
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.textSecondary,
+                            )
                         }
-
-                        Spacer(Modifier.weight(1f))
-
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(SmTheme.colors.primaryDefault)
-                                .padding(20.dp)
-                                .clickable(
-                                    onClick = rememberDebouncedOnClick {
-                                        onRecordVideoClick()
-                                    },
-                                ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Image(
-                                    modifier = Modifier.size(18.dp),
-                                    painter = painterResource(R.drawable.record_video),
-                                    contentDescription = "녹화",
-                                )
-
-                                Spacer(Modifier.width(6.dp))
-
-                                Text("녹화", style = SmTheme.typography.bodyMM)
-                            }
-                        }
-
-                        Spacer(Modifier.weight(1f))
                     }
-
-                    Spacer(Modifier.height(30.dp))
-
-                    UploadFileButton(
-                        onSpeechConfigChange = onSpeechConfigChange,
-                        onUploadFile = onUploadSpeechFile,
-                    )
                 }
+
+                Spacer(Modifier.height(20.dp))
+
+                SMCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onRecordAudioClick()
+                        },
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        PrimaryIcon(icon = R.drawable.record_video_ic)
+
+                        Spacer(Modifier.width(13.dp))
+
+                        Column {
+                            Text(
+                                stringResource(R.string.record_video),
+                                style = SmTheme.typography.headingSB,
+                                color = SmTheme.colors.textPrimary,
+                            )
+
+                            Spacer(Modifier.height(4.dp))
+
+                            Text(
+                                stringResource(R.string.record_video_description),
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.textSecondary,
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                UploadFileButton(
+                    onSpeechConfigChange = onSpeechConfigChange,
+                    onUploadFile = onUploadSpeechFile,
+                )
             }
         }
     }
@@ -223,28 +222,39 @@ private fun UploadFileButton(
         },
     )
 
-    Box(
+    SMCard(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(SmTheme.colors.iconDefault)
-            .padding(20.dp)
+            .fillMaxWidth()
             .clickable {
                 val mimeTypes = arrayOf("audio/*", "video/*")
                 filePickerLauncher.launch(mimeTypes)
             },
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top,
         ) {
-            Image(
-                modifier = Modifier.size(18.dp),
-                painter = painterResource(R.drawable.upload_file),
-                contentDescription = "파일 업로드",
-            )
+            PrimaryIcon(icon = R.drawable.upload_ic)
 
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(13.dp))
 
-            Text("업로드", style = SmTheme.typography.bodyMM)
+            Column {
+                Text(
+                    stringResource(R.string.upload_file),
+                    style = SmTheme.typography.headingSB,
+                    color = SmTheme.colors.textPrimary,
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    stringResource(R.string.upload_file_description),
+                    style = SmTheme.typography.bodyXSM,
+                    color = SmTheme.colors.textSecondary,
+                )
+            }
         }
     }
 

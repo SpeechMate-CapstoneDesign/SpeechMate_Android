@@ -10,6 +10,16 @@
     <string name="verbal_goal">🗣️ 언어적 목표</string>
     <string name="non_verbal_goal">🧍 비언어적 목표</string>
 
+    <!--홈-->
+    <string name="home_title">오늘의 연습을\n시작해보세요</string>
+    <string name="home_sub_title">AI가 당신의 스피치를 정밀하게 분석하고\n 피드백해줍니다.</string>
+    <string name="record_audio">음성 녹음</string>
+    <string name="record_audio_description">속도, 간투어, 침묵 구간, 대본 등 분석</string>
+    <string name="record_video">영상 녹화</string>
+    <string name="record_video_description">비언어적 행동까지 분석</string>
+    <string name="upload_file">파일 업로드</string>
+    <string name="upload_file_description">저장된 파일 불러오기</string>
+
     <!-- 다이얼로그 -->
     <string name="dialog_confirm">확인</string>
     <string name="dialog_cancel">취소</string>

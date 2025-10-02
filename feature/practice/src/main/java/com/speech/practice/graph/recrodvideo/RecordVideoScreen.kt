@@ -442,7 +442,7 @@ fun RecordVideoScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
-                                painter = painterResource(R.drawable.record_video),
+                                painter = painterResource(R.drawable.record_video_ic),
                                 contentDescription = "재녹화",
                                 modifier = Modifier
                                     .size(24.dp),

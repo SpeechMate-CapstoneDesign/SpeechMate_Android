@@ -8,20 +8,20 @@ import kotlin.reflect.KClass
 
 enum class TopLevelDestination(
     val route : KClass<*>,
-    @DrawableRes val icon : Int,
+    @param:DrawableRes val icon : Int,
+    val label : String,
     val contentDescription: String,
-    val title : String
 ) {
     Practice(
         route = PracticeBaseRoute::class,
         icon = R.drawable.bottom_practice,
         contentDescription = "연습",
-        title = "연습"
+        label = "홈"
     ),
     MyPage(
         route = MyPageBaseRoute::class,
         icon = R.drawable.bottom_my_page,
         contentDescription = "마이페이지",
-        title = "마이페이지"
+        label = "마이페이지"
     ),
 }
