@@ -67,7 +67,7 @@ internal fun AppBottomBar(
                     icon = {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 3.dp),
+                            modifier = Modifier.padding(top = 4.dp),
                         ) {
                             Icon(
                                 painter = painterResource(topLevelRoute.icon),

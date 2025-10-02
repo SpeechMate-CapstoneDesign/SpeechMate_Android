@@ -66,7 +66,7 @@ fun SMDropDownMenu(
                     .widthIn(min = width.dp),
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = SmTheme.colors.surface),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -86,6 +86,7 @@ fun SMDropDownMenu(
                             Text(
                                 text = stringResource(item.labelRes),
                                 style = SmTheme.typography.bodyXMM,
+                                color = SmTheme.colors.textPrimary,
                             )
                         }
                     }

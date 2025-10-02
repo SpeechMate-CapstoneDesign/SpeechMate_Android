@@ -57,6 +57,7 @@ import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.common_ui.util.rememberLazyListState
 import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
+import com.speech.designsystem.component.SMCard
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
 import com.speech.designsystem.theme.SmTheme
@@ -210,7 +211,7 @@ private fun MyPageScreen(
                     ),
             )
         }
-        
+
         val isInitialLoading = isRefreshing && speechFeeds.itemCount == 0
         if (isInitialLoading || isAppending) {
             CircularProgressIndicator(
@@ -233,10 +234,9 @@ private fun SpeechFeed(
     var showDropdownMenu by remember { mutableStateOf(false) }
     var showDeleteDg by remember { mutableStateOf(false) }
 
-    Box(
+    SMCard(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, SmTheme.colors.primaryLight, RoundedCornerShape(8.dp))
             .combinedClickable(
                 onClick = {
                     onClick(speechFeed.id, speechFeed.fileUrl, speechFeed.speechFileType, speechFeed.speechConfig)
@@ -244,131 +244,133 @@ private fun SpeechFeed(
                 onLongClick = {
                     showDropdownMenu = true
                 },
-            )
-            .padding(16.dp),
+            ),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-            ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = speechFeed.speechConfig.fileName,
                     style = SmTheme.typography.bodyXMSB,
-                    modifier = Modifier.weight(1f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
+                    color = SmTheme.colors.textPrimary,
                 )
 
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.clock_ic),
-                            contentDescription = "발표 시간",
-                            modifier = Modifier.size(12.dp),
-                            colorFilter = ColorFilter.tint(Color.Gray),
-                        )
+                Spacer(Modifier.weight(1f))
 
-                        Text(
-                            text = speechFeed.duration,
-                            style = SmTheme.typography.bodyXSM,
-                            color = Color.Gray,
-                        )
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.calendar_ic),
-                            contentDescription = "날짜",
-                            modifier = Modifier.size(12.dp),
-                            colorFilter = ColorFilter.tint(Color.Gray),
-                        )
-
-                        Text(
-                            text = speechFeed.date,
-                            style = SmTheme.typography.bodyXSM,
-                            color = Color.Gray,
-                        )
-                    }
-                }
+                Image(
+                    painter = painterResource(if (speechFeed.speechFileType == SpeechFileType.AUDIO) R.drawable.record_audio_ic else R.drawable.record_video_ic),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
+                    modifier = Modifier.size(18.dp),
+                )
             }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+            Row(
+                verticalAlignment = Alignment.Top,
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.document_ic),
-                        contentDescription = "발표 상황",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(SmTheme.colors.primaryLight),
+                        painter = painterResource(R.drawable.clock_ic),
+                        contentDescription = "발표 시간",
+                        modifier = Modifier.size(12.dp),
+                        colorFilter = ColorFilter.tint(Color.Gray),
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.speechType?.label ?: "",
-                        style = SmTheme.typography.bodySM,
+                        text = speechFeed.duration,
+                        style = SmTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
                 }
+
+                Spacer(Modifier.width(10.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.people_ic),
-                        contentDescription = "청중",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(SmTheme.colors.iconDefault),
+                        painter = painterResource(R.drawable.calendar_ic),
+                        contentDescription = "날짜",
+                        modifier = Modifier.size(12.dp),
+                        colorFilter = ColorFilter.tint(Color.Gray),
                     )
 
                     Text(
-                        text = speechFeed.speechConfig.audience?.label ?: "",
-                        style = SmTheme.typography.bodySM,
+                        text = speechFeed.date,
+                        style = SmTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
                 }
+            }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.location_ic),
-                        contentDescription = "장소",
-                        modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(SmTheme.colors.iconDefault),
-                    )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.document_ic),
+                    contentDescription = "발표 상황",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(SmTheme.colors.primaryLight),
+                )
 
-                    Text(
-                        text = speechFeed.speechConfig.venue?.label ?: "",
-                        style = SmTheme.typography.bodySM,
-                        color = Color.Gray,
-                    )
-                }
+                Text(
+                    text = speechFeed.speechConfig.speechType?.label ?: "",
+                    style = SmTheme.typography.bodySM,
+                    color = Color.Gray,
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.people_ic),
+                    contentDescription = "청중",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(SmTheme.colors.green),
+                )
+
+                Text(
+                    text = speechFeed.speechConfig.audience?.label ?: "",
+                    style = SmTheme.typography.bodySM,
+                    color = Color.Gray,
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.location_ic),
+                    contentDescription = "장소",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(SmTheme.colors.purple),
+                )
+
+                Text(
+                    text = speechFeed.speechConfig.venue?.label ?: "",
+                    style = SmTheme.typography.bodySM,
+                    color = Color.Gray,
+                )
             }
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
                 .background(Color.Transparent),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
@@ -412,7 +414,7 @@ private fun MyPageScreenPreview() {
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
                                 fileName = "1분기 실적 발표",
-                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                speechType = SpeechType.BUSINESS,
                                 audience = Audience.EXPERT,
                                 venue = Venue.CONFERENCE_ROOM,
                             ),
@@ -438,7 +440,7 @@ private fun MyPageScreenPreview() {
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
                                 fileName = "개발자 컨퍼런스 발표",
-                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                speechType = SpeechType.BUSINESS,
                                 audience = Audience.INTERMEDIATE,
                                 venue = Venue.LECTURE_HALL,
                             ),
@@ -451,7 +453,7 @@ private fun MyPageScreenPreview() {
                             speechFileType = SpeechFileType.VIDEO,
                             speechConfig = SpeechConfig(
                                 fileName = "투자 유치 발표",
-                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                speechType = SpeechType.BUSINESS,
                                 audience = Audience.EXPERT,
                                 venue = Venue.CONFERENCE_ROOM,
                             ),
@@ -464,7 +466,7 @@ private fun MyPageScreenPreview() {
                             speechFileType = SpeechFileType.AUDIO,
                             speechConfig = SpeechConfig(
                                 fileName = "팀 회의 발표",
-                                speechType = SpeechType.BUSINESS_PRESENTATION,
+                                speechType = SpeechType.BUSINESS,
                                 audience = Audience.INTERMEDIATE,
                                 venue = Venue.CONFERENCE_ROOM,
                             ),

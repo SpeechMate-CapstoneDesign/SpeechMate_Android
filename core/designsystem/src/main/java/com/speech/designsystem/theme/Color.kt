@@ -22,6 +22,8 @@ private val Gray200 = Color(0xFFE5E7EB)
 private val Gray100 = Color(0xFFF3F4F6)
 private val Gray50 = Color(0xFFF9FAFB)
 private val Red = Color(0xFFFF0000)
+private val Green = Color(0xFF4CAF50)
+private val Purple = Color(0xFF673AB7)
 
 val lightColorScheme = SpeechMateColors(
     primaryDefault = PrimaryDefault,
@@ -64,6 +66,9 @@ data class SpeechMateColors(
     val bottomIconDefault: Color,
     val iconDefault: Color,
     val red: Color = Red,
+    val green : Color = Green,
+    val purple: Color = Purple,
+    val black : Color = Black,
     val white: Color = White,
 )
 

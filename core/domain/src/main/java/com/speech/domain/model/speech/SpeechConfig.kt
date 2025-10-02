@@ -12,7 +12,7 @@ data class SpeechConfig(
 }
 
 enum class SpeechType(val label: String) {
-    BUSINESS_PRESENTATION("비즈니스 프레젠테이션"),
+    BUSINESS("비즈니스"),
     EVENT("행사"),
     ACADEMIC_PRESENTATION("학술 발표"),
     PRACTICE("단순 연습");

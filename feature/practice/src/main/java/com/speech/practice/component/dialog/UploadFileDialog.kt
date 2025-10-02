@@ -21,9 +21,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.speech.designsystem.R
 import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.upload.UploadFileStatus
@@ -50,7 +52,7 @@ fun UploadFileDialog(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = "파일 업로드 중..",
+                        text = stringResource(R.string.uploading_file_description),
                         style = SmTheme.typography.bodyMM,
                     )
 
@@ -72,7 +74,7 @@ fun UploadFileDialog(
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp)),
                     color = SmTheme.colors.primaryDefault,
-                    trackColor = Color.LightGray,
+                    trackColor = SmTheme.colors.iconDefault,
                     strokeCap = StrokeCap.Square,
                     gapSize = 0.dp,
                     drawStopIndicator = {},
