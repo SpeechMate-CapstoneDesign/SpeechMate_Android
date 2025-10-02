@@ -1,6 +1,8 @@
 package com.speech.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
@@ -15,6 +17,7 @@ import com.speech.designsystem.theme.SpeechMateTheme
 
 @Composable
 fun SMOutlineButton(
+    modifier: Modifier = Modifier,
     cornerRadius: Int = 8,
     label : String,
     isSelected: Boolean,
@@ -22,7 +25,7 @@ fun SMOutlineButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = Modifier.height(36.dp),
+        modifier = modifier.height(36.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.White,
             contentColor = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray,
@@ -32,8 +35,12 @@ fun SMOutlineButton(
         border = BorderStroke(
             width = 1.dp,
             color = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray
-        ), shape = RoundedCornerShape(cornerRadius.dp)
+        ),
+        shape = RoundedCornerShape(cornerRadius.dp),
+        contentPadding = PaddingValues(start = 18.dp)
     ) {
         Text(label, style = SmTheme.typography.bodySM)
+
+        Spacer(Modifier.weight(1f))
     }
 }

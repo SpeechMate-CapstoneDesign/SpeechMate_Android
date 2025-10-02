@@ -2,6 +2,7 @@ package com.speech.auth.graph.login
 
 import androidx.lifecycle.ViewModel
 import com.speech.common.util.suspendRunCatching
+import com.speech.designsystem.R
 import com.speech.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.viewmodel.container

@@ -1,6 +1,8 @@
 package com.speech.auth.graph.onboarding
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -17,10 +20,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
+import com.speech.designsystem.R
 import com.speech.designsystem.component.SMOutlineButton
 import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
@@ -69,87 +74,119 @@ fun OnBoardingScreen(
     onNonVerbalSkillClick: (NonVerbalSkill) -> Unit,
     signUp: () -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
+    Box(
+        modifier = Modifier.fillMaxSize(),
     ) {
-        item {
-            Spacer(modifier = Modifier.height(25.dp))
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(25.dp))
 
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("발표 목표 설정", style = SmTheme.typography.headingMB)
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(id = R.string.onboarding_title),
+                        style = SmTheme.typography.headingMB,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(id = R.string.onboarding_description),
+                        style = SmTheme.typography.bodyXMM,
+                        color = SmTheme.colors.primaryDefault,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                    Text(
+                        text = stringResource(id = R.string.verbal_goal),
+                        style = SmTheme.typography.headingSB,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                VerbalSkill.entries.forEach { skill ->
+                    SMOutlineButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = skill.label,
+                        isSelected = state.selectedVerbalSkills.contains(skill),
+                        onClick = { onVerbalSkillClick(skill) },
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                    Text(
+                        text = stringResource(id = R.string.non_verbal_goal),
+                        style = SmTheme.typography.headingSB,
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                NonVerbalSkill.entries.forEach { skill ->
+                    SMOutlineButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = skill.label,
+                        isSelected = state.selectedNonVerbalSkills.contains(skill),
+                        onClick = { onNonVerbalSkillClick(skill) },
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Spacer(Modifier.height(25.dp))
             }
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .align(Alignment.BottomCenter),
+        ) {
+            Divider(
+                color = SmTheme.colors.border,
+                thickness = 1.dp,
+            )
 
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text(
-                    "발표 실력을 키우고 싶은 부분을 선택해주세요!",
-                    style = SmTheme.typography.bodyXMM,
-                    color = Color.Gray,
-                )
-            }
+            Spacer(Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                Text("언어적 목표 \uD83D\uDDE3\uFE0F", style = SmTheme.typography.headingSB)
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            VerbalSkill.entries.forEach { skill ->
-                SMOutlineButton(
-                    label = skill.label,
-                    isSelected = state.selectedVerbalSkills.contains(skill),
-                    onClick = { onVerbalSkillClick(skill) },
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                Text("비언어적 목표 \uD83E\uDDCD", style = SmTheme.typography.headingSB)
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NonVerbalSkill.entries.forEach { skill ->
-                SMOutlineButton(
-                    label = skill.label,
-                    isSelected = state.selectedNonVerbalSkills.contains(skill),
-                    onClick = { onNonVerbalSkillClick(skill) },
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Spacer(Modifier.height(25.dp))
-
-            Button(
-                onClick = {
-                    signUp()
-                },
-                enabled = state.signUpAvailable,
-                colors = ButtonDefaults.buttonColors(
-                    if (state.signUpAvailable) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight,
-                ),
-                shape = RoundedCornerShape(8.dp),
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .fillMaxWidth(),
             ) {
-                Text(
-                    "완료",
-                    color = Color.White,
-                    style = SmTheme.typography.bodyXMM,
-                )
-            }
+                Button(
+                    onClick = {
+                        signUp()
+                    },
+                    enabled = state.signUpAvailable,
+                    colors = ButtonDefaults.buttonColors(
+                        if (state.signUpAvailable) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight,
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
 
-            Spacer(Modifier.height(40.dp))
+                    ) {
+                    Text(
+                        "${stringResource(R.string.complete)} (${state.selectedVerbalSkills.size + state.selectedNonVerbalSkills.size}개 선택)",
+                        color = Color.White,
+                        style = SmTheme.typography.bodyXMM,
+                    )
+                }
+            }
         }
     }
 }

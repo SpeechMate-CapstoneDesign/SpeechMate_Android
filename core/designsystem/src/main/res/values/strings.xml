@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--로그인-->
     <string name="app_name">SpeechMate</string>
     <string name="app_description">AI가 분석하는 스피치 피드백</string>
+
+    <!--온보딩-->
+    <string name="onboarding_title">나만의 스피치 목표</string>
+    <string name="onboarding_description">개선하고 싶은 영역을 1개 이상 선택해주세요.</string>
+    <string name="verbal_goal">🗣️ 언어적 목표</string>
+    <string name="non_verbal_goal">🧍 비언어적 목표</string>
 
     <!-- 다이얼로그 -->
     <string name="dialog_confirm">확인</string>
@@ -10,6 +17,9 @@
     <!-- 드롭다운 메뉴 -->
     <string name="delete">삭제하기</string>
 
+    <!--스낵바 -->
+    <string name="login_failure">로그인에 실패했습니다</string>
 
-
+    <!--General-->
+    <string name="complete">완료</string>
 </resources>

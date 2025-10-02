@@ -1,5 +1,6 @@
 package com.speech.auth.graph.login
 
+import androidx.annotation.StringRes
 import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 
