@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -167,8 +168,9 @@ private fun MyPageScreen(
         ) {
             item {
                 Text(
-                    "나의 스피치 목록",
+                    stringResource(R.string.my_speech_list),
                     style = SmTheme.typography.headingMB,
+                    color = SmTheme.colors.textPrimary
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -209,6 +211,7 @@ private fun MyPageScreen(
                             onSettingClick()
                         },
                     ),
+                colorFilter = ColorFilter.tint(SmTheme.colors.theme)
             )
         }
 

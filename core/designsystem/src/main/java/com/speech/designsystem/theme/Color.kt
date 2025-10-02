@@ -11,11 +11,13 @@ private val PrimaryGradientStart = Color(0xFF60A5FA)
 private val PrimaryGradientEnd = Color(0xFFBFDBFE)
 private val White = Color(0xFFFFFFFF)
 private val Black = Color(0xFF000000)
+
 private val Gray900 = Color(0xFF111827)
 private val Gray800 = Color(0xFF1F2937)
 private val Gray700 = Color(0xFF374151)
 private val Gray600 = Color(0xFF4B5563)
 private val Gray500 = Color(0xFF6B7280)
+private val Gray450 = Color(0xFF888888)
 private val Gray400 = Color(0xFF9CA3AF)
 private val Gray300 = Color(0xFFD1D5DB)
 private val Gray200 = Color(0xFFE5E7EB)
@@ -26,6 +28,7 @@ private val Green = Color(0xFF4CAF50)
 private val Purple = Color(0xFF673AB7)
 
 val lightColorScheme = SpeechMateColors(
+    content = Black,
     primaryDefault = PrimaryDefault,
     primaryLight = PrimaryLight,
     background = White,
@@ -33,12 +36,13 @@ val lightColorScheme = SpeechMateColors(
     border = LightGray,
     textPrimary = Black,
     textSecondary = Gray400,
-    textHint = Gray400,
+    textHint = Gray450,
     bottomIconDefault = Gray200,
     iconDefault = Gray300,
 )
 
 val darkColorScheme = SpeechMateColors(
+    content = White,
     primaryDefault = PrimaryDefault,
     primaryLight = PrimaryLight,
     background = Gray900,
@@ -46,13 +50,14 @@ val darkColorScheme = SpeechMateColors(
     border = Gray700,
     textPrimary = White,
     textSecondary = Gray400,
-    textHint = Gray400,
+    textHint = Gray450,
     bottomIconDefault = Gray500,
     iconDefault = Gray300,
 )
 
 @Immutable
 data class SpeechMateColors(
+    val content : Color,
     val primaryDefault: Color = PrimaryDefault,
     val primaryLight: Color = PrimaryLight,
     val primaryGradientStart: Color = PrimaryGradientStart,
@@ -66,9 +71,10 @@ data class SpeechMateColors(
     val bottomIconDefault: Color,
     val iconDefault: Color,
     val red: Color = Red,
-    val green : Color = Green,
+    val green: Color = Green,
     val purple: Color = Purple,
-    val black : Color = Black,
+    val black: Color = Black,
     val white: Color = White,
+    val gray: Color = Gray450,
 )
 

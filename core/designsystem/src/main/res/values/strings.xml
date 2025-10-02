@@ -12,13 +12,26 @@
 
     <!--홈-->
     <string name="home_title">오늘의 연습을\n시작해보세요</string>
-    <string name="home_sub_title">AI가 당신의 스피치를 정밀하게 분석하고\n 피드백해줍니다.</string>
+    <string name="home_sub_title">AI가 당신의 스피치를 정밀하게 분석하고\n피드백해줍니다.</string>
     <string name="record_audio">음성 녹음</string>
     <string name="record_audio_description">속도, 간투어, 침묵 구간, 대본 등 분석</string>
     <string name="record_video">영상 녹화</string>
     <string name="record_video_description">비언어적 행동까지 분석</string>
     <string name="upload_file">파일 업로드</string>
     <string name="upload_file_description">저장된 파일 불러오기</string>
+
+    <!--마이페이지-->
+    <string name="my_speech_list">나의 스피치</string>
+
+    <!--설정-->
+    <string name="setting">설정</string>
+    <string name="app_version">앱 버전</string>
+    <string name="inquiry">문의하기</string>
+    <string name="privacy_policy">개인정보처리방침</string>
+    <string name="dark_mode">다크 모드</string>
+    <string name="sign_out">로그아웃</string>
+    <string name="unregister_user">회원탈퇴</string>
+
 
     <!--스피치 설정 다이얼로그-->
     <string name="speech_config">스피치 설정</string>

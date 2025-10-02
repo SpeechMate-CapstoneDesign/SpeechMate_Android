@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -57,7 +58,7 @@ internal fun AppBottomBar(
             }
     ) {
         NavigationBar(
-            containerColor = Color.White,
+            containerColor = SmTheme.colors.surface,
             modifier = modifier
                 .align(Alignment.BottomCenter)
                 .height(50.dp)
@@ -72,7 +73,7 @@ internal fun AppBottomBar(
                             Icon(
                                 painter = painterResource(topLevelRoute.icon),
                                 contentDescription = topLevelRoute.contentDescription,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp),
                             )
 
                             Spacer(Modifier.height(3.dp))

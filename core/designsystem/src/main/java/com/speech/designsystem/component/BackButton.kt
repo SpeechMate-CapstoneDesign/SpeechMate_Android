@@ -9,10 +9,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.speech.designsystem.R
+import com.speech.designsystem.theme.SmTheme
 
 @Composable
 fun BackButton(
-    color: Color = Color.Black,
+    color: Color = SmTheme.colors.theme,
     onBackPressed: () -> Unit,
 ) {
     IconButton(
