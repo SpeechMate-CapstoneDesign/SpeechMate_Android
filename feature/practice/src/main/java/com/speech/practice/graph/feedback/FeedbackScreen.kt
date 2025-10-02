@@ -61,10 +61,7 @@ import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
-import com.speech.designsystem.theme.LightGray
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
-import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
@@ -185,7 +182,7 @@ private fun FeedbackScreen(
                         is PlayingState.Loading -> {
                             CircularProgressIndicator(
                                 modifier = Modifier.align(Alignment.Center),
-                                color = PrimaryActive,
+                                color = SmTheme.colors.primaryDefault,
                             )
                         }
 
@@ -194,7 +191,7 @@ private fun FeedbackScreen(
                                 "영상 또는 음성 파일을 불러오는데 실패했습니다.",
                                 modifier = Modifier.align(Alignment.Center),
                                 color = Color.White,
-                                style = SpeechMateTheme.typography.bodySM,
+                                style = SmTheme.typography.bodySM,
                             )
                         }
 
@@ -236,23 +233,23 @@ private fun FeedbackScreen(
                         Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
                             Text(
                                 "날짜: ${state.speechDetail.formattedDate}",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                             Text(
                                 "발표 이름: ${config.fileName}",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                             Text(
                                 "발표 상황: ${config.speechType?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                             Text(
                                 "청중: ${config.audience?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                             Text(
                                 "발표 장소: ${config.venue?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                         }
                     }
@@ -268,18 +265,18 @@ private fun FeedbackScreen(
 
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
+                                    color = SmTheme.colors.primaryLight,
                                 )
 
                                 Spacer(Modifier.height(15.dp))
 
                                 Text(
                                     "대본을 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
                             }
                         } else {
-                            Text(text = state.speechDetail.script, style = SpeechMateTheme.typography.bodyXMM)
+                            Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM)
                         }
                     }
 
@@ -296,49 +293,49 @@ private fun FeedbackScreen(
 
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
+                                    color = SmTheme.colors.primaryLight,
                                 )
 
                                 Spacer(Modifier.height(15.dp))
 
                                 Text(
                                     "대본을 분석한 결과를 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
                             }
                         } else if (scriptAnalysisTab.isError) {
                             Text(
                                 "대본을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                         } else {
                             Column {
                                 val analysis = state.speechDetail.scriptAnalysis
                                 Text(
                                     text = "키워드",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                    color = PrimaryActive,
+                                    style = SmTheme.typography.bodyMSB,
+                                    color = SmTheme.colors.primaryDefault,
                                 )
 
                                 Spacer(Modifier.height(5.dp))
 
                                 Text(
                                     text = analysis.keywords,
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
 
                                 Spacer(Modifier.height(15.dp))
 
                                 Text(
                                     text = "요약",
-                                    style = SpeechMateTheme.typography.bodyMSB,
+                                    style = SmTheme.typography.bodyMSB,
                                 )
 
                                 Spacer(Modifier.height(5.dp))
 
                                 Text(
                                     text = analysis.summary,
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
 
                                 Spacer(Modifier.height(10.dp))
@@ -349,7 +346,7 @@ private fun FeedbackScreen(
 
                                 Text(
                                     text = "개선점",
-                                    style = SpeechMateTheme.typography.bodyMSB,
+                                    style = SmTheme.typography.bodyMSB,
                                 )
                                 Spacer(Modifier.height(5.dp))
 
@@ -359,7 +356,7 @@ private fun FeedbackScreen(
                                     analysis.improvementPoints.forEach { point ->
                                         Text(
                                             text = point,
-                                            style = SpeechMateTheme.typography.bodyXMM,
+                                            style = SmTheme.typography.bodyXMM,
                                         )
                                     }
                                 }
@@ -372,14 +369,14 @@ private fun FeedbackScreen(
 
                                 Text(
                                     text = "피드백",
-                                    style = SpeechMateTheme.typography.bodyMSB,
+                                    style = SmTheme.typography.bodyMSB,
                                 )
 
                                 Spacer(Modifier.height(5.dp))
 
                                 Text(
                                     text = analysis.feedback,
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
 
                                 Spacer(Modifier.height(10.dp))
@@ -390,7 +387,7 @@ private fun FeedbackScreen(
 
                                 Text(
                                     text = "예상 질문",
-                                    style = SpeechMateTheme.typography.bodyMSB,
+                                    style = SmTheme.typography.bodyMSB,
                                 )
 
                                 Spacer(Modifier.height(5.dp))
@@ -401,7 +398,7 @@ private fun FeedbackScreen(
                                     analysis.expectedQuestions.forEach { question ->
                                         Text(
                                             text = question,
-                                            style = SpeechMateTheme.typography.bodyXMM,
+                                            style = SmTheme.typography.bodyXMM,
                                         )
                                     }
                                 }
@@ -421,20 +418,20 @@ private fun FeedbackScreen(
 
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
+                                    color = SmTheme.colors.primaryLight,
                                 )
 
                                 Spacer(Modifier.height(15.dp))
 
                                 Text(
                                     "언어적 특징을 분석 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    style = SmTheme.typography.bodyXMM,
                                 )
                             }
                         } else if (verbalAnalysisTab.isError) {
                             Text(
                                 "언어적 특징을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                         } else {
                             // TODO: Implement Verbal Analysis Content
@@ -451,7 +448,7 @@ private fun FeedbackScreen(
 
                             Text(
                                 text = "비언어적 행동 분석은 아직 준비중입니다!",
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                         }
 
@@ -466,20 +463,20 @@ private fun FeedbackScreen(
 //
 //                                CircularProgressIndicator(
 //                                    modifier = Modifier.size(48.dp),
-//                                    color = PrimaryDefault,
+//                                    color = SmTheme.colors.primaryLight,
 //                                )
 //
 //                                Spacer(Modifier.height(15.dp))
 //
 //                                Text(
 //                                    "비언어적 행동을 분석 중입니다.",
-//                                    style = SpeechMateTheme.typography.bodyXMM,
+//                                    style = SmTheme.typography.bodyXMM,
 //                                )
 //                            }
 //                        } else if (nonVerbalAnalysisTab.isError) {
 //                            Text(
 //                                "비언어적 을 분석한 결과를 불러오는데 실패했습니다.",
-//                                style = SpeechMateTheme.typography.bodyXMM,
+//                                style = SmTheme.typography.bodyXMM,
 //                            )
 //                        } else {
 //                            // TODO: Implement Non-Verbal Analysis Content
@@ -506,7 +503,7 @@ private fun FeedbackScreen(
 
         Text(
             state.speechDetail.speechConfig.fileName,
-            style = SpeechMateTheme.typography.headingSB,
+            style = SmTheme.typography.headingSB,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -597,8 +594,8 @@ private fun MediaControls(
                 },
                 colors = SliderDefaults.colors(
                     thumbColor = Color.Transparent,
-                    activeTrackColor = PrimaryActive,
-                    inactiveTrackColor = LightGray,
+                    activeTrackColor = SmTheme.colors.primaryDefault,
+                    inactiveTrackColor = SmTheme.colors.iconDefault,
                     activeTickColor = Color.Transparent,
                     inactiveTickColor = Color.Transparent,
                 ),
@@ -608,7 +605,7 @@ private fun MediaControls(
                             .size(16.dp)
                             .clip(CircleShape)
                             .shadow(elevation = 1.dp, shape = CircleShape)
-                            .background(color = PrimaryActive, shape = CircleShape),
+                            .background(color = SmTheme.colors.primaryDefault, shape = CircleShape),
                     )
                 },
                 track = { sliderState ->
@@ -616,8 +613,8 @@ private fun MediaControls(
                         sliderState = sliderState,
                         colors = SliderDefaults.colors(
                             thumbColor = Color.Transparent,
-                            activeTrackColor = PrimaryActive,
-                            inactiveTrackColor = LightGray,
+                            activeTrackColor = SmTheme.colors.primaryDefault,
+                            inactiveTrackColor = SmTheme.colors.iconDefault,
                             activeTickColor = Color.Transparent,
                             inactiveTickColor = Color.Transparent,
                         ),
@@ -636,12 +633,12 @@ private fun MediaControls(
         Row {
             Text(
                 text = state.playerState.formattedCurrentPosition,
-                style = SpeechMateTheme.typography.bodySM,
+                style = SmTheme.typography.bodySM,
             )
 
             Text(
                 text = " / ${state.playerState.formattedDuration}",
-                style = SpeechMateTheme.typography.bodySM,
+                style = SmTheme.typography.bodySM,
             )
         }
     }

@@ -66,7 +66,7 @@ import com.speech.practice.component.dialog.SpeechConfigDialog
 import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
@@ -339,7 +339,7 @@ fun RecordVideoScreen(
                                 .align(
                                     Center,
                                 ),
-                            colorFilter = ColorFilter.tint(PrimaryActive),
+                            colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                         )
                     }
 
@@ -393,7 +393,7 @@ fun RecordVideoScreen(
                             .height(50.dp)
                             .padding(horizontal = 60.dp)
                             .clip(shape = RoundedCornerShape(12.dp))
-                            .background(PrimaryActive)
+                            .background(SmTheme.colors.primaryDefault)
                             .clickable {
                                 showSpeechConfigDg = true
                             },
@@ -415,7 +415,7 @@ fun RecordVideoScreen(
 
                             Text(
                                 "피드백 받기",
-                                style = SpeechMateTheme.typography.bodyMSB,
+                                style = SmTheme.typography.bodyMSB,
                                 color = Color.White,
                             )
                         }
@@ -446,15 +446,15 @@ fun RecordVideoScreen(
                                 contentDescription = "재녹화",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(PrimaryActive),
+                                colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                             )
 
                             Spacer(Modifier.width(6.dp))
 
                             Text(
                                 "재녹화",
-                                style = SpeechMateTheme.typography.bodyMM,
-                                color = PrimaryActive,
+                                style = SmTheme.typography.bodyMM,
+                                color = SmTheme.colors.primaryDefault,
                             )
                         }
 
@@ -494,7 +494,7 @@ private fun RecordVideoButton(
         )
 
         SimpleCircle(
-            color = PrimaryActive,
+            color = SmTheme.colors.primaryDefault,
             diameter = 36.dp,
             modifier = Modifier
                 .align(Center)

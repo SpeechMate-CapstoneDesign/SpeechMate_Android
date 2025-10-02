@@ -33,17 +33,14 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.practice.component.dialog.SpeechConfigDialog
 import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.LightGray
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.RecordAudio
-import com.speech.designsystem.theme.RecordVideo
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
@@ -122,17 +119,17 @@ private fun PracticeScreen(
 
                     Spacer(Modifier.height(10.dp))
 
-                    Text("발표를 연습하고", style = SpeechMateTheme.typography.headingMB)
+                    Text("발표를 연습하고", style = SmTheme.typography.headingMB)
 
                     Text(
                         text = buildAnnotatedString {
                             append("즉시 ")
-                            withStyle(style = SpanStyle(color = PrimaryActive)) {
+                            withStyle(style = SpanStyle(color = SmTheme.colors.primaryDefault)) {
                                 append("피드백")
                             }
                             append("을 받아보세요!")
                         },
-                        style = SpeechMateTheme.typography.headingMB,
+                        style = SmTheme.typography.headingMB,
                     )
 
                     Spacer(Modifier.height(35.dp))
@@ -143,7 +140,7 @@ private fun PracticeScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(RecordAudio)
+                                .background(SmTheme.colors.primaryDefault)
                                 .padding(20.dp)
                                 .clickable(
                                     onClick = rememberDebouncedOnClick {
@@ -163,7 +160,7 @@ private fun PracticeScreen(
 
                                 Spacer(Modifier.width(6.dp))
 
-                                Text("녹음", style = SpeechMateTheme.typography.bodyMM)
+                                Text("녹음", style = SmTheme.typography.bodyMM)
                             }
                         }
 
@@ -172,7 +169,7 @@ private fun PracticeScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(RecordVideo)
+                                .background(SmTheme.colors.primaryDefault)
                                 .padding(20.dp)
                                 .clickable(
                                     onClick = rememberDebouncedOnClick {
@@ -191,7 +188,7 @@ private fun PracticeScreen(
 
                                 Spacer(Modifier.width(6.dp))
 
-                                Text("녹화", style = SpeechMateTheme.typography.bodyMM)
+                                Text("녹화", style = SmTheme.typography.bodyMM)
                             }
                         }
 
@@ -229,7 +226,7 @@ private fun UploadFileButton(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(LightGray)
+            .background(SmTheme.colors.iconDefault)
             .padding(20.dp)
             .clickable {
                 val mimeTypes = arrayOf("audio/*", "video/*")
@@ -247,7 +244,7 @@ private fun UploadFileButton(
 
             Spacer(Modifier.width(6.dp))
 
-            Text("업로드", style = SpeechMateTheme.typography.bodyMM)
+            Text("업로드", style = SmTheme.typography.bodyMM)
         }
     }
 

@@ -29,13 +29,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.PrimaryLight
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 
 private val customTextSelectionColors = TextSelectionColors(
-    handleColor = PrimaryDefault,
-    backgroundColor = PrimaryDefault.copy(
+    handleColor = PrimaryLight,
+    backgroundColor = PrimaryLight.copy(
         alpha = 0.75f
     )
 )
@@ -64,14 +64,14 @@ fun SMOutlinedTextField(
                 )
                 .border(
                     width = 1.dp,
-                    color = if (isFocused) PrimaryActive else Color.LightGray,
+                    color = if (isFocused) SmTheme.colors.primaryDefault else Color.LightGray,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 10.dp)
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                 },
-            textStyle = SpeechMateTheme.typography.bodySM.copy(
+            textStyle = SmTheme.typography.bodySM.copy(
                 color = Color.Black
             ),
             keyboardOptions = KeyboardOptions(
@@ -83,7 +83,7 @@ fun SMOutlinedTextField(
                 focusManager.clearFocus()
             }),
             singleLine = true,
-            cursorBrush = SolidColor(PrimaryActive),
+            cursorBrush = SolidColor(SmTheme.colors.primaryDefault),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -92,7 +92,7 @@ fun SMOutlinedTextField(
                     if (value.isEmpty()) {
                         Text(
                             text = hint,
-                            style = SpeechMateTheme.typography.bodySM,
+                            style = SmTheme.typography.bodySM,
                             color = Color.Gray
                         )
                     }

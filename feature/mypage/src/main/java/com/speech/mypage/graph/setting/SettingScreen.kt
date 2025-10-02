@@ -28,6 +28,7 @@ import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
@@ -111,7 +112,7 @@ private fun SettingScreen(
 
                 Text(
                     "이용 안내",
-                    style = SpeechMateTheme.typography.bodyMSB
+                    style = SmTheme.typography.bodyMSB
                 )
 
                 Spacer(Modifier.height(17.dp))
@@ -121,7 +122,7 @@ private fun SettingScreen(
                 ) {
                     Text(
                         "앱 버전",
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
 
                     Spacer(Modifier.weight(1f))
@@ -129,7 +130,7 @@ private fun SettingScreen(
                     Text(
                         "1.0.0",
                         color = Color.Gray,
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
                 }
 
@@ -144,7 +145,7 @@ private fun SettingScreen(
                 ) {
                     Text(
                         "문의하기",
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
                 }
 
@@ -159,7 +160,7 @@ private fun SettingScreen(
                 ) {
                     Text(
                         "개인정보처리방침",
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
                 }
 
@@ -175,7 +176,7 @@ private fun SettingScreen(
 
                 Text(
                     "계정",
-                    style = SpeechMateTheme.typography.bodyMSB
+                    style = SmTheme.typography.bodyMSB
                 )
 
                 Spacer(Modifier.height(17.dp))
@@ -190,7 +191,7 @@ private fun SettingScreen(
                 ) {
                     Text(
                         "로그아웃",
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
                 }
 
@@ -205,7 +206,7 @@ private fun SettingScreen(
                 ) {
                     Text(
                         "회원탈퇴",
-                        style = SpeechMateTheme.typography.bodyMM
+                        style = SmTheme.typography.bodyMM
                     )
                 }
 
@@ -227,7 +228,7 @@ private fun SettingScreen(
 
             Spacer(Modifier.width(10.dp))
 
-            Text("설정", style = SpeechMateTheme.typography.bodyMSB)
+            Text("설정", style = SmTheme.typography.bodyMSB)
         }
 
     }

@@ -14,7 +14,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 
 private val LocalColors = compositionLocalOf {
-    SpeechMateColors()
+    lightColorScheme
 }
 
 private val LocalTypography = staticCompositionLocalOf {
@@ -26,7 +26,16 @@ fun SpeechMateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(content = content)
+    val colors = if (darkTheme) {
+        darkColorScheme
+    } else {
+        lightColorScheme
+    }
+
+    CompositionLocalProvider(
+        LocalColors provides colors,
+        content = content,
+    )
 }
 
 object SmTheme {
@@ -37,4 +46,6 @@ object SmTheme {
     val typography: SpeechMateTypography
         @Composable
         get() = LocalTypography.current
+
+
 }

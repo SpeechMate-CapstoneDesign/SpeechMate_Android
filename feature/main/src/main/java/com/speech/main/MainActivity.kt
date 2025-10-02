@@ -32,6 +32,7 @@ import com.example.designsystem.component.SpeechMateSnackBarHost
 import com.speech.auth.navigation.navigateToLogin
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechMateBottomBarAnimation
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppBottomBar
 import com.speech.main.navigation.AppNavHost
@@ -47,8 +48,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         installSplashScreen()
+        enableEdgeToEdge()
         requestPermissions(this)
 
         setContent {
@@ -89,7 +90,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalSnackbarHostState provides snackBarHostState) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
-                        containerColor = Color.White,
+                        containerColor = SmTheme.colors.background,
                         snackbarHost = {
                             SpeechMateSnackBarHost(
                                 hostState = snackBarHostState,

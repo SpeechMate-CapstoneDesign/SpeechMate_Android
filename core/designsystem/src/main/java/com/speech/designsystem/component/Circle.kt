@@ -10,12 +10,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 
 @Composable
 fun SimpleCircle(
     modifier: Modifier = Modifier,
-    color: Color = PrimaryActive,
+    color: Color = SmTheme.colors.primaryDefault,
     diameter: Dp = 90.dp
 ) {
     Canvas(modifier = modifier.size(diameter)) {

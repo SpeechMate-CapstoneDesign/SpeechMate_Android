@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 
 @Composable
@@ -25,15 +25,15 @@ fun SMOutlineButton(
         modifier = Modifier.height(36.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.White,
-            contentColor = if (isSelected) PrimaryActive else Color.Gray,
+            contentColor = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray,
             disabledContainerColor = Color.Gray,
             disabledContentColor = Color.DarkGray
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isSelected) PrimaryActive else Color.Gray
+            color = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray
         ), shape = RoundedCornerShape(cornerRadius.dp)
     ) {
-        Text(label, style = SpeechMateTheme.typography.bodySM)
+        Text(label, style = SmTheme.typography.bodySM)
     }
 }

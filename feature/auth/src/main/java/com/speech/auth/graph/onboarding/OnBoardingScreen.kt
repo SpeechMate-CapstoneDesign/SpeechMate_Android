@@ -135,7 +135,7 @@ fun OnBoardingScreen(
                 },
                 enabled = state.signUpAvailable,
                 colors = ButtonDefaults.buttonColors(
-                    if (state.signUpAvailable) SmTheme.colors.primaryActive else SmTheme.colors.primaryDefault,
+                    if (state.signUpAvailable) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight,
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier

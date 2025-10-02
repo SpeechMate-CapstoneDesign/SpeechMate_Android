@@ -54,10 +54,8 @@ import com.speech.designsystem.component.StrokeRoundRectangle
 import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.rememberDebouncedOnClick
-import com.speech.designsystem.theme.DarkGray
-import com.speech.designsystem.theme.PrimaryDefault
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
@@ -219,7 +217,7 @@ private fun RecordAudioScreen(
                                 },
                         ) {
                             StrokeCircle(
-                                color = PrimaryDefault,
+                                color = SmTheme.colors.primaryLight,
                                 modifier = Modifier.align(
                                     Center,
                                 ),
@@ -243,7 +241,7 @@ private fun RecordAudioScreen(
                                 },
                         ) {
                             StrokeCircle(
-                                color = PrimaryDefault,
+                                color = SmTheme.colors.primaryLight,
                                 diameter = 70.dp,
                                 modifier = Modifier.align(
                                     Center,
@@ -258,7 +256,7 @@ private fun RecordAudioScreen(
                                     .align(
                                         Center,
                                     ),
-                                colorFilter = ColorFilter.tint(PrimaryActive),
+                                colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                             )
                         }
 
@@ -272,7 +270,7 @@ private fun RecordAudioScreen(
                                 },
                         ) {
                             StrokeCircle(
-                                color = PrimaryDefault,
+                                color = SmTheme.colors.primaryLight,
                                 modifier = Modifier.align(
                                     Center,
                                 ),
@@ -290,7 +288,7 @@ private fun RecordAudioScreen(
                                     .align(
                                         Center,
                                     ),
-                                colorFilter = ColorFilter.tint(DarkGray),
+                                colorFilter = ColorFilter.tint(SmTheme.colors.iconDefault),
                             )
                         }
 
@@ -305,7 +303,7 @@ private fun RecordAudioScreen(
                             .height(50.dp)
                             .padding(horizontal = 60.dp)
                             .clip(shape = RoundedCornerShape(12.dp))
-                            .background(PrimaryActive)
+                            .background(SmTheme.colors.iconDefault)
                             .clickable {
                                 showSpeechConfigDg = true
                             },
@@ -327,7 +325,7 @@ private fun RecordAudioScreen(
 
                             Text(
                                 "피드백 받기",
-                                style = SpeechMateTheme.typography.bodyMSB,
+                                style = SmTheme.typography.bodyMSB,
                                 color = Color.White,
                             )
                         }
@@ -358,15 +356,15 @@ private fun RecordAudioScreen(
                                 contentDescription = "재녹음",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(PrimaryActive),
+                                colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                             )
 
                             Spacer(Modifier.width(6.dp))
 
                             Text(
                                 "재녹음",
-                                style = SpeechMateTheme.typography.bodyMM,
-                                color = PrimaryActive,
+                                style = SmTheme.typography.bodyMM,
+                                color = SmTheme.colors.primaryDefault,
                             )
                         }
 

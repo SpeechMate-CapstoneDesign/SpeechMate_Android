@@ -37,6 +37,7 @@ import androidx.compose.ui.window.Popup
 import com.speech.designsystem.R
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
+import com.speech.designsystem.theme.SmTheme
 
 data class SMDropdownMenuItem(
     val labelRes: Int,
@@ -84,7 +85,7 @@ fun SMDropDownMenu(
                         ) {
                             Text(
                                 text = stringResource(item.labelRes),
-                                style = SpeechMateTheme.typography.bodyXMM,
+                                style = SmTheme.typography.bodyXMM,
                             )
                         }
                     }

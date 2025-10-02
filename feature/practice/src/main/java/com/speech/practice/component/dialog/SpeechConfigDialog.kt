@@ -27,8 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.speech.designsystem.component.SMOutlineButton
 import com.speech.designsystem.component.SMOutlinedTextField
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.Audience
 import com.speech.domain.model.speech.SpeechConfig
@@ -52,11 +51,11 @@ fun SpeechConfigDialog(
             Column(
                 horizontalAlignment = Alignment.Start,
             ) {
-                Text("발표 파일 설정", style = SpeechMateTheme.typography.headingSB)
+                Text("발표 파일 설정", style = SmTheme.typography.headingSB)
 
                 Spacer(Modifier.height(20.dp))
 
-                Text("발표 이름", style = SpeechMateTheme.typography.bodySM)
+                Text("발표 이름", style = SmTheme.typography.bodySM)
 
                 Spacer(Modifier.height(8.dp))
 
@@ -68,7 +67,7 @@ fun SpeechConfigDialog(
 
                 Spacer(Modifier.height(20.dp))
 
-                Text("발표 상황", style = SpeechMateTheme.typography.bodySM)
+                Text("발표 상황", style = SmTheme.typography.bodySM)
 
                 Spacer(Modifier.height(8.dp))
 
@@ -88,7 +87,7 @@ fun SpeechConfigDialog(
 
                 Spacer(Modifier.height(20.dp))
 
-                Text("청중", style = SpeechMateTheme.typography.bodySM)
+                Text("청중", style = SmTheme.typography.bodySM)
 
                 Spacer(Modifier.height(8.dp))
 
@@ -108,7 +107,7 @@ fun SpeechConfigDialog(
 
                 Spacer(Modifier.height(20.dp))
 
-                Text("발표 장소", style = SpeechMateTheme.typography.bodySM)
+                Text("발표 장소", style = SmTheme.typography.bodySM)
 
                 Spacer(Modifier.height(8.dp))
 
@@ -135,7 +134,7 @@ fun SpeechConfigDialog(
                     },
                     enabled = speechConfig.isValid,
                     colors = ButtonDefaults.buttonColors(
-                        if (speechConfig.isValid) PrimaryActive else PrimaryDefault
+                        if (speechConfig.isValid) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
@@ -145,7 +144,7 @@ fun SpeechConfigDialog(
                     Text(
                         "완료",
                         color = Color.White,
-                        style = SpeechMateTheme.typography.bodyXMM
+                        style = SmTheme.typography.bodyXMM
                     )
                 }
             }

@@ -23,9 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import com.speech.common_ui.ui.NoRippleInteractionSource
-import com.speech.designsystem.theme.CloudGray
-import com.speech.designsystem.theme.PrimaryActive
 import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.SmTheme
 import com.speech.navigation.MyPageBaseRoute
 import com.speech.navigation.PracticeBaseRoute
 import com.speech.navigation.Route
@@ -91,10 +90,10 @@ internal fun AppBottomBar(
                     selected = currentDestination.isRouteInHierarchy(topLevelRoute.route),
                     interactionSource = remember { NoRippleInteractionSource() },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = PrimaryActive,
-                        unselectedIconColor = CloudGray,
-                        selectedTextColor = PrimaryActive,
-                        unselectedTextColor = CloudGray,
+                        selectedIconColor = SmTheme.colors.primaryDefault,
+                        unselectedIconColor = SmTheme.colors.iconDefault,
+                        selectedTextColor = SmTheme.colors.primaryDefault,
+                        unselectedTextColor =  SmTheme.colors.iconDefault,
                         indicatorColor = Color.Transparent
                     ),
                 )

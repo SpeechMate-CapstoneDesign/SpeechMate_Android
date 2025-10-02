@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">SpeechMate</string>
+    <string name="app_description">AI가 분석하는 스피치 피드백</string>
+
     <!-- 다이얼로그 -->
     <string name="dialog_confirm">확인</string>
     <string name="dialog_cancel">취소</string>
 
     <!-- 드롭다운 메뉴 -->
     <string name="delete">삭제하기</string>
+
 
 
 </resources>

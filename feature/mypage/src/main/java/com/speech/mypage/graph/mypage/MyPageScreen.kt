@@ -46,9 +46,9 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
@@ -59,10 +59,7 @@ import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
-import com.speech.designsystem.theme.Green
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
-import com.speech.designsystem.theme.Purple
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.Audience
 import com.speech.domain.model.speech.SpeechConfig
@@ -155,9 +152,9 @@ private fun MyPageScreen(
             .pullRefresh(pullRefreshState),
     ) {
         PullRefreshIndicator(
-            refreshing = false,
+            refreshing = isRefreshing,
             state = pullRefreshState,
-            contentColor = PrimaryDefault,
+            contentColor = SmTheme.colors.primaryLight,
             modifier = Modifier.align(Alignment.TopCenter),
         )
 
@@ -169,8 +166,8 @@ private fun MyPageScreen(
         ) {
             item {
                 Text(
-                    "나의 스피치",
-                    style = SpeechMateTheme.typography.headingMB,
+                    "나의 스피치 목록",
+                    style = SmTheme.typography.headingMB,
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -213,12 +210,13 @@ private fun MyPageScreen(
                     ),
             )
         }
-
-        if (isRefreshing || isAppending) {
+        
+        val isInitialLoading = isRefreshing && speechFeeds.itemCount == 0
+        if (isInitialLoading || isAppending) {
             CircularProgressIndicator(
-                color = PrimaryDefault,
+                color = SmTheme.colors.primaryLight,
                 modifier = Modifier.align(
-                    if (isRefreshing) Alignment.Center else Alignment.BottomCenter,
+                    if (isInitialLoading) Alignment.Center else Alignment.BottomCenter,
                 ),
             )
         }
@@ -238,7 +236,7 @@ private fun SpeechFeed(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, PrimaryDefault, RoundedCornerShape(8.dp))
+            .border(1.dp, SmTheme.colors.primaryLight, RoundedCornerShape(8.dp))
             .combinedClickable(
                 onClick = {
                     onClick(speechFeed.id, speechFeed.fileUrl, speechFeed.speechFileType, speechFeed.speechConfig)
@@ -260,7 +258,7 @@ private fun SpeechFeed(
             ) {
                 Text(
                     text = speechFeed.speechConfig.fileName,
-                    style = SpeechMateTheme.typography.bodyXMSB,
+                    style = SmTheme.typography.bodyXMSB,
                     modifier = Modifier.weight(1f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -283,7 +281,7 @@ private fun SpeechFeed(
 
                         Text(
                             text = speechFeed.duration,
-                            style = SpeechMateTheme.typography.bodyXSM,
+                            style = SmTheme.typography.bodyXSM,
                             color = Color.Gray,
                         )
                     }
@@ -301,7 +299,7 @@ private fun SpeechFeed(
 
                         Text(
                             text = speechFeed.date,
-                            style = SpeechMateTheme.typography.bodyXSM,
+                            style = SmTheme.typography.bodyXSM,
                             color = Color.Gray,
                         )
                     }
@@ -319,12 +317,12 @@ private fun SpeechFeed(
                         painter = painterResource(R.drawable.document_ic),
                         contentDescription = "발표 상황",
                         modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(PrimaryActive),
+                        colorFilter = ColorFilter.tint(SmTheme.colors.primaryLight),
                     )
 
                     Text(
                         text = speechFeed.speechConfig.speechType?.label ?: "",
-                        style = SpeechMateTheme.typography.bodySM,
+                        style = SmTheme.typography.bodySM,
                         color = Color.Gray,
                     )
                 }
@@ -337,12 +335,12 @@ private fun SpeechFeed(
                         painter = painterResource(R.drawable.people_ic),
                         contentDescription = "청중",
                         modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(Green),
+                        colorFilter = ColorFilter.tint(SmTheme.colors.iconDefault),
                     )
 
                     Text(
                         text = speechFeed.speechConfig.audience?.label ?: "",
-                        style = SpeechMateTheme.typography.bodySM,
+                        style = SmTheme.typography.bodySM,
                         color = Color.Gray,
                     )
                 }
@@ -355,12 +353,12 @@ private fun SpeechFeed(
                         painter = painterResource(R.drawable.location_ic),
                         contentDescription = "장소",
                         modifier = Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(Purple),
+                        colorFilter = ColorFilter.tint(SmTheme.colors.iconDefault),
                     )
 
                     Text(
                         text = speechFeed.speechConfig.venue?.label ?: "",
-                        style = SpeechMateTheme.typography.bodySM,
+                        style = SmTheme.typography.bodySM,
                         color = Color.Gray,
                     )
                 }

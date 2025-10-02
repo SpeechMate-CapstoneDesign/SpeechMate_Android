@@ -28,8 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
+import com.speech.designsystem.theme.SmTheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -45,7 +44,7 @@ fun SpeechMateSnackBar(
             .padding(horizontal = 28.dp)
             .padding(bottom = 36.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(PrimaryActive)
+            .background(SmTheme.colors.primaryDefault)
             .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
     ) {
         Text(

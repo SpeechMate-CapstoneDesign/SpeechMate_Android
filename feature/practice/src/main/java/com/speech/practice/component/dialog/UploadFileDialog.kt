@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,7 +24,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.upload.UploadFileStatus
 
@@ -50,14 +51,14 @@ fun UploadFileDialog(
                 ) {
                     Text(
                         text = "파일 업로드 중..",
-                        style = SpeechMateTheme.typography.bodyMM,
+                        style = SmTheme.typography.bodyMM,
                     )
 
                     Spacer(Modifier.width(8.dp))
 
                     Text(
                         text = "(${status.elapsedSeconds.inWholeSeconds}초)",
-                        style = SpeechMateTheme.typography.bodyXSM,
+                        style = SmTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
                 }
@@ -70,7 +71,7 @@ fun UploadFileDialog(
                         .fillMaxWidth()
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp)),
-                    color = PrimaryActive,
+                    color = SmTheme.colors.primaryDefault,
                     trackColor = Color.LightGray,
                     strokeCap = StrokeCap.Square,
                     gapSize = 0.dp,
@@ -85,13 +86,13 @@ fun UploadFileDialog(
                 ) {
                     Text(
                         text = "${status.progress}%",
-                        style = SpeechMateTheme.typography.bodyXSM,
+                        style = SmTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
 
                     Text(
                         text = status.formattedBytes,
-                        style = SpeechMateTheme.typography.bodyXSM,
+                        style = SmTheme.typography.bodyXSM,
                         color = Color.Gray,
                     )
                 }
@@ -104,11 +105,11 @@ fun UploadFileDialog(
 @Preview
 @Composable
 fun UploadFileDialogPreview() {
-    UploadFileDialog(
-        status = UploadFileStatus(
-            currentBytes = 250000,
-            totalBytes = 5000000,
-        ),
-        onDismiss = {},
-    )
+        UploadFileDialog(
+            status = UploadFileStatus(
+                currentBytes = 250000,
+                totalBytes = 5000000,
+            ),
+            onDismiss = {},
+        )
 }
