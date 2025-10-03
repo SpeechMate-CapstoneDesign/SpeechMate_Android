@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -75,6 +76,9 @@ import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
 import com.speech.practice.graph.feedback.component.MediaControls
+import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
+import com.speech.practice.graph.feedback.component.SpeechConfigContent
+import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -166,6 +170,113 @@ private fun FeedbackScreen(
             content = stringResource(R.string.delete_speech_confirmation),
         )
     }
+    var headerHeightPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { headerHeightPx = it.height },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
+
+            BackButton(onBackPressed = debouncedOnBackPressed)
+
+            Spacer(Modifier.width(5.dp))
+
+            Text(
+                state.speechDetail.speechConfig.fileName,
+                style = SmTheme.typography.headingSB,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            Box {
+                Image(
+                    painter = painterResource(R.drawable.ic_menu),
+                    contentDescription = "메뉴",
+                    modifier = Modifier.clickable(isRipple = true) {
+                        onMenuClick()
+                    },
+                )
+
+                SMDropDownMenu(
+                    expanded = state.showDropdownMenu,
+                    onDismiss = onDismissDropDownMenu,
+                    alignment = Alignment.TopEnd,
+                    offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
+                    items = listOf(
+                        SMDropdownMenuItem(
+                            labelRes = R.string.delete,
+                            action = { showDeleteDg = true },
+                        ),
+                    ),
+                )
+            }
+        }
+
+        Column(Modifier.padding(horizontal = 20.dp)) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                PlayerSurface(
+                    player = exoPlayer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f),
+                )
+
+                when (state.playingState) {
+                    is PlayingState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = SmTheme.colors.primaryDefault,
+                        )
+                    }
+
+                    is PlayingState.Error -> {
+                        Text(
+                            stringResource(R.string.error_failed_to_load_media),
+                            modifier = Modifier.align(Alignment.Center),
+                            color = Color.White,
+                            style = SmTheme.typography.bodySM,
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            MediaControls(
+                state = state,
+                onStartPlaying = onStartPlaying,
+                onPausePlaying = onPausePlaying,
+                onSeekTo = onSeekTo,
+                onChangePlaybackSpeed = onChangePlaybackSpeed,
+            )
+
+            Spacer(Modifier.height(20.dp))
+        }
+
+        CustomScrollableTabRow(
+            tabs = FeedbackTab.entries.filterNot {
+                state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
+            },
+            selectedTab = state.feedbackTab,
+            onTabSelected = onTabSelected,
+        )
+    }
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -173,94 +284,18 @@ private fun FeedbackScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 55.dp),
+                .padding(top = with(density) { headerHeightPx.toDp() }),
         ) {
-            item {
-                Column(Modifier.padding(horizontal = 20.dp)) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        PlayerSurface(
-                            player = exoPlayer,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(16f / 11f),
-                        )
-
-                        when (state.playingState) {
-                            is PlayingState.Loading -> {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = SmTheme.colors.primaryDefault,
-                                )
-                            }
-
-                            is PlayingState.Error -> {
-                                Text(
-                                    stringResource(R.string.error_failed_to_load_media),
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = Color.White,
-                                    style = SmTheme.typography.bodySM,
-                                )
-                            }
-
-                            else -> {}
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    MediaControls(
-                        state = state,
-                        onStartPlaying = onStartPlaying,
-                        onPausePlaying = onPausePlaying,
-                        onSeekTo = onSeekTo,
-                        onChangePlaybackSpeed = onChangePlaybackSpeed,
-                    )
-
-                    Spacer(Modifier.height(20.dp))
-                }
-            }
-
-            item {
-                CustomScrollableTabRow(
-                    tabs = FeedbackTab.entries.filterNot {
-                        state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
-                    },
-                    selectedTab = state.feedbackTab,
-                    onTabSelected = onTabSelected,
-                )
-            }
-
             item {
                 Column(Modifier.padding(horizontal = 20.dp)) {
                     Spacer(Modifier.height(15.dp))
 
                     when (state.feedbackTab) {
                         FeedbackTab.SPEECH_CONFIG -> {
-                            val config = state.speechDetail.speechConfig
-                            Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                Text(
-                                    stringResource(R.string.date, state.speechDetail.formattedDate),
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                                Text(
-                                    "${stringResource(R.string.speech_name)}: ${config.fileName}",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                                Text(
-                                    "${stringResource(R.string.speech_context)}: ${config.speechType?.label ?: ""}",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                                Text(
-                                    "${stringResource(R.string.audience)}: ${config.audience?.label ?: ""}",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                                Text(
-                                    "${stringResource(R.string.speech_venue)}: ${config.venue?.label ?: ""}",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                            }
+                            SpeechConfigContent(
+                                date = state.speechDetail.formattedDate,
+                                speechConfig = state.speechDetail.speechConfig,
+                            )
                         }
 
                         FeedbackTab.SCRIPT -> {
@@ -318,100 +353,7 @@ private fun FeedbackScreen(
                                     style = SmTheme.typography.bodyXMM,
                                 )
                             } else {
-                                Column {
-                                    val analysis = state.speechDetail.scriptAnalysis
-                                    Text(
-                                        text = stringResource(R.string.keywords),
-                                        style = SmTheme.typography.bodyMSB,
-                                        color = SmTheme.colors.primaryDefault,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Text(
-                                        text = analysis.keywords,
-                                        style = SmTheme.typography.bodyXMM,
-                                    )
-
-                                    Spacer(Modifier.height(15.dp))
-
-                                    Text(
-                                        text = stringResource(R.string.summary),
-                                        style = SmTheme.typography.bodyMSB,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Text(
-                                        text = analysis.summary,
-                                        style = SmTheme.typography.bodyXMM,
-                                    )
-
-                                    Spacer(Modifier.height(10.dp))
-
-                                    SectionDivider()
-
-                                    Spacer(Modifier.height(20.dp))
-
-                                    Text(
-                                        text = stringResource(R.string.improvements),
-                                        style = SmTheme.typography.bodyMSB,
-                                    )
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        analysis.improvementPoints.forEach { point ->
-                                            Text(
-                                                text = point,
-                                                style = SmTheme.typography.bodyXMM,
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(Modifier.height(10.dp))
-
-                                    SectionDivider()
-
-                                    Spacer(Modifier.height(20.dp))
-
-                                    Text(
-                                        text = stringResource(R.string.feedback),
-                                        style = SmTheme.typography.bodyMSB,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Text(
-                                        text = analysis.feedback,
-                                        style = SmTheme.typography.bodyXMM,
-                                    )
-
-                                    Spacer(Modifier.height(10.dp))
-
-                                    SectionDivider()
-
-                                    Spacer(Modifier.height(20.dp))
-
-                                    Text(
-                                        text = stringResource(R.string.expected_questions),
-                                        style = SmTheme.typography.bodyMSB,
-                                    )
-
-                                    Spacer(Modifier.height(5.dp))
-
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        analysis.expectedQuestions.forEach { question ->
-                                            Text(
-                                                text = question,
-                                                style = SmTheme.typography.bodyXMM,
-                                            )
-                                        }
-                                    }
-                                }
+                                ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
                             }
                         }
 
@@ -443,7 +385,11 @@ private fun FeedbackScreen(
                                     style = SmTheme.typography.bodyXMM,
                                 )
                             } else {
-                                // TODO: Implement Verbal Analysis Content
+                                VerbalAnalysisContent(
+                                    duration = state.playerState.duration,
+                                    verbalAnalysis = state.speechDetail.verbalAnalysis,
+                                    seekTo = onSeekTo,
+                                )
                             }
                         }
 
@@ -488,7 +434,7 @@ private fun FeedbackScreen(
 //                                style = SmTheme.typography.bodyXMM,
 //                            )
 //                        } else {
-//                            // TODO: Implement Non-Verbal Analysis Content
+//                            NonVerbalAnalysisContent(state.speechDetail.nonverbalAnalysis)
 //                        }
                         }
                     }
@@ -499,50 +445,6 @@ private fun FeedbackScreen(
         }
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 5.dp, end = 20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
-
-        BackButton(onBackPressed = debouncedOnBackPressed)
-
-        Spacer(Modifier.width(5.dp))
-
-        Text(
-            state.speechDetail.speechConfig.fileName,
-            style = SmTheme.typography.headingSB,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        Box {
-            Image(
-                painter = painterResource(R.drawable.ic_menu),
-                contentDescription = "메뉴",
-                modifier = Modifier.clickable(isRipple = true) {
-                    onMenuClick()
-                },
-            )
-
-            SMDropDownMenu(
-                expanded = state.showDropdownMenu,
-                onDismiss = onDismissDropDownMenu,
-                alignment = Alignment.TopEnd,
-                offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
-                items = listOf(
-                    SMDropdownMenuItem(
-                        labelRes = R.string.delete,
-                        action = { showDeleteDg = true },
-                    ),
-                ),
-            )
-        }
-    }
 }
 
 @Preview(showBackground = true, name = "발표 설정 탭")

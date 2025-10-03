@@ -37,6 +37,7 @@ data class SpeechMateTypography(
     val headingXLB: TextStyle = textStyle(SpoqaBold, 36.sp, 44.sp),
     val headingMB: TextStyle = textStyle(SpoqaBold, 24.sp, 32.sp),
     val headingSB: TextStyle = textStyle(SpoqaBold, 18.sp, 22.sp),
+    val headingXSB : TextStyle = textStyle(SpoqaBold, 16.sp, 22.sp),
 
     // body
     val bodyXLM: TextStyle = textStyle(PretendardMedium, 50.sp, 58.sp),

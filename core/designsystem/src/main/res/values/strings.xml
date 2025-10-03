@@ -36,7 +36,7 @@
     <string name="delete_speech_confirmation">정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.</string>
     <string name="error_failed_to_load_media">영상 또는 음성 파일을 불러오는데 실패했습니다.</string>
 
-    <string name="date">날짜: %1$s</string>
+    <string name="date">날짜</string>
     <string name="loading_script">대본을 불러오는 중입니다.</string>
     <string name="loading_script_analysis">대본을 분석한 결과를 불러오는 중입니다.</string>
     <string name="failed_script_analysis">대본을 분석한 결과를 불러오는데 실패했습니다.</string>
@@ -50,7 +50,16 @@
     <string name="summary">요약</string>
     <string name="improvements">개선점</string>
     <string name="feedback">피드백</string>
-    <string name="expected_questions">예상 질문</string>
+    <string name="expected_questions">❓ 예상 질문</string>
+
+    <string name="basic_statistics">기본 통계</string>
+    <string name="total_word_count">총 단어 수</string>
+    <string name="total_syllable_count">총 음절 수</string>
+    <string name="speaking_speed_wpm">말하기 속도 (wpm)</string>
+
+    <string name="filler_word_analysis">간투어 분석</string>
+    <string name="repeated_words">반복 단어</string>
+    <string name="silence_sections">침묵 구간</string>
 
     <!--스피치 설정 다이얼로그-->
     <string name="speech_config">스피치 설정</string>
