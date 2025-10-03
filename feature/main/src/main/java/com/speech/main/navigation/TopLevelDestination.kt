@@ -14,13 +14,13 @@ enum class TopLevelDestination(
 ) {
     Practice(
         route = PracticeBaseRoute::class,
-        icon = R.drawable.bottom_practice,
+        icon = R.drawable.ic_bottom_home,
         contentDescription = "연습",
         label = "홈"
     ),
     MyPage(
         route = MyPageBaseRoute::class,
-        icon = R.drawable.bottom_my_page,
+        icon = R.drawable.ic_bottom_my,
         contentDescription = "마이페이지",
         label = "마이페이지"
     ),

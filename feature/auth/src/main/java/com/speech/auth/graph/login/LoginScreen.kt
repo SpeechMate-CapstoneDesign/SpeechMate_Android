@@ -1,7 +1,6 @@
 package com.speech.auth.graph.login
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,6 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -96,7 +94,7 @@ fun LoginScreen(
         Spacer(Modifier.weight(1f))
 
         Image(
-            painter = painterResource(R.drawable.speechmate_icon),
+            painter = painterResource(R.drawable.ic_speechmate),
             contentDescription = "앱 아이콘",
             modifier = Modifier.size(250.dp),
         )
@@ -112,7 +110,7 @@ fun LoginScreen(
         Spacer(Modifier.height(30.dp))
 
         Image(
-            painter = painterResource(R.drawable.kakao_login),
+            painter = painterResource(R.drawable.ic_kakao_login),
             contentDescription = "카카오 로그인",
             modifier = Modifier.clickable { debouncedKakaoLoginClick() },
         )

@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -268,7 +268,7 @@ fun RecordVideoScreen(
                         )
 
                         Image(
-                            painter = painterResource(R.drawable.switch_ic),
+                            painter = painterResource(R.drawable.ic_switch),
                             contentDescription = "카메라 전환",
                             colorFilter = ColorFilter.tint(Color.White),
                             modifier = Modifier
@@ -308,7 +308,7 @@ fun RecordVideoScreen(
                         )
 
                         Image(
-                            painter = painterResource(R.drawable.close_ic),
+                            painter = painterResource(R.drawable.ic_close),
                             contentDescription = "취소",
                             modifier = Modifier.align(
                                 Center,
@@ -332,7 +332,7 @@ fun RecordVideoScreen(
                         )
 
                         Image(
-                            painter = painterResource(R.drawable.stop_audio),
+                            painter = painterResource(R.drawable.ic_stop),
                             contentDescription = "정지",
                             modifier = Modifier
                                 .size(34.dp)
@@ -362,9 +362,9 @@ fun RecordVideoScreen(
 
                         Image(
                             painter = if (state.recordingVideoState == RecordingVideoState.Recording) painterResource(
-                                R.drawable.pause_audio,
+                                R.drawable.ic_pause,
                             ) else painterResource(
-                                R.drawable.play_audio,
+                                R.drawable.ic_play,
                             ),
                             contentDescription = if (state.recordingVideoState == RecordingVideoState.Recording) "일시 정지" else "재개",
                             modifier = Modifier
@@ -404,8 +404,8 @@ fun RecordVideoScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
-                                painter = painterResource(R.drawable.feedback),
-                                contentDescription = "피드백 받기",
+                                painter = painterResource(R.drawable.ic_feedback),
+                                contentDescription = stringResource(R.string.get_feedback),
                                 modifier = Modifier
                                     .size(24.dp),
                                 colorFilter = ColorFilter.tint(Color.White),
@@ -442,7 +442,7 @@ fun RecordVideoScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
-                                painter = painterResource(R.drawable.record_video_ic),
+                                painter = painterResource(R.drawable.ic_record_video),
                                 contentDescription = "재녹화",
                                 modifier = Modifier
                                     .size(24.dp),
@@ -452,7 +452,7 @@ fun RecordVideoScreen(
                             Spacer(Modifier.width(6.dp))
 
                             Text(
-                                "재녹화",
+                                stringResource(R.string.re_record_video),
                                 style = SmTheme.typography.bodyMM,
                                 color = SmTheme.colors.primaryDefault,
                             )

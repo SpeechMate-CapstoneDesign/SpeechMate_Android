@@ -6,9 +6,11 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -19,9 +21,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -50,6 +55,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
+
         requestPermissions(this)
 
         setContent {
@@ -69,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
-                                    }
+                                    },
                                 )
                             }
 
@@ -80,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -94,7 +100,7 @@ class MainActivity : ComponentActivity() {
                         snackbarHost = {
                             SpeechMateSnackBarHost(
                                 hostState = snackBarHostState,
-                                snackbar = { snackBarData -> SpeechMateSnackBar(snackBarData) }
+                                snackbar = { snackBarData -> SpeechMateSnackBar(snackBarData) },
                             )
                         },
                         bottomBar = {
@@ -113,16 +119,18 @@ class MainActivity : ComponentActivity() {
                                                 }
                                                 launchSingleTop = true
                                                 restoreState = true
-                                            })
-                                    }
+                                            },
+                                        )
+                                    },
                                 )
                             }
-                        }
+                        },
                     ) { innerPadding ->
                         AppNavHost(
                             navController = navController,
-                            Modifier.padding(innerPadding)
+                            Modifier.padding(innerPadding),
                         )
+
                     }
                 }
             }
@@ -133,7 +141,7 @@ class MainActivity : ComponentActivity() {
 private fun requestPermissions(activity: Activity) {
     val permissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA
+        Manifest.permission.CAMERA,
     )
 
     ActivityCompat.requestPermissions(activity, permissions, 1001)

@@ -136,7 +136,7 @@ private fun PracticeScreen(
                             .padding(16.dp),
                         verticalAlignment = Alignment.Top,
                     ) {
-                        PrimaryIcon(icon = R.drawable.record_audio_ic)
+                        PrimaryIcon(icon = R.drawable.ic_record_audio)
 
                         Spacer(Modifier.width(13.dp))
 
@@ -164,7 +164,7 @@ private fun PracticeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onRecordAudioClick()
+                            onRecordVideoClick()
                         },
                 ) {
                     Row(
@@ -173,7 +173,7 @@ private fun PracticeScreen(
                             .padding(16.dp),
                         verticalAlignment = Alignment.Top,
                     ) {
-                        PrimaryIcon(icon = R.drawable.record_video_ic)
+                        PrimaryIcon(icon = R.drawable.ic_record_video)
 
                         Spacer(Modifier.width(13.dp))
 
@@ -236,7 +236,7 @@ private fun UploadFileButton(
                 .padding(16.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            PrimaryIcon(icon = R.drawable.upload_ic)
+            PrimaryIcon(icon = R.drawable.ic_upload)
 
             Spacer(Modifier.width(13.dp))
 

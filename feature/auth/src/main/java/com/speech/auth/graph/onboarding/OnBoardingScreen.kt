@@ -1,5 +1,6 @@
 package com.speech.auth.graph.onboarding
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -90,6 +91,7 @@ fun OnBoardingScreen(
                     Text(
                         text = stringResource(id = R.string.onboarding_title),
                         style = SmTheme.typography.headingMB,
+                        color = SmTheme.colors.textPrimary,
                     )
                 }
 
@@ -109,6 +111,7 @@ fun OnBoardingScreen(
                     Text(
                         text = stringResource(id = R.string.verbal_goal),
                         style = SmTheme.typography.headingSB,
+                        color = SmTheme.colors.textPrimary
                     )
                 }
 
@@ -121,7 +124,7 @@ fun OnBoardingScreen(
                         onClick = { onVerbalSkillClick(skill) },
                     ) {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            Text(skill.label, style = SmTheme.typography.bodySM)
+                            Text(skill.label, style = SmTheme.typography.bodySM, color = SmTheme.colors.textSecondary)
                         }
                     }
 
@@ -134,6 +137,7 @@ fun OnBoardingScreen(
                     Text(
                         text = stringResource(id = R.string.non_verbal_goal),
                         style = SmTheme.typography.headingSB,
+                        color = SmTheme.colors.textPrimary,
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -159,6 +163,7 @@ fun OnBoardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(SmTheme.colors.surface)
                 .padding(bottom = 12.dp)
                 .align(Alignment.BottomCenter),
         ) {

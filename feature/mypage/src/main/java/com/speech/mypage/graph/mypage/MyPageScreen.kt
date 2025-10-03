@@ -201,7 +201,7 @@ private fun MyPageScreen(
                 .padding(top = 10.dp, end = 10.dp),
         ) {
             Image(
-                painter = painterResource(R.drawable.setting_ic),
+                painter = painterResource(R.drawable.ic_setting),
                 contentDescription = "설정",
                 modifier = Modifier
                     .size(28.dp)
@@ -211,7 +211,7 @@ private fun MyPageScreen(
                             onSettingClick()
                         },
                     ),
-                colorFilter = ColorFilter.tint(SmTheme.colors.theme)
+                colorFilter = ColorFilter.tint(SmTheme.colors.content)
             )
         }
 
@@ -267,7 +267,7 @@ private fun SpeechFeed(
                 Spacer(Modifier.weight(1f))
 
                 Image(
-                    painter = painterResource(if (speechFeed.speechFileType == SpeechFileType.AUDIO) R.drawable.record_audio_ic else R.drawable.record_video_ic),
+                    painter = painterResource(if (speechFeed.speechFileType == SpeechFileType.AUDIO) R.drawable.ic_record_audio else R.drawable.ic_record_video),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                     modifier = Modifier.size(18.dp),
@@ -282,7 +282,7 @@ private fun SpeechFeed(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.clock_ic),
+                        painter = painterResource(R.drawable.ic_clock),
                         contentDescription = "발표 시간",
                         modifier = Modifier.size(12.dp),
                         colorFilter = ColorFilter.tint(Color.Gray),
@@ -302,7 +302,7 @@ private fun SpeechFeed(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.calendar_ic),
+                        painter = painterResource(R.drawable.ic_calendar),
                         contentDescription = "날짜",
                         modifier = Modifier.size(12.dp),
                         colorFilter = ColorFilter.tint(Color.Gray),
@@ -321,7 +321,7 @@ private fun SpeechFeed(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Image(
-                    painter = painterResource(R.drawable.document_ic),
+                    painter = painterResource(R.drawable.ic_document),
                     contentDescription = "발표 상황",
                     modifier = Modifier.size(16.dp),
                     colorFilter = ColorFilter.tint(SmTheme.colors.primaryLight),
@@ -339,7 +339,7 @@ private fun SpeechFeed(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Image(
-                    painter = painterResource(R.drawable.people_ic),
+                    painter = painterResource(R.drawable.ic_people),
                     contentDescription = "청중",
                     modifier = Modifier.size(16.dp),
                     colorFilter = ColorFilter.tint(SmTheme.colors.green),
@@ -357,7 +357,7 @@ private fun SpeechFeed(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Image(
-                    painter = painterResource(R.drawable.location_ic),
+                    painter = painterResource(R.drawable.ic_location),
                     contentDescription = "장소",
                     modifier = Modifier.size(16.dp),
                     colorFilter = ColorFilter.tint(SmTheme.colors.purple),

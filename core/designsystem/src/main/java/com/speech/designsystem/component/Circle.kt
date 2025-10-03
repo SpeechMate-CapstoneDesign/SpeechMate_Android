@@ -31,7 +31,7 @@ fun SimpleCircle(
 @Composable
 fun StrokeCircle(
     modifier: Modifier = Modifier,
-    color: Color = Color.Black,
+    color: Color = SmTheme.colors.border,
     diameter: Dp = 50.dp,
     strokeWidth: Dp = 2.dp
 ) {

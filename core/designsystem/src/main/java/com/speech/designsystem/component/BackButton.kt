@@ -13,14 +13,14 @@ import com.speech.designsystem.theme.SmTheme
 
 @Composable
 fun BackButton(
-    color: Color = SmTheme.colors.theme,
+    color: Color = SmTheme.colors.content,
     onBackPressed: () -> Unit,
 ) {
     IconButton(
         onClick = onBackPressed,
     ) {
         Icon(
-            painter = painterResource(R.drawable.back_button),
+            painter = painterResource(R.drawable.ic_chevron_left),
             contentDescription = "뒤로 가기",
             modifier = Modifier.size(20.dp),
             tint = color

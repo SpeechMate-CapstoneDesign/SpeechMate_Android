@@ -169,7 +169,7 @@ private fun SettingScreen(
                             Spacer(Modifier.weight(1f))
 
                             Image(
-                                painter = painterResource(R.drawable.chevron_right_ic),
+                                painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(SmTheme.colors.gray),
                                 modifier = Modifier.size(18.dp),
@@ -201,7 +201,7 @@ private fun SettingScreen(
                             Spacer(Modifier.weight(1f))
 
                             Image(
-                                painter = painterResource(R.drawable.chevron_right_ic),
+                                painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(SmTheme.colors.gray),
                                 modifier = Modifier.size(18.dp),
@@ -239,7 +239,7 @@ private fun SettingScreen(
                             Spacer(Modifier.weight(1f))
 
                             Image(
-                                painter = painterResource(R.drawable.chevron_right_ic),
+                                painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(SmTheme.colors.gray),
                                 modifier = Modifier.size(18.dp),
@@ -271,7 +271,7 @@ private fun SettingScreen(
                             Spacer(Modifier.weight(1f))
 
                             Image(
-                                painter = painterResource(R.drawable.chevron_right_ic),
+                                painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(SmTheme.colors.gray),
                                 modifier = Modifier.size(18.dp),
