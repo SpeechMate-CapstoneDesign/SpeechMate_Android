@@ -17,14 +17,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -42,10 +50,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
@@ -63,6 +73,8 @@ import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
+import com.speech.practice.graph.feedback.component.MediaControls
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -151,7 +163,7 @@ private fun FeedbackScreen(
                 onDeleteClick()
             },
             onDismiss = { showDeleteDg = false },
-            content = "정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.",
+            content = stringResource(R.string.delete_speech_confirmation),
         )
     }
 
@@ -161,292 +173,293 @@ private fun FeedbackScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 20.dp, end = 20.dp, top = 55.dp),
+                .padding(top = 55.dp),
         ) {
             item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    PlayerSurface(
-                        player = exoPlayer,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 11f),
-                    )
-
-                    when (state.playingState) {
-                        is PlayingState.Loading -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center),
-                                color = SmTheme.colors.primaryDefault,
-                            )
-                        }
-
-                        is PlayingState.Error -> {
-                            Text(
-                                "영상 또는 음성 파일을 불러오는데 실패했습니다.",
-                                modifier = Modifier.align(Alignment.Center),
-                                color = Color.White,
-                                style = SmTheme.typography.bodySM,
-                            )
-                        }
-
-                        else -> {}
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                MediaControls(
-                    state = state,
-                    onStartPlaying = onStartPlaying,
-                    onPausePlaying = onPausePlaying,
-                    onSeekTo = onSeekTo,
-                    onChangePlaybackSpeed = onChangePlaybackSpeed,
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    FeedbackTab.entries.forEach { tab ->
-                        if (state.speechDetail.speechFileType == SpeechFileType.AUDIO && tab == FeedbackTab.NON_VERBAL_ANALYSIS) return@forEach
-                        SpeechMateTab(
-                            label = tab.label,
-                            isSelected = state.feedbackTab == tab,
-                            onTabSelected = { onTabSelected(tab) },
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        PlayerSurface(
+                            player = exoPlayer,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 11f),
                         )
-                    }
-                }
 
-                Spacer(Modifier.height(15.dp))
-
-                when (state.feedbackTab) {
-                    FeedbackTab.SPEECH_CONFIG -> {
-                        val config = state.speechDetail.speechConfig
-                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                            Text(
-                                "날짜: ${state.speechDetail.formattedDate}",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 이름: ${config.fileName}",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 상황: ${config.speechType?.label ?: ""}",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "청중: ${config.audience?.label ?: ""}",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 장소: ${config.venue?.label ?: ""}",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                        }
-                    }
-
-                    FeedbackTab.SCRIPT -> {
-                        if (state.speechDetail.script.isEmpty()) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(Modifier.height(100.dp))
-
+                        when (state.playingState) {
+                            is PlayingState.Loading -> {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = SmTheme.colors.primaryLight,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    "대본을 불러오는 중입니다.",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                            }
-                        } else {
-                            Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM)
-                        }
-                    }
-
-                    FeedbackTab.SCRIPT_ANALYSIS -> {
-                        val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
-
-                        if (scriptAnalysisTab.isLoading) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(Modifier.height(100.dp))
-
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = SmTheme.colors.primaryLight,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    "대본을 분석한 결과를 불러오는 중입니다.",
-                                    style = SmTheme.typography.bodyXMM,
-                                )
-                            }
-                        } else if (scriptAnalysisTab.isError) {
-                            Text(
-                                "대본을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                        } else {
-                            Column {
-                                val analysis = state.speechDetail.scriptAnalysis
-                                Text(
-                                    text = "키워드",
-                                    style = SmTheme.typography.bodyMSB,
+                                    modifier = Modifier.align(Alignment.Center),
                                     color = SmTheme.colors.primaryDefault,
                                 )
+                            }
 
-                                Spacer(Modifier.height(5.dp))
-
+                            is PlayingState.Error -> {
                                 Text(
-                                    text = analysis.keywords,
+                                    stringResource(R.string.error_failed_to_load_media),
+                                    modifier = Modifier.align(Alignment.Center),
+                                    color = Color.White,
+                                    style = SmTheme.typography.bodySM,
+                                )
+                            }
+
+                            else -> {}
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    MediaControls(
+                        state = state,
+                        onStartPlaying = onStartPlaying,
+                        onPausePlaying = onPausePlaying,
+                        onSeekTo = onSeekTo,
+                        onChangePlaybackSpeed = onChangePlaybackSpeed,
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+                }
+            }
+
+            item {
+                CustomScrollableTabRow(
+                    tabs = FeedbackTab.entries.filterNot {
+                        state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
+                    },
+                    selectedTab = state.feedbackTab,
+                    onTabSelected = onTabSelected,
+                )
+            }
+
+            item {
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    Spacer(Modifier.height(15.dp))
+
+                    when (state.feedbackTab) {
+                        FeedbackTab.SPEECH_CONFIG -> {
+                            val config = state.speechDetail.speechConfig
+                            Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                                Text(
+                                    stringResource(R.string.date, state.speechDetail.formattedDate),
                                     style = SmTheme.typography.bodyXMM,
                                 )
-
-                                Spacer(Modifier.height(15.dp))
-
                                 Text(
-                                    text = "요약",
-                                    style = SmTheme.typography.bodyMSB,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Text(
-                                    text = analysis.summary,
+                                    "${stringResource(R.string.speech_name)}: ${config.fileName}",
                                     style = SmTheme.typography.bodyXMM,
                                 )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                SectionDivider()
-
-                                Spacer(Modifier.height(20.dp))
-
                                 Text(
-                                    text = "개선점",
-                                    style = SmTheme.typography.bodyMSB,
+                                    "${stringResource(R.string.speech_context)}: ${config.speechType?.label ?: ""}",
+                                    style = SmTheme.typography.bodyXMM,
                                 )
-                                Spacer(Modifier.height(5.dp))
+                                Text(
+                                    "${stringResource(R.string.audience)}: ${config.audience?.label ?: ""}",
+                                    style = SmTheme.typography.bodyXMM,
+                                )
+                                Text(
+                                    "${stringResource(R.string.speech_venue)}: ${config.venue?.label ?: ""}",
+                                    style = SmTheme.typography.bodyXMM,
+                                )
+                            }
+                        }
 
+                        FeedbackTab.SCRIPT -> {
+                            if (state.speechDetail.script.isEmpty()) {
                                 Column(
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
                                 ) {
-                                    analysis.improvementPoints.forEach { point ->
-                                        Text(
-                                            text = point,
-                                            style = SmTheme.typography.bodyXMM,
-                                        )
-                                    }
+                                    Spacer(Modifier.height(100.dp))
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
+
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_script),
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
                                 }
+                            } else {
+                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM)
+                            }
+                        }
 
-                                Spacer(Modifier.height(10.dp))
+                        FeedbackTab.SCRIPT_ANALYSIS -> {
+                            val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
 
-                                SectionDivider()
+                            if (scriptAnalysisTab.isLoading) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Spacer(Modifier.height(100.dp))
 
-                                Spacer(Modifier.height(20.dp))
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
 
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_script_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
+                                }
+                            } else if (scriptAnalysisTab.isError) {
                                 Text(
-                                    text = "피드백",
-                                    style = SmTheme.typography.bodyMSB,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Text(
-                                    text = analysis.feedback,
+                                    stringResource(R.string.failed_script_analysis),
                                     style = SmTheme.typography.bodyXMM,
                                 )
+                            } else {
+                                Column {
+                                    val analysis = state.speechDetail.scriptAnalysis
+                                    Text(
+                                        text = stringResource(R.string.keywords),
+                                        style = SmTheme.typography.bodyMSB,
+                                        color = SmTheme.colors.primaryDefault,
+                                    )
 
-                                Spacer(Modifier.height(10.dp))
+                                    Spacer(Modifier.height(5.dp))
 
-                                SectionDivider()
+                                    Text(
+                                        text = analysis.keywords,
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
 
-                                Spacer(Modifier.height(20.dp))
+                                    Spacer(Modifier.height(15.dp))
 
-                                Text(
-                                    text = "예상 질문",
-                                    style = SmTheme.typography.bodyMSB,
-                                )
+                                    Text(
+                                        text = stringResource(R.string.summary),
+                                        style = SmTheme.typography.bodyMSB,
+                                    )
 
-                                Spacer(Modifier.height(5.dp))
+                                    Spacer(Modifier.height(5.dp))
 
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    analysis.expectedQuestions.forEach { question ->
-                                        Text(
-                                            text = question,
-                                            style = SmTheme.typography.bodyXMM,
-                                        )
+                                    Text(
+                                        text = analysis.summary,
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
+
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
+                                    Text(
+                                        text = stringResource(R.string.improvements),
+                                        style = SmTheme.typography.bodyMSB,
+                                    )
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        analysis.improvementPoints.forEach { point ->
+                                            Text(
+                                                text = point,
+                                                style = SmTheme.typography.bodyXMM,
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
+                                    Text(
+                                        text = stringResource(R.string.feedback),
+                                        style = SmTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Text(
+                                        text = analysis.feedback,
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
+
+                                    Spacer(Modifier.height(10.dp))
+
+                                    SectionDivider()
+
+                                    Spacer(Modifier.height(20.dp))
+
+                                    Text(
+                                        text = stringResource(R.string.expected_questions),
+                                        style = SmTheme.typography.bodyMSB,
+                                    )
+
+                                    Spacer(Modifier.height(5.dp))
+
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        analysis.expectedQuestions.forEach { question ->
+                                            Text(
+                                                text = question,
+                                                style = SmTheme.typography.bodyXMM,
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    FeedbackTab.VERBAL_ANALYSIS -> {
-                        val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
-                        if (verbalAnalysisTab.isLoading) {
+                        FeedbackTab.VERBAL_ANALYSIS -> {
+                            val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
+                            if (verbalAnalysisTab.isLoading) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Spacer(Modifier.height(100.dp))
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
+
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_verbal_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                    )
+                                }
+                            } else if (verbalAnalysisTab.isError) {
+                                Text(
+                                    stringResource(R.string.failed_verbal_analysis),
+                                    style = SmTheme.typography.bodyXMM,
+                                )
+                            } else {
+                                // TODO: Implement Verbal Analysis Content
+                            }
+                        }
+
+                        FeedbackTab.NON_VERBAL_ANALYSIS -> {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
                             ) {
-                                Spacer(Modifier.height(100.dp))
-
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = SmTheme.colors.primaryLight,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
+                                Spacer(Modifier.height(50.dp))
 
                                 Text(
-                                    "언어적 특징을 분석 중입니다.",
+                                    text = stringResource(R.string.non_verbal_analysis_preparation),
                                     style = SmTheme.typography.bodyXMM,
                                 )
                             }
-                        } else if (verbalAnalysisTab.isError) {
-                            Text(
-                                "언어적 특징을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                        } else {
-                            // TODO: Implement Verbal Analysis Content
-                        }
-                    }
-
-                    FeedbackTab.NON_VERBAL_ANALYSIS -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Spacer(Modifier.height(50.dp))
-
-                            Text(
-                                text = "비언어적 행동 분석은 아직 준비중입니다!",
-                                style = SmTheme.typography.bodyXMM,
-                            )
-                        }
 
 //                        val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
 //                        if (nonVerbalAnalysisTab.isLoading) {
@@ -477,10 +490,11 @@ private fun FeedbackScreen(
 //                        } else {
 //                            // TODO: Implement Non-Verbal Analysis Content
 //                        }
+                        }
                     }
-                }
 
-                Spacer(Modifier.height(80.dp))
+                    Spacer(Modifier.height(80.dp))
+                }
             }
         }
     }
@@ -531,115 +545,6 @@ private fun FeedbackScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MediaControls(
-    state: FeedbackState,
-    onStartPlaying: () -> Unit,
-    onPausePlaying: () -> Unit,
-    onSeekTo: (Long) -> Unit,
-    onChangePlaybackSpeed: (Float) -> Unit,
-) {
-    var sliderValue by remember { mutableFloatStateOf(0f) }
-    var isDragging by remember { mutableStateOf(false) }
-
-    LaunchedEffect(state.playerState.progress) {
-        if (!isDragging) {
-            sliderValue = state.playerState.progress
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val isPlaying = state.playingState == PlayingState.Playing
-
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { if (isPlaying) onPausePlaying() else onStartPlaying() },
-            ) {
-                Icon(
-                    painter = if (isPlaying) {
-                        painterResource(R.drawable.ic_pause)
-                    } else {
-                        painterResource(R.drawable.ic_play)
-                    },
-                    contentDescription = if (isPlaying) "일시정지" else "재생",
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-
-            Spacer(Modifier.width(12.dp))
-
-            Slider(
-                value = sliderValue,
-                onValueChange = {
-                    isDragging = true
-                    sliderValue = it
-                },
-                onValueChangeFinished = {
-                    isDragging = false
-                    val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
-                    onSeekTo(newPosition)
-                },
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.Transparent,
-                    activeTrackColor = SmTheme.colors.primaryDefault,
-                    inactiveTrackColor = SmTheme.colors.iconDefault,
-                    activeTickColor = Color.Transparent,
-                    inactiveTickColor = Color.Transparent,
-                ),
-                thumb = {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .shadow(elevation = 1.dp, shape = CircleShape)
-                            .background(color = SmTheme.colors.primaryDefault, shape = CircleShape),
-                    )
-                },
-                track = { sliderState ->
-                    SliderDefaults.Track(
-                        sliderState = sliderState,
-                        colors = SliderDefaults.colors(
-                            thumbColor = Color.Transparent,
-                            activeTrackColor = SmTheme.colors.primaryDefault,
-                            inactiveTrackColor = SmTheme.colors.iconDefault,
-                            activeTickColor = Color.Transparent,
-                            inactiveTickColor = Color.Transparent,
-                        ),
-                        thumbTrackGapSize = 0.dp,
-                        modifier = Modifier.height(8.dp),
-                    )
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            )
-        }
-
-        Spacer(Modifier.height(6.dp))
-
-        Row {
-            Text(
-                text = state.playerState.formattedCurrentPosition,
-                style = SmTheme.typography.bodySM,
-            )
-
-            Text(
-                text = " / ${state.playerState.formattedDuration}",
-                style = SmTheme.typography.bodySM,
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true, name = "발표 설정 탭")
 @Composable
 private fun FeedbackScreenSpeechConfigPreview() {
@@ -651,8 +556,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-
-            ),
+        ),
         exoPlayer = null,
         onBackPressed = {},
         onTabSelected = {},
