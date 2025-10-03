@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -151,6 +152,9 @@ fun RecordVideoScreen(
 
     var showSpeechConfigDg by remember { mutableStateOf(false) }
     val previewView = remember { PreviewView(context) }
+    val primaryGradient = Brush.verticalGradient(
+        colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
+    )
 
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
@@ -301,7 +305,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 50.dp,
+                            diameter = 36.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
@@ -310,36 +314,11 @@ fun RecordVideoScreen(
                         Image(
                             painter = painterResource(R.drawable.ic_close),
                             contentDescription = "취소",
-                            modifier = Modifier.align(
-                                Center,
-                            ),
-                        )
-                    }
-
-                    Spacer(Modifier.width(30.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                onFinishRecording()
-                            },
-                    ) {
-                        SimpleCircle(
-                            color = Color.White,
-                            diameter = 70.dp,
                             modifier = Modifier
-                                .align(Center),
-                        )
-
-                        Image(
-                            painter = painterResource(R.drawable.ic_stop),
-                            contentDescription = "정지",
-                            modifier = Modifier
-                                .size(34.dp)
+                                .size(16.dp)
                                 .align(
                                     Center,
                                 ),
-                            colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
                         )
                     }
 
@@ -360,21 +339,55 @@ fun RecordVideoScreen(
                                 .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
-                        Image(
-                            painter = if (state.recordingVideoState == RecordingVideoState.Recording) painterResource(
-                                R.drawable.ic_pause,
-                            ) else painterResource(
-                                R.drawable.ic_play,
-                            ),
-                            contentDescription = if (state.recordingVideoState == RecordingVideoState.Recording) "일시 정지" else "재개",
+                        if (state.recordingVideoState == RecordingVideoState.Recording) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_pause),
+                                contentDescription = "일시 정지",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(
+                                        Center,
+                                    ),
+                                colorFilter = ColorFilter.tint(Color.Black),
+                            )
+                        } else {
+                            SimpleCircle(
+                                color = SmTheme.colors.primaryDefault,
+                                diameter = 28.dp,
+                                modifier = Modifier
+                                    .align(Center)
+                                    .shadow(elevation = 4.dp, shape = CircleShape),
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.width(30.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                onFinishRecording()
+                            },
+                    ) {
+                        SimpleCircle(
+                            color = SmTheme.colors.white,
+                            diameter = 36.dp,
                             modifier = Modifier
-                                .size(20.dp)
+                                .align(Center),
+                        )
+
+                        Image(
+                            painter = painterResource(R.drawable.ic_stop),
+                            contentDescription = "정지",
+                            modifier = Modifier
+                                .size(16.dp)
                                 .align(
                                     Center,
                                 ),
-                            colorFilter = ColorFilter.tint(Color.Black),
+                            colorFilter = ColorFilter.tint(SmTheme.colors.black),
                         )
                     }
+
 
                     Spacer(Modifier.weight(1f))
                 }
@@ -393,7 +406,7 @@ fun RecordVideoScreen(
                             .height(50.dp)
                             .padding(horizontal = 60.dp)
                             .clip(shape = RoundedCornerShape(12.dp))
-                            .background(SmTheme.colors.primaryDefault)
+                            .background(brush = primaryGradient)
                             .clickable {
                                 showSpeechConfigDg = true
                             },
