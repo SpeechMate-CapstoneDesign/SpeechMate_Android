@@ -31,7 +31,8 @@ fun SimpleCircle(
 @Composable
 fun StrokeCircle(
     modifier: Modifier = Modifier,
-    color: Color = SmTheme.colors.border,
+    fillColor: Color = SmTheme.colors.surface,
+    strokeColor: Color = SmTheme.colors.border,
     diameter: Dp = 50.dp,
     strokeWidth: Dp = 2.dp
 ) {
@@ -41,7 +42,12 @@ fun StrokeCircle(
         val radius = size.minDimension / 2f - strokePx / 2f
 
         drawCircle(
-            color = color,
+            color = fillColor,
+            radius = radius
+        )
+
+        drawCircle(
+            color = strokeColor,
             radius = radius,
             style = Stroke(width = strokePx)
         )

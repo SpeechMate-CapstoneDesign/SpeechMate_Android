@@ -194,7 +194,7 @@ private fun FeedbackScreen(
                 style = SmTheme.typography.headingSB,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = SmTheme.colors.textPrimary
+                color = SmTheme.colors.textPrimary,
             )
 
             Spacer(Modifier.weight(1f))
@@ -206,7 +206,7 @@ private fun FeedbackScreen(
                     modifier = Modifier.clickable(isRipple = true) {
                         onMenuClick()
                     },
-                    tint = SmTheme.colors.content
+                    tint = SmTheme.colors.content,
                 )
 
                 SMDropDownMenu(
@@ -318,11 +318,11 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_script),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
+                                        color = SmTheme.colors.textPrimary,
                                     )
                                 }
                             } else {
-                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM)
+                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
                             }
                         }
 
@@ -347,12 +347,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_script_analysis),
                                         style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary
                                     )
                                 }
                             } else if (scriptAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_script_analysis),
                                     style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
                                 )
                             } else {
                                 ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
@@ -379,12 +381,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_verbal_analysis),
                                         style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary
                                     )
                                 }
                             } else if (verbalAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_verbal_analysis),
                                     style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
                                 )
                             } else {
                                 VerbalAnalysisContent(
@@ -406,6 +410,7 @@ private fun FeedbackScreen(
                                 Text(
                                     text = stringResource(R.string.non_verbal_analysis_preparation),
                                     style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
                                 )
                             }
 
