@@ -20,14 +20,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class DefaultOkHttpClient
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class S3OkHttpClient
-
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
@@ -48,7 +40,7 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
-            //.callTimeout(15, TimeUnit.SECONDS)
+            .callTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .authenticator(authenticator)
 
@@ -103,3 +95,12 @@ object RetrofitModule {
         .build()
         .create(S3Api::class.java)
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DefaultOkHttpClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class S3OkHttpClient
+

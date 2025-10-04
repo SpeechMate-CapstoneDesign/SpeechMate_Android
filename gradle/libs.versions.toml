@@ -64,6 +64,9 @@ googleServices = "4.4.3"
 firebaseBom = "34.3.0"
 crashlytics = "3.0.6"
 
+# https://amplitude.com/docs/sdks/analytics/android
+amplitude = "1.22.3"
+
 # coil
 coil = "3.3.0"
 
@@ -210,6 +213,9 @@ camerax-extensions = { group = "androidx.camera", name = "camera-extensions", ve
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging" }
+
+# Amplitude
+amplitude-analytics = { module = "com.amplitude:analytics-android", version.ref = "amplitude" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

@@ -139,8 +139,9 @@ private fun MyPageScreen(
     val speechFeeds = state.speechFeeds.collectAsLazyPagingItems()
     val isRefreshing = speechFeeds.loadState.refresh is LoadState.Loading
     val isAppending = speechFeeds.loadState.append is LoadState.Loading
+    val isInitialLoading = isRefreshing && speechFeeds.itemCount == 0
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
+        refreshing = isRefreshing && !isInitialLoading,
         onRefresh = {
             speechFeeds.refresh()
             onRefresh()
@@ -154,7 +155,7 @@ private fun MyPageScreen(
             .pullRefresh(pullRefreshState),
     ) {
         PullRefreshIndicator(
-            refreshing = isRefreshing,
+            refreshing = isRefreshing && !isInitialLoading,
             state = pullRefreshState,
             contentColor = SmTheme.colors.primaryLight,
             modifier = Modifier.align(Alignment.TopCenter),
@@ -170,7 +171,7 @@ private fun MyPageScreen(
                 Text(
                     stringResource(R.string.my_speech_list),
                     style = SmTheme.typography.headingMB,
-                    color = SmTheme.colors.textPrimary
+                    color = SmTheme.colors.textPrimary,
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -215,7 +216,6 @@ private fun MyPageScreen(
             )
         }
 
-        val isInitialLoading = isRefreshing && speechFeeds.itemCount == 0
         if (isInitialLoading || isAppending) {
             CircularProgressIndicator(
                 color = SmTheme.colors.primaryLight,

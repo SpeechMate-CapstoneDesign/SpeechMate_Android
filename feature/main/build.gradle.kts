@@ -14,6 +14,7 @@ dependencies {
     implementation(projects.feature.splash)
 
     implementation(projects.core.commonUi)
+    implementation(projects.core.analytics)
 
     implementation(libs.kakao.user)
 

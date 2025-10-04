@@ -35,6 +35,7 @@ include(":core:common-ui")
 include(":core:network")
 include(":core:navigation")
 include(":core:datastore")
+include(":core:analytics")
 
 include(":feature")
 include(":feature:main")

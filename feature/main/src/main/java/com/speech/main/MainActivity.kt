@@ -34,6 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.example.designsystem.component.SpeechMateSnackBar
 import com.example.designsystem.component.SpeechMateSnackBarHost
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.LocalAnalyticsHelper
 import com.speech.auth.navigation.navigateToLogin
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechMateBottomBarAnimation
@@ -45,11 +47,15 @@ import com.speech.navigation.shouldHideBottomBar
 import com.speech.practice.navigation.navigateToPractice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var analyticsHelper: AnalyticsHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,36 +70,11 @@ class MainActivity : ComponentActivity() {
                 .value?.destination
             val snackBarHostState = remember { SnackbarHostState() }
 
-            SpeechMateTheme {
-                LaunchedEffect(Unit) {
-                    viewModel.container.sideEffectFlow.collect { sideEffect ->
-                        when (sideEffect) {
-                            is MainSideEffect.NavigateToPractice -> {
-                                navController.navigateToPractice(
-                                    navOptions {
-                                        popUpTo(0) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    },
-                                )
-                            }
-
-                            is MainSideEffect.NavigateToLogin -> {
-                                navController.navigateToLogin(
-                                    navOptions {
-                                        popUpTo(0) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-
-                CompositionLocalProvider(LocalSnackbarHostState provides snackBarHostState) {
+            CompositionLocalProvider(
+                LocalSnackbarHostState provides snackBarHostState,
+                LocalAnalyticsHelper provides analyticsHelper,
+            ) {
+                SpeechMateTheme {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         containerColor = SmTheme.colors.background,
@@ -131,6 +112,34 @@ class MainActivity : ComponentActivity() {
                             Modifier.padding(innerPadding),
                         )
 
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    viewModel.container.sideEffectFlow.collect { sideEffect ->
+                        when (sideEffect) {
+                            is MainSideEffect.NavigateToPractice -> {
+                                navController.navigateToPractice(
+                                    navOptions {
+                                        popUpTo(0) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    },
+                                )
+                            }
+
+                            is MainSideEffect.NavigateToLogin -> {
+                                navController.navigateToLogin(
+                                    navOptions {
+                                        popUpTo(0) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }

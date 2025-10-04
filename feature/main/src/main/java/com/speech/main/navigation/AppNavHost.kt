@@ -7,6 +7,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
+import com.speech.analytics.TrackNavigationDestination
 import com.speech.auth.navigation.authNavGraph
 import com.speech.auth.navigation.navigateToLogin
 import com.speech.auth.navigation.navigateToOnBoarding
@@ -68,7 +69,8 @@ fun AppNavHost(
             navigateToPolicy = {},
             navigateToInquiry = {},
         )
-
     }
+
+    TrackNavigationDestination(navController)
 }
 
