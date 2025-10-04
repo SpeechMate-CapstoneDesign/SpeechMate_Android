@@ -11,7 +11,6 @@ import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,17 +41,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -61,15 +61,15 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.LockScreenOrientation
-import com.speech.designsystem.component.SimpleCircle
-import com.speech.practice.component.dialog.SpeechConfigDialog
-import com.speech.practice.component.dialog.UploadFileDialog
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.component.SimpleCircle
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.component.dialog.SpeechConfigDialog
+import com.speech.practice.component.dialog.UploadFileDialog
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -151,6 +151,9 @@ fun RecordVideoScreen(
 
     var showSpeechConfigDg by remember { mutableStateOf(false) }
     val previewView = remember { PreviewView(context) }
+    val primaryGradient = Brush.verticalGradient(
+        colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
+    )
 
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
@@ -267,10 +270,10 @@ fun RecordVideoScreen(
                                 .align(Center),
                         )
 
-                        Image(
-                            painter = painterResource(R.drawable.switch_ic),
+                        Icon(
+                            painter = painterResource(R.drawable.ic_switch),
                             contentDescription = "카메라 전환",
-                            colorFilter = ColorFilter.tint(Color.White),
+                            tint = Color.White,
                             modifier = Modifier
                                 .size(24.dp)
                                 .align(
@@ -301,45 +304,21 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 50.dp,
+                            diameter = 36.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
-                        Image(
-                            painter = painterResource(R.drawable.close_ic),
+                        Icon(
+                            painter = painterResource(R.drawable.ic_close),
                             contentDescription = "취소",
-                            modifier = Modifier.align(
-                                Center,
-                            ),
-                        )
-                    }
-
-                    Spacer(Modifier.width(30.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                onFinishRecording()
-                            },
-                    ) {
-                        SimpleCircle(
-                            color = Color.White,
-                            diameter = 70.dp,
                             modifier = Modifier
-                                .align(Center),
-                        )
-
-                        Image(
-                            painter = painterResource(R.drawable.stop_audio),
-                            contentDescription = "정지",
-                            modifier = Modifier
-                                .size(34.dp)
+                                .size(16.dp)
                                 .align(
                                     Center,
                                 ),
-                            colorFilter = ColorFilter.tint(PrimaryActive),
+                            tint = SmTheme.colors.black
                         )
                     }
 
@@ -360,21 +339,55 @@ fun RecordVideoScreen(
                                 .shadow(elevation = 4.dp, shape = CircleShape),
                         )
 
-                        Image(
-                            painter = if (state.recordingVideoState == RecordingVideoState.Recording) painterResource(
-                                R.drawable.pause_audio,
-                            ) else painterResource(
-                                R.drawable.play_audio,
-                            ),
-                            contentDescription = if (state.recordingVideoState == RecordingVideoState.Recording) "일시 정지" else "재개",
+                        if (state.recordingVideoState == RecordingVideoState.Recording) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_pause),
+                                contentDescription = "일시 정지",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(
+                                        Center,
+                                    ),
+                                tint = Color.Black,
+                            )
+                        } else {
+                            SimpleCircle(
+                                color = SmTheme.colors.primaryDefault,
+                                diameter = 28.dp,
+                                modifier = Modifier
+                                    .align(Center)
+                                    .shadow(elevation = 4.dp, shape = CircleShape),
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.width(30.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                onFinishRecording()
+                            },
+                    ) {
+                        SimpleCircle(
+                            color = SmTheme.colors.white,
+                            diameter = 36.dp,
                             modifier = Modifier
-                                .size(20.dp)
+                                .align(Center),
+                        )
+
+                        Icon(
+                            painter = painterResource(R.drawable.ic_stop),
+                            contentDescription = "정지",
+                            modifier = Modifier
+                                .size(16.dp)
                                 .align(
                                     Center,
                                 ),
-                            colorFilter = ColorFilter.tint(Color.Black),
+                            tint = SmTheme.colors.black,
                         )
                     }
+
 
                     Spacer(Modifier.weight(1f))
                 }
@@ -393,7 +406,7 @@ fun RecordVideoScreen(
                             .height(50.dp)
                             .padding(horizontal = 60.dp)
                             .clip(shape = RoundedCornerShape(12.dp))
-                            .background(PrimaryActive)
+                            .background(brush = primaryGradient)
                             .clickable {
                                 showSpeechConfigDg = true
                             },
@@ -403,19 +416,19 @@ fun RecordVideoScreen(
                                 .align(Center),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Image(
-                                painter = painterResource(R.drawable.feedback),
-                                contentDescription = "피드백 받기",
+                            Icon(
+                                painter = painterResource(R.drawable.ic_feedback),
+                                contentDescription = stringResource(R.string.get_feedback),
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(Color.White),
+                                tint = SmTheme.colors.white,
                             )
 
                             Spacer(Modifier.width(8.dp))
 
                             Text(
-                                "피드백 받기",
-                                style = SpeechMateTheme.typography.bodyMSB,
+                                stringResource(R.string.get_feedback),
+                                style = SmTheme.typography.bodyMSB,
                                 color = Color.White,
                             )
                         }
@@ -441,20 +454,20 @@ fun RecordVideoScreen(
                                 .align(Center),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Image(
-                                painter = painterResource(R.drawable.record_video),
+                            Icon(
+                                painter = painterResource(R.drawable.ic_record_video),
                                 contentDescription = "재녹화",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(PrimaryActive),
+                                tint = SmTheme.colors.primaryDefault,
                             )
 
                             Spacer(Modifier.width(6.dp))
 
                             Text(
-                                "재녹화",
-                                style = SpeechMateTheme.typography.bodyMM,
-                                color = PrimaryActive,
+                                stringResource(R.string.re_record_video),
+                                style = SmTheme.typography.bodyMM,
+                                color = SmTheme.colors.primaryDefault,
                             )
                         }
 
@@ -494,7 +507,7 @@ private fun RecordVideoButton(
         )
 
         SimpleCircle(
-            color = PrimaryActive,
+            color = SmTheme.colors.primaryDefault,
             diameter = 36.dp,
             modifier = Modifier
                 .align(Center)

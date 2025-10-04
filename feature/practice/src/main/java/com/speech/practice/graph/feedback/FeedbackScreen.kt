@@ -1,7 +1,6 @@
 package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -13,20 +12,26 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -42,13 +47,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
@@ -61,18 +68,19 @@ import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
-import com.speech.designsystem.theme.LightGray
-import com.speech.designsystem.theme.PrimaryActive
-import com.speech.designsystem.theme.PrimaryDefault
-import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
+import com.speech.practice.graph.feedback.component.MediaControls
+import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
+import com.speech.practice.graph.feedback.component.SpeechConfigContent
+import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import kotlin.time.Duration
 
 @Composable
 internal fun FeedbackRoute(
@@ -158,9 +166,118 @@ private fun FeedbackScreen(
                 onDeleteClick()
             },
             onDismiss = { showDeleteDg = false },
-            content = "정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.",
+            content = stringResource(R.string.delete_speech_confirmation),
         )
     }
+    var headerHeightPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onSizeChanged { headerHeightPx = it.height },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
+
+            BackButton(onBackPressed = debouncedOnBackPressed)
+
+            Spacer(Modifier.width(5.dp))
+
+            Text(
+                state.speechDetail.speechConfig.fileName,
+                style = SmTheme.typography.headingSB,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = SmTheme.colors.textPrimary,
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            Box {
+                Icon(
+                    painter = painterResource(R.drawable.ic_menu),
+                    contentDescription = "메뉴",
+                    modifier = Modifier.clickable(isRipple = true) {
+                        onMenuClick()
+                    },
+                    tint = SmTheme.colors.content,
+                )
+
+                SMDropDownMenu(
+                    expanded = state.showDropdownMenu,
+                    onDismiss = onDismissDropDownMenu,
+                    alignment = Alignment.TopEnd,
+                    offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
+                    items = listOf(
+                        SMDropdownMenuItem(
+                            labelRes = R.string.delete,
+                            action = { showDeleteDg = true },
+                        ),
+                    ),
+                )
+            }
+        }
+
+        Column(Modifier.padding(horizontal = 20.dp)) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                PlayerSurface(
+                    player = exoPlayer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f),
+                )
+
+                when (state.playingState) {
+                    is PlayingState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = SmTheme.colors.primaryDefault,
+                        )
+                    }
+
+                    is PlayingState.Error -> {
+                        Text(
+                            stringResource(R.string.error_failed_to_load_media),
+                            modifier = Modifier.align(Alignment.Center),
+                            color = Color.White,
+                            style = SmTheme.typography.bodySM,
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            MediaControls(
+                state = state,
+                onStartPlaying = onStartPlaying,
+                onPausePlaying = onPausePlaying,
+                onSeekTo = onSeekTo,
+                onChangePlaybackSpeed = onChangePlaybackSpeed,
+            )
+
+            Spacer(Modifier.height(20.dp))
+        }
+
+        CustomScrollableTabRow(
+            tabs = FeedbackTab.entries.filterNot {
+                state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
+            },
+            selectedTab = state.feedbackTab,
+            onTabSelected = onTabSelected,
+        )
+    }
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -168,292 +285,134 @@ private fun FeedbackScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 20.dp, end = 20.dp, top = 55.dp),
+                .padding(top = with(density) { headerHeightPx.toDp() }),
         ) {
             item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    PlayerSurface(
-                        player = exoPlayer,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 11f),
-                    )
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    Spacer(Modifier.height(15.dp))
 
-                    when (state.playingState) {
-                        is PlayingState.Loading -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center),
-                                color = PrimaryActive,
+                    when (state.feedbackTab) {
+                        FeedbackTab.SPEECH_CONFIG -> {
+                            SpeechConfigContent(
+                                date = state.speechDetail.formattedDate,
+                                speechConfig = state.speechDetail.speechConfig,
                             )
                         }
 
-                        is PlayingState.Error -> {
-                            Text(
-                                "영상 또는 음성 파일을 불러오는데 실패했습니다.",
-                                modifier = Modifier.align(Alignment.Center),
-                                color = Color.White,
-                                style = SpeechMateTheme.typography.bodySM,
-                            )
-                        }
-
-                        else -> {}
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                MediaControls(
-                    state = state,
-                    onStartPlaying = onStartPlaying,
-                    onPausePlaying = onPausePlaying,
-                    onSeekTo = onSeekTo,
-                    onChangePlaybackSpeed = onChangePlaybackSpeed,
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    FeedbackTab.entries.forEach { tab ->
-                        if (state.speechDetail.speechFileType == SpeechFileType.AUDIO && tab == FeedbackTab.NON_VERBAL_ANALYSIS) return@forEach
-                        SpeechMateTab(
-                            label = tab.label,
-                            isSelected = state.feedbackTab == tab,
-                            onTabSelected = { onTabSelected(tab) },
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(15.dp))
-
-                when (state.feedbackTab) {
-                    FeedbackTab.SPEECH_CONFIG -> {
-                        val config = state.speechDetail.speechConfig
-                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                            Text(
-                                "날짜: ${state.speechDetail.formattedDate}",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 이름: ${config.fileName}",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 상황: ${config.speechType?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "청중: ${config.audience?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                            Text(
-                                "발표 장소: ${config.venue?.label ?: ""}",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                        }
-                    }
-
-                    FeedbackTab.SCRIPT -> {
-                        if (state.speechDetail.script.isEmpty()) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(Modifier.height(100.dp))
-
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    "대본을 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-                            }
-                        } else {
-                            Text(text = state.speechDetail.script, style = SpeechMateTheme.typography.bodyXMM)
-                        }
-                    }
-
-                    FeedbackTab.SCRIPT_ANALYSIS -> {
-                        val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
-
-                        if (scriptAnalysisTab.isLoading) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(Modifier.height(100.dp))
-
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    "대본을 분석한 결과를 불러오는 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-                            }
-                        } else if (scriptAnalysisTab.isError) {
-                            Text(
-                                "대본을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                        } else {
-                            Column {
-                                val analysis = state.speechDetail.scriptAnalysis
-                                Text(
-                                    text = "키워드",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                    color = PrimaryActive,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Text(
-                                    text = analysis.keywords,
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
-
-                                Text(
-                                    text = "요약",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Text(
-                                    text = analysis.summary,
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                SectionDivider()
-
-                                Spacer(Modifier.height(20.dp))
-
-                                Text(
-                                    text = "개선점",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                )
-                                Spacer(Modifier.height(5.dp))
-
+                        FeedbackTab.SCRIPT -> {
+                            if (state.speechDetail.script.isEmpty()) {
                                 Column(
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
                                 ) {
-                                    analysis.improvementPoints.forEach { point ->
-                                        Text(
-                                            text = point,
-                                            style = SpeechMateTheme.typography.bodyXMM,
-                                        )
-                                    }
+                                    Spacer(Modifier.height(100.dp))
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
+
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_script),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary,
+                                    )
                                 }
-
-                                Spacer(Modifier.height(10.dp))
-
-                                SectionDivider()
-
-                                Spacer(Modifier.height(20.dp))
-
-                                Text(
-                                    text = "피드백",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Text(
-                                    text = analysis.feedback,
-                                    style = SpeechMateTheme.typography.bodyXMM,
-                                )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                SectionDivider()
-
-                                Spacer(Modifier.height(20.dp))
-
-                                Text(
-                                    text = "예상 질문",
-                                    style = SpeechMateTheme.typography.bodyMSB,
-                                )
-
-                                Spacer(Modifier.height(5.dp))
-
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    analysis.expectedQuestions.forEach { question ->
-                                        Text(
-                                            text = question,
-                                            style = SpeechMateTheme.typography.bodyXMM,
-                                        )
-                                    }
-                                }
+                            } else {
+                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
                             }
                         }
-                    }
 
-                    FeedbackTab.VERBAL_ANALYSIS -> {
-                        val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
-                        if (verbalAnalysisTab.isLoading) {
+                        FeedbackTab.SCRIPT_ANALYSIS -> {
+                            val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
+
+                            if (scriptAnalysisTab.isLoading) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Spacer(Modifier.height(100.dp))
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
+
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_script_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary
+                                    )
+                                }
+                            } else if (scriptAnalysisTab.isError) {
+                                Text(
+                                    stringResource(R.string.failed_script_analysis),
+                                    style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
+                                )
+                            } else {
+                                ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
+                            }
+                        }
+
+                        FeedbackTab.VERBAL_ANALYSIS -> {
+                            val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
+                            if (verbalAnalysisTab.isLoading) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Spacer(Modifier.height(100.dp))
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp),
+                                        color = SmTheme.colors.primaryLight,
+                                    )
+
+                                    Spacer(Modifier.height(15.dp))
+
+                                    Text(
+                                        stringResource(R.string.loading_verbal_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary
+                                    )
+                                }
+                            } else if (verbalAnalysisTab.isError) {
+                                Text(
+                                    stringResource(R.string.failed_verbal_analysis),
+                                    style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
+                                )
+                            } else {
+                                VerbalAnalysisContent(
+                                    duration = state.playerState.duration,
+                                    verbalAnalysis = state.speechDetail.verbalAnalysis,
+                                    seekTo = onSeekTo,
+                                )
+                            }
+                        }
+
+                        FeedbackTab.NON_VERBAL_ANALYSIS -> {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
                             ) {
-                                Spacer(Modifier.height(100.dp))
-
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = PrimaryDefault,
-                                )
-
-                                Spacer(Modifier.height(15.dp))
+                                Spacer(Modifier.height(50.dp))
 
                                 Text(
-                                    "언어적 특징을 분석 중입니다.",
-                                    style = SpeechMateTheme.typography.bodyXMM,
+                                    text = stringResource(R.string.non_verbal_analysis_preparation),
+                                    style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary
                                 )
                             }
-                        } else if (verbalAnalysisTab.isError) {
-                            Text(
-                                "언어적 특징을 분석한 결과를 불러오는데 실패했습니다.",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                        } else {
-                            // TODO: Implement Verbal Analysis Content
-                        }
-                    }
-
-                    FeedbackTab.NON_VERBAL_ANALYSIS -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Spacer(Modifier.height(50.dp))
-
-                            Text(
-                                text = "비언어적 행동 분석은 아직 준비중입니다!",
-                                style = SpeechMateTheme.typography.bodyXMM,
-                            )
-                        }
 
 //                        val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
 //                        if (nonVerbalAnalysisTab.isLoading) {
@@ -466,185 +425,33 @@ private fun FeedbackScreen(
 //
 //                                CircularProgressIndicator(
 //                                    modifier = Modifier.size(48.dp),
-//                                    color = PrimaryDefault,
+//                                    color = SmTheme.colors.primaryLight,
 //                                )
 //
 //                                Spacer(Modifier.height(15.dp))
 //
 //                                Text(
 //                                    "비언어적 행동을 분석 중입니다.",
-//                                    style = SpeechMateTheme.typography.bodyXMM,
+//                                    style = SmTheme.typography.bodyXMM,
 //                                )
 //                            }
 //                        } else if (nonVerbalAnalysisTab.isError) {
 //                            Text(
 //                                "비언어적 을 분석한 결과를 불러오는데 실패했습니다.",
-//                                style = SpeechMateTheme.typography.bodyXMM,
+//                                style = SmTheme.typography.bodyXMM,
 //                            )
 //                        } else {
-//                            // TODO: Implement Non-Verbal Analysis Content
+//                            NonVerbalAnalysisContent(state.speechDetail.nonverbalAnalysis)
 //                        }
+                        }
                     }
+
+                    Spacer(Modifier.height(80.dp))
                 }
-
-                Spacer(Modifier.height(80.dp))
             }
         }
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 5.dp, end = 20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
-
-        BackButton(onBackPressed = debouncedOnBackPressed)
-
-        Spacer(Modifier.width(5.dp))
-
-        Text(
-            state.speechDetail.speechConfig.fileName,
-            style = SpeechMateTheme.typography.headingSB,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        Box {
-            Image(
-                painter = painterResource(R.drawable.menu_ic),
-                contentDescription = "메뉴",
-                modifier = Modifier.clickable(isRipple = true) {
-                    onMenuClick()
-                },
-            )
-
-            SMDropDownMenu(
-                expanded = state.showDropdownMenu,
-                onDismiss = onDismissDropDownMenu,
-                alignment = Alignment.TopEnd,
-                offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
-                items = listOf(
-                    SMDropdownMenuItem(
-                        labelRes = R.string.delete,
-                        action = { showDeleteDg = true },
-                    ),
-                ),
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MediaControls(
-    state: FeedbackState,
-    onStartPlaying: () -> Unit,
-    onPausePlaying: () -> Unit,
-    onSeekTo: (Long) -> Unit,
-    onChangePlaybackSpeed: (Float) -> Unit,
-) {
-    var sliderValue by remember { mutableFloatStateOf(0f) }
-    var isDragging by remember { mutableStateOf(false) }
-
-    LaunchedEffect(state.playerState.progress) {
-        if (!isDragging) {
-            sliderValue = state.playerState.progress
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val isPlaying = state.playingState == PlayingState.Playing
-
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { if (isPlaying) onPausePlaying() else onStartPlaying() },
-            ) {
-                Icon(
-                    painter = if (isPlaying) {
-                        painterResource(R.drawable.pause_audio)
-                    } else {
-                        painterResource(R.drawable.play_audio)
-                    },
-                    contentDescription = if (isPlaying) "일시정지" else "재생",
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-
-            Spacer(Modifier.width(12.dp))
-
-            Slider(
-                value = sliderValue,
-                onValueChange = {
-                    isDragging = true
-                    sliderValue = it
-                },
-                onValueChangeFinished = {
-                    isDragging = false
-                    val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
-                    onSeekTo(newPosition)
-                },
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.Transparent,
-                    activeTrackColor = PrimaryActive,
-                    inactiveTrackColor = LightGray,
-                    activeTickColor = Color.Transparent,
-                    inactiveTickColor = Color.Transparent,
-                ),
-                thumb = {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .shadow(elevation = 1.dp, shape = CircleShape)
-                            .background(color = PrimaryActive, shape = CircleShape),
-                    )
-                },
-                track = { sliderState ->
-                    SliderDefaults.Track(
-                        sliderState = sliderState,
-                        colors = SliderDefaults.colors(
-                            thumbColor = Color.Transparent,
-                            activeTrackColor = PrimaryActive,
-                            inactiveTrackColor = LightGray,
-                            activeTickColor = Color.Transparent,
-                            inactiveTickColor = Color.Transparent,
-                        ),
-                        thumbTrackGapSize = 0.dp,
-                        modifier = Modifier.height(8.dp),
-                    )
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            )
-        }
-
-        Spacer(Modifier.height(6.dp))
-
-        Row {
-            Text(
-                text = state.playerState.formattedCurrentPosition,
-                style = SpeechMateTheme.typography.bodySM,
-            )
-
-            Text(
-                text = " / ${state.playerState.formattedDuration}",
-                style = SpeechMateTheme.typography.bodySM,
-            )
-        }
-    }
 }
 
 @Preview(showBackground = true, name = "발표 설정 탭")
@@ -658,8 +465,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
                     fileName = "중간 발표 1",
                 ),
             ),
-
-            ),
+        ),
         exoPlayer = null,
         onBackPressed = {},
         onTabSelected = {},

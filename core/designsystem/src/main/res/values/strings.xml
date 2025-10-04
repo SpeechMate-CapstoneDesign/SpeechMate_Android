@@ -1,8 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dialog -->
+    <!--로그인-->
+    <string name="app_name">SpeechMate</string>
+    <string name="app_description">AI가 분석하는 스피치 피드백</string>
+
+    <!--온보딩-->
+    <string name="onboarding_title">나만의 스피치 목표</string>
+    <string name="onboarding_description">개선하고 싶은 영역을 1개 이상 선택해주세요.</string>
+    <string name="verbal_goal">🗣️ 언어적 목표</string>
+    <string name="non_verbal_goal">🧍 비언어적 목표</string>
+
+    <!--홈-->
+    <string name="home_title">오늘의 연습을\n시작해보세요</string>
+    <string name="home_sub_title">AI가 당신의 스피치를 정밀하게 분석하고\n피드백해줍니다.</string>
+    <string name="record_audio">음성 녹음</string>
+    <string name="record_audio_description">속도, 간투어, 침묵 구간, 대본 등 분석</string>
+    <string name="record_video">영상 녹화</string>
+    <string name="record_video_description">비언어적 행동까지 분석</string>
+    <string name="upload_file">파일 업로드</string>
+    <string name="upload_file_description">저장된 파일 불러오기</string>
+
+    <!--마이페이지-->
+    <string name="my_speech_list">나의 스피치</string>
+
+    <!--설정-->
+    <string name="setting">설정</string>
+    <string name="app_version">앱 버전</string>
+    <string name="inquiry">문의하기</string>
+    <string name="privacy_policy">개인정보처리방침</string>
+    <string name="dark_mode">다크 모드</string>
+    <string name="sign_out">로그아웃</string>
+    <string name="unregister_user">회원탈퇴</string>
+
+    <!--피드백-->
+    <string name="delete_speech_confirmation">정말로 삭제하시겠습니까? 삭제된 분석 내역은 복구되지 않습니다.</string>
+    <string name="error_failed_to_load_media">영상 또는 음성 파일을 불러오는데 실패했습니다.</string>
+
+    <string name="date">날짜</string>
+    <string name="loading_script">대본을 불러오는 중입니다.</string>
+    <string name="loading_script_analysis">대본을 분석한 결과를 불러오는 중입니다.</string>
+    <string name="failed_script_analysis">대본을 분석한 결과를 불러오는데 실패했습니다.</string>
+
+    <string name="loading_verbal_analysis">언어적 특징을 분석 중입니다.</string>
+    <string name="failed_verbal_analysis">언어적 특징을 분석한 결과를 불러오는데 실패했습니다.</string>
+
+    <string name="non_verbal_analysis_preparation">비언어적 행동 분석은 아직 준비중입니다!</string>
+
+    <string name="keywords">키워드</string>
+    <string name="summary">요약</string>
+    <string name="improvements">개선점</string>
+    <string name="feedback">피드백</string>
+    <string name="expected_questions">❓ 예상 질문</string>
+
+    <string name="basic_statistics">기본 통계</string>
+    <string name="total_word_count">총 단어 수</string>
+    <string name="total_syllable_count">총 음절 수</string>
+    <string name="speaking_speed_wpm">말하기 속도 (wpm)</string>
+
+    <string name="filler_word_analysis">간투어 분석</string>
+    <string name="repeated_words">반복 단어</string>
+    <string name="silence_sections">침묵 구간</string>
+
+    <!--스피치 설정 다이얼로그-->
+    <string name="speech_config">스피치 설정</string>
+    <string name="speech_name">스피치 이름</string>
+    <string name="speech_name_hint">스피치 파일 이름</string>
+    <string name="speech_context">스피치 상황</string>
+    <string name="audience">청중</string>
+    <string name="speech_venue">스피치 장소</string>
+
+    <!--파일 업로드 다이얼로그-->
+    <string name="uploading_file_description">파일 업로드 중..</string>
+
+    <!-- 다이얼로그 -->
     <string name="dialog_confirm">확인</string>
     <string name="dialog_cancel">취소</string>
 
+    <!-- 드롭다운 메뉴 -->
     <string name="delete">삭제하기</string>
+
+    <!--스낵바 -->
+    <string name="login_failure">로그인에 실패했습니다</string>
+
+    <!--General-->
+    <string name="complete">완료</string>
+    <string name="get_feedback">피드백 받기</string>
+    <string name="re_record_audio">재녹음</string>"
+    <string name="re_record_video">재녹화</string>"
 </resources>

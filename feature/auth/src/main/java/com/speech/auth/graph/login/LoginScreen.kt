@@ -1,8 +1,8 @@
 package com.speech.auth.graph.login
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,29 +14,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.common_ui.util.clickable
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
 import com.speech.common_ui.util.rememberDebouncedOnClick
+import com.speech.designsystem.theme.SmTheme
 
 
 @Composable
 internal fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
-    navigateToOnBoarding: (String) -> Unit
+    navigateToOnBoarding: (String) -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -68,39 +70,49 @@ internal fun LoginRoute(
 @Composable
 fun LoginScreen(
     onLoginKakaoClick: (String) -> Unit,
-    onLoginFailure: () -> Unit
+    onLoginFailure: () -> Unit,
 ) {
     val context = LocalContext.current
     val debouncedKakaoLoginClick = rememberDebouncedOnClick {
         loginKakao(
             context,
             onSuccess = { idToken -> onLoginKakaoClick(idToken) },
-            onFailure = { onLoginFailure() }
+            onFailure = { onLoginFailure() },
         )
     }
+    val primaryToWhite = Brush.verticalGradient(
+        colors = listOf(SmTheme.colors.primaryDefault, SmTheme.colors.white),
+    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(brush = primaryToWhite)
             .padding(start = 20.dp, end = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.weight(1f))
 
         Image(
-            painter = painterResource(R.drawable.app_icon),
+            painter = painterResource(R.drawable.ic_speechmate),
             contentDescription = "앱 아이콘",
-            modifier = Modifier.size(250.dp)
+            modifier = Modifier.size(250.dp),
         )
 
-        Text("SpeechMate", style = SpeechMateTheme.typography.headingXLB)
+        Spacer(Modifier.height(20.dp))
+
+        Text(stringResource(R.string.app_name), style = SmTheme.typography.headingXLB, color = SmTheme.colors.textPrimary)
+
+        Spacer(Modifier.height(5.dp))
+
+        Text(stringResource(R.string.app_description), style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary.copy(alpha = 0.6f))
 
         Spacer(Modifier.height(30.dp))
 
         Image(
-            painter = painterResource(R.drawable.kakao_login),
+            painter = painterResource(R.drawable.ic_kakao_login),
             contentDescription = "카카오 로그인",
-            modifier = Modifier.clickable { debouncedKakaoLoginClick() }
+            modifier = Modifier.clickable { debouncedKakaoLoginClick() },
         )
 
         Spacer(Modifier.weight(2f))
@@ -110,7 +122,7 @@ fun LoginScreen(
 private fun loginKakao(
     context: Context,
     onSuccess: (String) -> Unit,
-    onFailure: () -> Unit
+    onFailure: () -> Unit,
 ) {
     val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {

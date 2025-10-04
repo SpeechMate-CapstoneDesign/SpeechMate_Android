@@ -37,7 +37,7 @@ class SpeechRepositoryImpl @Inject constructor(
     private val _speechUpdateEvents = MutableSharedFlow<SpeechUpdateEvent>(
         replay = 1,
         extraBufferCapacity = 4,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     override val speechUpdateEvents: SharedFlow<SpeechUpdateEvent> = _speechUpdateEvents.asSharedFlow()
 
@@ -121,7 +121,7 @@ class SpeechRepositoryImpl @Inject constructor(
         speechDataSource.getScriptAnalysis(speechId).toDomain()
 
 
-    override suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis =
+    override suspend fun getVerbalAnalysis(speechId: Int): VerbalAnalysis =
         speechDataSource.getVerbalAnalysis(speechId).toDomain()
 
     override suspend fun getVideoAnalysis(speechId: Int) {

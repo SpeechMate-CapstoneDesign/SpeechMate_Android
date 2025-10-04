@@ -10,8 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.speech.designsystem.R
-import com.speech.designsystem.theme.DarkGray
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 
 @Composable
@@ -26,10 +25,10 @@ fun CheckCancelDialog(
         onDismissRequest = { onDismiss() },
         title = {
             if (title != null) {
-                Text(text = title, style = SpeechMateTheme.typography.bodyMSB)
+                Text(text = title, style = SmTheme.typography.bodyMSB)
             }
         },
-        text = { Text(content, style = SpeechMateTheme.typography.bodySM) },
+        text = { Text(content, style = SmTheme.typography.bodySM) },
         shape = RoundedCornerShape(8.dp),
         containerColor = White,
         confirmButton = {
@@ -39,8 +38,8 @@ fun CheckCancelDialog(
             }) {
                 Text(
                     if (checkText == null) stringResource(R.string.dialog_confirm) else checkText,
-                    color = PrimaryActive,
-                    style = SpeechMateTheme.typography.bodySM,
+                    color = SmTheme.colors.primaryDefault,
+                    style = SmTheme.typography.bodySM,
                 )
             }
         },
@@ -48,8 +47,8 @@ fun CheckCancelDialog(
             TextButton(onClick = { onDismiss() }) {
                 Text(
                     stringResource(R.string.dialog_cancel),
-                    color = DarkGray,
-                    style = SpeechMateTheme.typography.bodySM,
+                    color = SmTheme.colors.textSecondary,
+                    style = SmTheme.typography.bodySM,
                 )
             }
         },

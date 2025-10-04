@@ -5,7 +5,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.LightGray
+import com.speech.designsystem.theme.SmTheme
 
 @Composable
 fun SectionDivider(
@@ -14,6 +14,6 @@ fun SectionDivider(
     HorizontalDivider(
         modifier = modifier.fillMaxWidth(),
         thickness = 1.dp,
-        color = LightGray,
+        color = SmTheme.colors.iconDefault,
     )
 }

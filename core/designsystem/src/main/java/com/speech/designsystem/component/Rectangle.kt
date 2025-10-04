@@ -14,14 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.PrimaryDefault
-
+import com.speech.designsystem.theme.SmTheme
 
 
 @Composable
 fun StrokeRoundRectangle(
     modifier: Modifier = Modifier,
-    color: Color = PrimaryDefault,
+    fillColor: Color = SmTheme.colors.surface,
+    strokerColor: Color = SmTheme.colors.primaryDefault,
     height: Dp = 50.dp,
     strokeWidth: Dp = 2.dp,
     cornerRadius: Dp = 12.dp
@@ -31,7 +31,14 @@ fun StrokeRoundRectangle(
         val radiusPx = cornerRadius.toPx()
 
         drawRoundRect(
-            color = color,
+            color = fillColor,
+            topLeft = Offset(strokePx / 2, strokePx / 2),
+            size = Size(size.width - strokePx, size.height - strokePx),
+            cornerRadius = CornerRadius(radiusPx, radiusPx),
+        )
+
+        drawRoundRect(
+            color = strokerColor,
             topLeft = Offset(strokePx / 2, strokePx / 2),
             size = Size(size.width - strokePx, size.height - strokePx),
             cornerRadius = CornerRadius(radiusPx, radiusPx),

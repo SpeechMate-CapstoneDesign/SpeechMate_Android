@@ -10,12 +10,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.theme.SmTheme
 
 @Composable
 fun SimpleCircle(
     modifier: Modifier = Modifier,
-    color: Color = PrimaryActive,
+    color: Color = SmTheme.colors.primaryDefault,
     diameter: Dp = 90.dp
 ) {
     Canvas(modifier = modifier.size(diameter)) {
@@ -31,7 +31,8 @@ fun SimpleCircle(
 @Composable
 fun StrokeCircle(
     modifier: Modifier = Modifier,
-    color: Color = Color.Black,
+    fillColor: Color = SmTheme.colors.surface,
+    strokeColor: Color = SmTheme.colors.border,
     diameter: Dp = 50.dp,
     strokeWidth: Dp = 2.dp
 ) {
@@ -41,7 +42,12 @@ fun StrokeCircle(
         val radius = size.minDimension / 2f - strokePx / 2f
 
         drawCircle(
-            color = color,
+            color = fillColor,
+            radius = radius
+        )
+
+        drawCircle(
+            color = strokeColor,
             radius = radius,
             style = Stroke(width = strokePx)
         )

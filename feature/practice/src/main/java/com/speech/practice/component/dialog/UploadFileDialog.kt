@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,10 +21,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.speech.designsystem.theme.PrimaryActive
+import com.speech.designsystem.R
+import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.upload.UploadFileStatus
 
@@ -36,7 +39,7 @@ fun UploadFileDialog(
         Box(
             modifier = Modifier
                 .shadow(elevation = 1.dp, shape = RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(SmTheme.colors.surface)
                 .padding(horizontal = 24.dp, vertical = 70.dp),
         ) {
             Column(
@@ -49,16 +52,17 @@ fun UploadFileDialog(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = "파일 업로드 중..",
-                        style = SpeechMateTheme.typography.bodyMM,
+                        text = stringResource(R.string.uploading_file_description),
+                        style = SmTheme.typography.bodyMM,
+                        color = SmTheme.colors.textPrimary,
                     )
 
                     Spacer(Modifier.width(8.dp))
 
                     Text(
                         text = "(${status.elapsedSeconds.inWholeSeconds}초)",
-                        style = SpeechMateTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        style = SmTheme.typography.bodyXSM,
+                        color = SmTheme.colors.textSecondary,
                     )
                 }
 
@@ -70,8 +74,8 @@ fun UploadFileDialog(
                         .fillMaxWidth()
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp)),
-                    color = PrimaryActive,
-                    trackColor = Color.LightGray,
+                    color = SmTheme.colors.primaryDefault,
+                    trackColor = SmTheme.colors.iconDefault,
                     strokeCap = StrokeCap.Square,
                     gapSize = 0.dp,
                     drawStopIndicator = {},
@@ -85,14 +89,14 @@ fun UploadFileDialog(
                 ) {
                     Text(
                         text = "${status.progress}%",
-                        style = SpeechMateTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        style = SmTheme.typography.bodyXSM,
+                        color = SmTheme.colors.textSecondary,
                     )
 
                     Text(
                         text = status.formattedBytes,
-                        style = SpeechMateTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        style = SmTheme.typography.bodyXSM,
+                        color = SmTheme.colors.textSecondary,
                     )
                 }
             }
@@ -104,11 +108,11 @@ fun UploadFileDialog(
 @Preview
 @Composable
 fun UploadFileDialogPreview() {
-    UploadFileDialog(
-        status = UploadFileStatus(
-            currentBytes = 250000,
-            totalBytes = 5000000,
-        ),
-        onDismiss = {},
-    )
+        UploadFileDialog(
+            status = UploadFileStatus(
+                currentBytes = 250000,
+                totalBytes = 5000000,
+            ),
+            onDismiss = {},
+        )
 }
