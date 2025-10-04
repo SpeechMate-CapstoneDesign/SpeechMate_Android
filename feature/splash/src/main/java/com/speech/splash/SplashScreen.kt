@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -32,7 +33,11 @@ private fun SplashScreen() {
     ) {
         Spacer(Modifier.weight(0.9f))
 
-        Image(painter = painterResource(R.drawable.ic_speechmate), contentDescription = "앱 아이콘", modifier = Modifier.size(200.dp))
+        Image(
+            painter = painterResource(R.drawable.ic_speechmate),
+            contentDescription = "앱 아이콘",
+            modifier = Modifier.fillMaxSize(0.5f),
+        )
 
         Spacer(Modifier.weight(1f))
     }
