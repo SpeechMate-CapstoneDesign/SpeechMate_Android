@@ -48,7 +48,7 @@ fun SpeechConfigDialog(
         Box(
             modifier = Modifier
                 .shadow(elevation = 1.dp, shape = RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(SmTheme.colors.surface)
                 .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 30.dp),
         ) {
             LazyColumn(
@@ -141,7 +141,8 @@ fun SpeechConfigDialog(
                         },
                         enabled = speechConfig.isValid,
                         colors = ButtonDefaults.buttonColors(
-                            if (speechConfig.isValid) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight,
+                            containerColor = SmTheme.colors.primaryDefault,
+                            disabledContainerColor = SmTheme.colors.primaryLight
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier

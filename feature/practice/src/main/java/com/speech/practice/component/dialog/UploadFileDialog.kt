@@ -39,7 +39,7 @@ fun UploadFileDialog(
         Box(
             modifier = Modifier
                 .shadow(elevation = 1.dp, shape = RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(SmTheme.colors.surface)
                 .padding(horizontal = 24.dp, vertical = 70.dp),
         ) {
             Column(
@@ -54,6 +54,7 @@ fun UploadFileDialog(
                     Text(
                         text = stringResource(R.string.uploading_file_description),
                         style = SmTheme.typography.bodyMM,
+                        color = SmTheme.colors.textPrimary,
                     )
 
                     Spacer(Modifier.width(8.dp))
@@ -61,7 +62,7 @@ fun UploadFileDialog(
                     Text(
                         text = "(${status.elapsedSeconds.inWholeSeconds}초)",
                         style = SmTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        color = SmTheme.colors.textSecondary,
                     )
                 }
 
@@ -89,13 +90,13 @@ fun UploadFileDialog(
                     Text(
                         text = "${status.progress}%",
                         style = SmTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        color = SmTheme.colors.textSecondary,
                     )
 
                     Text(
                         text = status.formattedBytes,
                         style = SmTheme.typography.bodyXSM,
-                        color = Color.Gray,
+                        color = SmTheme.colors.textSecondary,
                     )
                 }
             }
