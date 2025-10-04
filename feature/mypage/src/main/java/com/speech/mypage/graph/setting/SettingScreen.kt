@@ -1,6 +1,5 @@
 package com.speech.mypage.graph.setting
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -168,10 +168,10 @@ private fun SettingScreen(
 
                             Spacer(Modifier.weight(1f))
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(SmTheme.colors.gray),
+                                tint = SmTheme.colors.gray,
                                 modifier = Modifier.size(18.dp),
                             )
                         }
@@ -200,10 +200,10 @@ private fun SettingScreen(
 
                             Spacer(Modifier.weight(1f))
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(SmTheme.colors.gray),
+                                tint = SmTheme.colors.gray,
                                 modifier = Modifier.size(18.dp),
                             )
                         }
@@ -238,10 +238,10 @@ private fun SettingScreen(
 
                             Spacer(Modifier.weight(1f))
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(SmTheme.colors.gray),
+                                tint = SmTheme.colors.gray,
                                 modifier = Modifier.size(18.dp),
                             )
                         }
@@ -270,10 +270,10 @@ private fun SettingScreen(
 
                             Spacer(Modifier.weight(1f))
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_chevron_right),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(SmTheme.colors.gray),
+                                tint = SmTheme.colors.gray,
                                 modifier = Modifier.size(18.dp),
                             )
                         }

@@ -1,5 +1,7 @@
 package com.speech.practice.graph.feedback.component
 
+import android.graphics.ColorFilter
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,6 +80,7 @@ internal fun MediaControls(
                     },
                     contentDescription = if (isPlaying) "일시정지" else "재생",
                     modifier = Modifier.fillMaxSize(),
+                    tint = SmTheme.colors.content
                 )
             }
 
@@ -136,11 +139,13 @@ internal fun MediaControls(
             Text(
                 text = state.playerState.formattedCurrentPosition,
                 style = SmTheme.typography.bodySM,
+                color = SmTheme.colors.textPrimary,
             )
 
             Text(
                 text = " / ${state.playerState.formattedDuration}",
                 style = SmTheme.typography.bodySM,
+                color = SmTheme.colors.textPrimary,
             )
         }
     }

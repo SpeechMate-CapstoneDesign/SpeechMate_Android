@@ -1,7 +1,6 @@
 package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -195,17 +194,19 @@ private fun FeedbackScreen(
                 style = SmTheme.typography.headingSB,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                color = SmTheme.colors.textPrimary
             )
 
             Spacer(Modifier.weight(1f))
 
             Box {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.ic_menu),
                     contentDescription = "메뉴",
                     modifier = Modifier.clickable(isRipple = true) {
                         onMenuClick()
                     },
+                    tint = SmTheme.colors.content
                 )
 
                 SMDropDownMenu(
@@ -317,6 +318,7 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_script),
                                         style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary
                                     )
                                 }
                             } else {

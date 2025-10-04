@@ -1,6 +1,7 @@
 package com.speech.practice.graph.recordaudio
 
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -165,7 +167,7 @@ private fun RecordAudioScreen(
 
             Spacer(Modifier.weight(1f))
 
-            Text(state.timeText, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light))
+            Text(state.timeText, style = TextStyle(fontSize = 50.sp, fontWeight = FontWeight.Light), color = SmTheme.colors.textPrimary)
 
             Spacer(Modifier.weight(1f))
 
@@ -212,12 +214,12 @@ private fun RecordAudioScreen(
                         ) {
                             StrokeCircle(diameter = 48.dp)
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_close),
                                 contentDescription = "취소",
                                 modifier = Modifier
                                     .align(Center),
-                                colorFilter = ColorFilter.tint(SmTheme.colors.content),
+                                tint = SmTheme.colors.content,
                             )
                         }
 
@@ -248,13 +250,13 @@ private fun RecordAudioScreen(
                         ) {
                             StrokeCircle(diameter = 48.dp)
 
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_stop),
                                 contentDescription = "정지",
                                 modifier = Modifier
                                     .align(Center)
                                     .size(20.dp),
-                                colorFilter = ColorFilter.tint(SmTheme.colors.content),
+                                tint = SmTheme.colors.content,
                             )
                         }
 
@@ -281,12 +283,12 @@ private fun RecordAudioScreen(
                                 .align(Center),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Image(
+                            Icon(
                                 painter = painterResource(R.drawable.ic_feedback),
                                 contentDescription = "피드백 받기",
                                 modifier = Modifier
                                     .size(24.dp),
-                                colorFilter = ColorFilter.tint(Color.White),
+                                tint = SmTheme.colors.white,
                             )
 
                             Spacer(Modifier.width(8.dp))

@@ -200,7 +200,7 @@ private fun MyPageScreen(
                 .fillMaxWidth()
                 .padding(top = 10.dp, end = 10.dp),
         ) {
-            Image(
+            Icon(
                 painter = painterResource(R.drawable.ic_setting),
                 contentDescription = "설정",
                 modifier = Modifier
@@ -211,7 +211,7 @@ private fun MyPageScreen(
                             onSettingClick()
                         },
                     ),
-                colorFilter = ColorFilter.tint(SmTheme.colors.content)
+                tint = SmTheme.colors.content,
             )
         }
 
@@ -266,10 +266,10 @@ private fun SpeechFeed(
 
                 Spacer(Modifier.weight(1f))
 
-                Image(
+                Icon(
                     painter = painterResource(if (speechFeed.speechFileType == SpeechFileType.AUDIO) R.drawable.ic_record_audio else R.drawable.ic_record_video),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(SmTheme.colors.primaryDefault),
+                    tint = SmTheme.colors.primaryDefault,
                     modifier = Modifier.size(18.dp),
                 )
             }
@@ -281,11 +281,11 @@ private fun SpeechFeed(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Image(
+                    Icon(
                         painter = painterResource(R.drawable.ic_clock),
                         contentDescription = "발표 시간",
                         modifier = Modifier.size(12.dp),
-                        colorFilter = ColorFilter.tint(Color.Gray),
+                        tint = Color.Gray,
                     )
 
                     Text(
@@ -301,11 +301,11 @@ private fun SpeechFeed(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Image(
+                    Icon(
                         painter = painterResource(R.drawable.ic_calendar),
                         contentDescription = "날짜",
                         modifier = Modifier.size(12.dp),
-                        colorFilter = ColorFilter.tint(Color.Gray),
+                        tint = Color.Gray,
                     )
 
                     Text(
@@ -320,11 +320,11 @@ private fun SpeechFeed(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.ic_document),
                     contentDescription = "발표 상황",
                     modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(SmTheme.colors.primaryLight),
+                    tint = SmTheme.colors.primaryLight,
                 )
 
                 Text(
@@ -338,11 +338,11 @@ private fun SpeechFeed(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.ic_people),
                     contentDescription = "청중",
                     modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(SmTheme.colors.green),
+                    tint = SmTheme.colors.green,
                 )
 
                 Text(
@@ -356,11 +356,11 @@ private fun SpeechFeed(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.ic_location),
                     contentDescription = "장소",
                     modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(SmTheme.colors.purple),
+                    tint = SmTheme.colors.purple,
                 )
 
                 Text(
