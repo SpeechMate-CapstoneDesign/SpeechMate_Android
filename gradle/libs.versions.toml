@@ -60,9 +60,9 @@ orbit = "10.0.0"
 kakao = "2.21.7"
 
 # firebase
-googleServices = "4.4.2"
+googleServices = "4.4.3"
 firebaseBom = "34.3.0"
-crashlytics = "3.0.3"
+crashlytics = "3.0.6"
 
 # coil
 coil = "3.3.0"
@@ -222,5 +222,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-#google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-#firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
