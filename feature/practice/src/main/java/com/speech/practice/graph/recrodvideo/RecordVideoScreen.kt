@@ -53,7 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -427,7 +427,7 @@ fun RecordVideoScreen(
                             Spacer(Modifier.width(8.dp))
 
                             Text(
-                                "피드백 받기",
+                                stringResource(R.string.get_feedback),
                                 style = SmTheme.typography.bodyMSB,
                                 color = Color.White,
                             )
