@@ -21,7 +21,7 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:common"))
     implementation(project(":core:common-ui"))
-//    implementation(project(":core:analytics"))
+    implementation(project(":core:analytics"))
 
     val libs = project.extensions.libs
     implementation(libs.findLibrary("hilt-navigation-compose").get())

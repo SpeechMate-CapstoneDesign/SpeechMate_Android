@@ -34,6 +34,13 @@ object AnalyticsModule {
 
     @Provides
     @Singleton
+    fun providesFirebaseCrashlytics(@ApplicationContext context: Context): FirebaseCrashlytics =
+        FirebaseCrashlytics.getInstance()
+
+
+
+    @Provides
+    @Singleton
     fun provideAnalyticsHelper(
         @ApplicationContext context: Context,
         amplitude: Amplitude,
@@ -47,22 +54,6 @@ object AnalyticsModule {
 
     @Provides
     @Singleton
-    fun provideDebugAnalyticsHelper(): AnalyticsHelper = NoOpAnalyticsHelper()
-
-    @Provides
-    @Singleton
-    fun provideReleaseAnalyticsHelper(amplitude: Amplitude): AnalyticsHelper =
-        AmplitudeAnalyticsHelper(amplitude)
-
-
-    @Provides
-    @Singleton
-    fun providesFirebaseCrashlytics(@ApplicationContext context: Context): FirebaseCrashlytics =
-        FirebaseCrashlytics.getInstance()
-
-
-    @Provides
-    @Singleton
     fun provideErrorHelper(
         firebaseCrashlytics: FirebaseCrashlytics,
     ): ErrorHelper {
@@ -72,13 +63,4 @@ object AnalyticsModule {
             FirebaseErrorHelper(firebaseCrashlytics)
         }
     }
-
-    @Provides
-    @Singleton
-    fun provideErrorHelper(): ErrorHelper = NoOpErrorHelper()
-
-    @Provides
-    @Singleton
-    fun provideReleaseErrorsHelper(firebaseCrashlytics: FirebaseCrashlytics): ErrorHelper =
-        FirebaseErrorHelper(firebaseCrashlytics)
 }

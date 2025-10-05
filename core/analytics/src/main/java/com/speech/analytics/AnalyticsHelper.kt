@@ -17,30 +17,3 @@ interface AnalyticsHelper {
     fun setUserId(id : String)
     fun clearUserId()
 }
-
-val LocalAnalyticsHelper = staticCompositionLocalOf<AnalyticsHelper> {
-    NoOpAnalyticsHelper()
-}
-
-@Composable
-fun TrackNavigationDestination(navController: NavHostController) {
-    val analyticsHelper = LocalAnalyticsHelper.current
-
-    LifecycleStartEffect(navController) {
-        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            val screenName = destination.route ?: "Unknown"
-            analyticsHelper.logEvent(
-                AnalyticsEvent(
-                    type = SCREEN_VIEW,
-                    properties = mutableMapOf(SCREEN_NAME to screenName)
-                )
-            )
-        }
-
-        navController.addOnDestinationChangedListener(listener)
-
-        onStopOrDispose {
-            navController.removeOnDestinationChangedListener(listener)
-        }
-    }
-}

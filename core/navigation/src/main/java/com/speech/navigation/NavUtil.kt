@@ -29,3 +29,19 @@ fun NavDestination?.containsRoute(routes: List<KClass<*>>): Boolean {
     val currentRoute = this?.route ?: return false
     return routes.mapNotNull { it.simpleName }.any { currentRoute.contains(it) }
 }
+
+fun NavDestination.getRouteName(): String? = this.route?.let { mapRouteToName(it) }
+
+private fun mapRouteToName(route: String): String? = when {
+    route.startsWith(AuthGraph.LoginRoute::class.qualifiedName.orEmpty()) -> "login"
+    route.startsWith(AuthGraph.OnBoardingRoute::class.qualifiedName.orEmpty()) -> "onboarding"
+    route.startsWith(PracticeGraph.PracticeRoute::class.qualifiedName.orEmpty()) -> "practice"
+    route.startsWith(PracticeGraph.RecordAudioRoute::class.qualifiedName.orEmpty()) -> "record_audio"
+    route.startsWith(PracticeGraph.RecordVideoRoute::class.qualifiedName.orEmpty()) -> "record_video"
+    route.startsWith(PracticeGraph.FeedbackRoute::class.qualifiedName.orEmpty()) -> "feedback"
+    route.startsWith(MyPageGraph.MyPageRoute::class.qualifiedName.orEmpty()) -> "my_page"
+    route.startsWith(MyPageGraph.SettingRoute::class.qualifiedName.orEmpty()) -> "setting"
+    route.startsWith(SplashRoute::class.qualifiedName.orEmpty()) -> "splash"
+
+    else -> null
+}
