@@ -24,6 +24,10 @@ class AmplitudeAnalyticsHelper @Inject constructor(
         amplitude.setUserId(id)
     }
 
+    override fun clearUserId() {
+        amplitude.setUserId(null)
+    }
+
     private fun AnalyticsEvent.toAmplitudeEvent(): BaseEvent = BaseEvent().apply {
         this.eventType = type
         this.eventProperties = properties

@@ -15,6 +15,7 @@ import com.speech.analytics.AnalyticsEvent.Types.SCREEN_VIEW
 interface AnalyticsHelper {
     fun logEvent(event: AnalyticsEvent)
     fun setUserId(id : String)
+    fun clearUserId()
 }
 
 val LocalAnalyticsHelper = staticCompositionLocalOf<AnalyticsHelper> {
