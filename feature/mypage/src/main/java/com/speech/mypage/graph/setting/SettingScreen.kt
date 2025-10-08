@@ -40,6 +40,7 @@ import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMCard
 import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
+import com.speech.mypage.BuildConfig
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -47,8 +48,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 internal fun SettingRoute(
     navigateToBack: () -> Unit,
     navigateToLogin: () -> Unit,
-    navigateToPolicy: () -> Unit,
-    navigateToInquiry: () -> Unit,
+    navigateToWebView : (String) -> Unit,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -64,8 +64,8 @@ internal fun SettingRoute(
             }
 
             is SettingSideEffect.NavigateToBack -> navigateToBack()
-            is SettingSideEffect.NavigateToPolicy -> navigateToPolicy()
-            is SettingSideEffect.NavigateToInquiry -> navigateToInquiry()
+            is SettingSideEffect.NavigateToPolicy -> navigateToWebView(BuildConfig.SPEECHMATE_PRIVACY_POLICY_URL)
+            is SettingSideEffect.NavigateToInquiry -> navigateToWebView(BuildConfig.SPEECHMATE_INQUIRY_URL)
             is SettingSideEffect.NavigateToLogin -> navigateToLogin()
         }
     }
@@ -74,9 +74,9 @@ internal fun SettingRoute(
     SettingScreen(
         onBackPressed = { viewModel.onIntent(SettingIntent.OnBackPressed) },
         onPolicyClick = { viewModel.onIntent(SettingIntent.OnPolicyClick) },
+        onInquiryClick = { viewModel.onIntent(SettingIntent.OnInquiry) },
         onLogout = { viewModel.onIntent(SettingIntent.OnLogout) },
         onUnRegisterUser = { viewModel.onIntent(SettingIntent.OnUnRegisterUser) },
-        onInquiry = { viewModel.onIntent(SettingIntent.OnInquiry) },
     )
 }
 
@@ -86,7 +86,7 @@ private fun SettingScreen(
     onLogout: () -> Unit,
     onUnRegisterUser: () -> Unit,
     onPolicyClick: () -> Unit,
-    onInquiry: () -> Unit,
+    onInquiryClick: () -> Unit,
 ) {
     var showLogoutDg by remember { mutableStateOf(false) }
     var showUnRegisterDg by remember { mutableStateOf(false) }
@@ -155,7 +155,7 @@ private fun SettingScreen(
                                 .fillMaxWidth()
                                 .clickable(
                                     onClick = rememberDebouncedOnClick {
-                                        onInquiry()
+                                        onInquiryClick()
                                     },
                                 ),
                             verticalAlignment = Alignment.CenterVertically,
@@ -306,9 +306,9 @@ private fun SettingScreenPreview() {
         SettingScreen(
             onBackPressed = {},
             onPolicyClick = {},
+            onInquiryClick = {},
             onLogout = {},
             onUnRegisterUser = {},
-            onInquiry = {},
         )
     }
 }

@@ -12,6 +12,7 @@ private val HIDDEN_BOTTOM_BAR_ROUTES = setOf(
     PracticeGraph.RecordAudioRoute::class,
     PracticeGraph.RecordVideoRoute::class,
     PracticeGraph.FeedbackRoute::class,
+    MyPageGraph::WebViewRoute::class,
 )
 
 fun NavDestination?.shouldHideBottomBar(): Boolean =
@@ -20,7 +21,6 @@ fun NavDestination?.shouldHideBottomBar(): Boolean =
             route.startsWith(hiddenRoute.qualifiedName ?: "")
         }
     } ?: false
-
 
 fun NavDestination?.isRouteInHierarchy(route: KClass<*>): Boolean =
     this?.hierarchy?.any { it.hasRoute(route) } == true
@@ -42,6 +42,5 @@ private fun mapRouteToName(route: String): String? = when {
     route.startsWith(MyPageGraph.MyPageRoute::class.qualifiedName.orEmpty()) -> "my_page"
     route.startsWith(MyPageGraph.SettingRoute::class.qualifiedName.orEmpty()) -> "setting"
     route.startsWith(SplashRoute::class.qualifiedName.orEmpty()) -> "splash"
-
     else -> null
 }

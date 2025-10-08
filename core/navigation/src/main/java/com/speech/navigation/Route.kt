@@ -61,4 +61,7 @@ sealed class MyPageGraph : Route {
 
     @Serializable
     data object SettingRoute : MyPageGraph()
+
+    @Serializable
+    data class WebViewRoute(val url: String) : MyPageGraph()
 }
