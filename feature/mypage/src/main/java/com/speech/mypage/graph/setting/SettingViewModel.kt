@@ -42,14 +42,14 @@ class SettingViewModel @Inject constructor(
         suspendRunCatching {
             authRepository.logout()
         }.onSuccess {
-            postSideEffect(SettingSideEffect.NavigateToLogin)
             analyticsHelper.trackActionEvent(
                 screenName = "setting",
                 actionName = "sign_out",
             )
-        }.onFailure {
             postSideEffect(SettingSideEffect.NavigateToLogin)
+        }.onFailure {
             errorHelper.logError(it)
+            postSideEffect(SettingSideEffect.NavigateToLogin)
         }
     }
 
