@@ -19,6 +19,8 @@ import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.TransformationRequest
 import androidx.media3.transformer.Transformer
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.practice.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
@@ -39,6 +41,8 @@ import javax.inject.Inject
 class PracticeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<PracticeState, PracticeSideEffect>, ViewModel() {
     override val container = container<PracticeState, PracticeSideEffect>(PracticeState())
 
@@ -62,11 +66,27 @@ class PracticeViewModel @Inject constructor(
         reduce {
             state.copy(speechConfig = speechConfig)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "home",
+            actionName = "set_speech_config",
+            properties = mutableMapOf(
+                "file_name" to speechConfig.fileName,
+                "speech_type" to speechConfig.speechType?.label,
+                "audience" to speechConfig.audience?.label,
+                "venue" to speechConfig.venue?.label
+            )
+        )
     }
 
     fun onUploadSpeechFile(uri: Uri) = intent {
         if (!validateSpeechFile(uri)) {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일은 1분이상 20분 이하만 업로드 가능합니다."))
+
+            analyticsHelper.trackActionEvent(
+                screenName = "home",
+                actionName = "request_feedback_invalid_duration",
+            )
             return@intent
         }
 
@@ -86,12 +106,18 @@ class PracticeViewModel @Inject constructor(
                     speechConfig = state.speechConfig,
                 ),
             )
+
+            analyticsHelper.trackActionEvent(
+                screenName = "home",
+                actionName = "upload_speech_file",
+            )
         }.onFailure {
             postSideEffect(PracticeSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
-        }.also {
-            reduce {
-                state.copy(speechConfig = SpeechConfig(), uploadFileStatus = null)
-            }
+            errorHelper.logError(it)
+        }
+
+        reduce {
+            state.copy(speechConfig = SpeechConfig(), uploadFileStatus = null)
         }
     }
 

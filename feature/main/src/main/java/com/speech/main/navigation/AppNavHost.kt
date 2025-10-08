@@ -68,7 +68,8 @@ fun AppNavHost(
             navigateToPolicy = {},
             navigateToInquiry = {},
         )
-
     }
+
+    // TrackNavigationDestination(navController)
 }
 

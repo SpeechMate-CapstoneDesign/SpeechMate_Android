@@ -1,6 +1,7 @@
 package com.speech.main
 
 import androidx.lifecycle.ViewModel
+import com.speech.analytics.AnalyticsHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.AuthRepository
 import com.speech.practice.graph.practice.PracticeSideEffect

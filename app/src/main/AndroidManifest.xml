@@ -50,7 +50,7 @@
 
                 <data
                     android:host="oauth"
-                    android:scheme="kakao${KAKAO_REDIRECT_URI}" />
+                    android:scheme="${KAKAO_REDIRECT_URI}" />
             </intent-filter>
         </activity>
 
