@@ -40,7 +40,6 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
-            .callTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .authenticator(authenticator)
 
@@ -61,8 +60,6 @@ object RetrofitModule {
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
-            .callTimeout(15, TimeUnit.SECONDS)
-
 
         return builder.build()
     }
