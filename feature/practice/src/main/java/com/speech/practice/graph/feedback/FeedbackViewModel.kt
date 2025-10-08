@@ -12,6 +12,8 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.toRoute
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
@@ -37,6 +39,8 @@ class FeedbackViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val savedStateHandle: SavedStateHandle,
     private val speechRepository: SpeechRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<FeedbackState, FeedbackSideEffect>, ViewModel() {
     override val container = container<FeedbackState, FeedbackSideEffect>(FeedbackState())
 
@@ -156,21 +160,30 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun onBackPressed() {
-        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
-        if (isPlaying) pausePlaying()
-        else {
+    private fun onBackPressed() = intent {
+        val isPlaying = state.playingState == PlayingState.Playing
+        if (isPlaying) {
+            pausePlaying()
+        } else {
             clearResource()
-            intent {
-                postSideEffect(FeedbackSideEffect.NavigateToBack)
-            }
+            postSideEffect(FeedbackSideEffect.NavigateToBack)
         }
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "on_back_pressed",
+            properties = mutableMapOf("is_playing" to isPlaying),
+        )
     }
 
     private fun onMenuClick() = intent {
         reduce {
             state.copy(showDropdownMenu = true)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "on_menu_click",
+        )
     }
 
     private fun onDeleteClick() = intent {
@@ -178,8 +191,14 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.deleteSpeech(state.speechDetail.id)
         }.onSuccess {
             postSideEffect(FeedbackSideEffect.NavigateToBack)
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "delete_speech",
+            )
         }.onFailure {
             postSideEffect(FeedbackSideEffect.ShowSnackbar("스피치 삭제에 실패했습니다."))
+            errorHelper.logError(it)
         }
     }
 
@@ -216,32 +235,57 @@ class FeedbackViewModel @Inject constructor(
         reduce {
             state.copy(feedbackTab = feedbackTab)
         }
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "select_tab",
+            properties = mutableMapOf("tab" to feedbackTab.name),
+        )
     }
 
-    private fun startPlaying() {
+    private fun startPlaying() = intent {
         _exoPlayer?.play()
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "start_playing",
+            properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
+        )
     }
 
-    private fun pausePlaying() {
+    private fun pausePlaying() = intent {
         _exoPlayer?.pause()
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "pause_playing",
+            properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
+        )
     }
 
-    fun seekTo(position: Long) {
+    fun seekTo(position: Long) = intent {
         _exoPlayer?.seekTo(position)
-        intent {
-            reduce {
-                state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
-            }
+        reduce {
+            state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "seek_to",
+            properties = mutableMapOf("position" to position),
+        )
     }
 
-    fun setPlaybackSpeed(speed: Float) {
+    fun setPlaybackSpeed(speed: Float) = intent {
         _exoPlayer?.setPlaybackSpeed(speed)
-        intent {
-            reduce {
-                state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
-            }
+        reduce {
+            state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "set_playback_speed",
+            properties = mutableMapOf("speed" to speed),
+        )
     }
 
     private fun loadMedia(fieUrl: String) {
@@ -277,7 +321,7 @@ class FeedbackViewModel @Inject constructor(
                     ),
                 )
             }
-
+            errorHelper.logError(it)
         }
     }
 
@@ -303,6 +347,7 @@ class FeedbackViewModel @Inject constructor(
                     )),
                 )
             }
+            errorHelper.logError(it)
         }
     }
 
@@ -331,6 +376,7 @@ class FeedbackViewModel @Inject constructor(
                     )),
                 )
             }
+            errorHelper.logError(it)
         }
     }
 
@@ -340,7 +386,7 @@ class FeedbackViewModel @Inject constructor(
         }.onSuccess {
 
         }.onFailure {
-
+            errorHelper.logError(it)
         }
     }
 

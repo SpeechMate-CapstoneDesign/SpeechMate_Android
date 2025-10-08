@@ -24,6 +24,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.practice.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
@@ -49,6 +51,8 @@ import kotlin.use
 class RecordVideoViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<RecordVideoState, RecordVideoSideEffect>, ViewModel() {
     override val container = container<RecordVideoState, RecordVideoSideEffect>(RecordVideoState())
 
@@ -80,33 +84,53 @@ class RecordVideoViewModel @Inject constructor(
     }
 
     fun onBackPressed() = intent {
-        when (state.recordingVideoState) {
-            is RecordingVideoState.Recording, is RecordingVideoState.Paused -> {
-                cancelRecordVideo()
-            }
+        val isRecording =
+            state.recordingVideoState is RecordingVideoState.Recording || state.recordingVideoState is RecordingVideoState.Paused
 
-            else -> {
-                postSideEffect(RecordVideoSideEffect.NavigateBack)
-            }
+        if (isRecording) {
+            pauseRecordVideo()
+        } else {
+            postSideEffect(RecordVideoSideEffect.NavigateBack)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "on_back_pressed",
+            properties = mutableMapOf("is_recording" to isRecording),
+        )
     }
 
     fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
         reduce {
             state.copy(speechConfig = speechConfig)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "set_speech_config",
+            properties = mutableMapOf(
+                "file_name" to speechConfig.fileName,
+                "speech_type" to speechConfig.speechType?.label,
+                "audience" to speechConfig.audience?.label,
+                "venue" to speechConfig.venue?.label,
+            ),
+        )
     }
 
     private fun switchCamera() = intent {
         reduce {
-            state.copy(
-                cameraSelector = if (state.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                    CameraSelector.DEFAULT_FRONT_CAMERA
-                } else {
-                    CameraSelector.DEFAULT_BACK_CAMERA
-                },
-            )
+            val newSelector = if (state.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            } else {
+                CameraSelector.DEFAULT_BACK_CAMERA
+            }
+            state.copy(cameraSelector = newSelector)
         }
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "switch_camera",
+            properties = mutableMapOf("camera_selector" to state.cameraSelector.toString()),
+        )
     }
 
     private fun validateSpeechFile(uri: Uri): Boolean = MediaUtil.isDurationValid(context, uri)
@@ -116,6 +140,12 @@ class RecordVideoViewModel @Inject constructor(
 
         if (!validateSpeechFile(state.videoFile!!.toUri())) {
             postSideEffect(RecordVideoSideEffect.ShowSnackBar("발표 파일은 1분 이상 20분 이하만 피드백 가능합니다."))
+
+            analyticsHelper.trackActionEvent(
+                screenName = "record_video",
+                actionName = "request_feedback_invalid_duration",
+                properties = mutableMapOf("duration" to recordDuration),
+            )
             return@intent
         }
 
@@ -135,12 +165,191 @@ class RecordVideoViewModel @Inject constructor(
                     speechConfig = state.speechConfig,
                 ),
             )
+            analyticsHelper.trackActionEvent(
+                screenName = "record_video",
+                actionName = "request_feedback_success",
+            )
         }.onFailure {
             postSideEffect(RecordVideoSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+            errorHelper.logError(it)
         }.also {
             reduce {
                 state.copy(uploadFileStatus = null)
             }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startRecordVideo() = intent {
+        if (recording != null || videoCapture == null || state.recordingVideoState !is RecordingVideoState.Ready) return@intent
+
+        val videoFile = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
+            "video_${System.currentTimeMillis()}.mp4",
+        )
+
+        val outputOptions = FileOutputOptions.Builder(videoFile).build()
+
+        runCatching {
+            val pendingRecording = videoCapture!!.output.prepareRecording(context, outputOptions)
+                .withAudioEnabled()
+
+            reduce {
+                state.copy(
+                    recordingVideoState = RecordingVideoState.Recording,
+                    videoFile = videoFile,
+                )
+            }
+
+            recording = pendingRecording.start(ContextCompat.getMainExecutor(context)) { event ->
+                handleVideoRecordEvent(event, videoFile)
+            }
+        }.onSuccess {
+            analyticsHelper.trackActionEvent(
+                screenName = "record_video",
+                actionName = "start_recording",
+            )
+        }.onFailure {
+            postSideEffect(RecordVideoSideEffect.ShowSnackBar("녹화를 시작하지 못했습니다."))
+            errorHelper.logError(it)
+        }
+    }
+
+    private fun handleVideoRecordEvent(event: VideoRecordEvent, videoFile: File) = intent {
+        when (event) {
+            is VideoRecordEvent.Start -> {
+                startTimer()
+            }
+
+            is VideoRecordEvent.Finalize -> {
+                if (event.hasError()) {
+                    Log.e(
+                        "RecordVideoViewModel",
+                        "Recording failed with error: ${event.error}, cause : ${event.cause}",
+                    )
+                    errorHelper.logError(event.cause ?: Throwable("Video recording finalize error"))
+                    cancelRecordVideo()
+                    videoFile.delete()
+                }
+
+                recording = null
+                recording?.stop()
+                stopTimer()
+            }
+
+
+            is VideoRecordEvent.Status -> {
+                // Log.d("RecordVideoViewModel", "📊 Recording status: ${event.recordingStats}")
+            }
+
+            is VideoRecordEvent.Pause -> {
+
+            }
+
+            is VideoRecordEvent.Resume -> {
+
+            }
+        }
+    }
+
+    private fun pauseRecordVideo() = intent {
+        if (state.recordingVideoState !is RecordingVideoState.Recording) return@intent
+        recording?.pause()
+        stopTimer()
+
+        reduce {
+            state.copy(recordingVideoState = RecordingVideoState.Paused)
+        }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "pause_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
+    }
+
+    private fun resumeRecordVideo() = intent {
+        if (state.recordingVideoState !is RecordingVideoState.Paused) return@intent
+        recording?.resume()
+        startTimer()
+
+        reduce {
+            state.copy(recordingVideoState = RecordingVideoState.Recording)
+        }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "resume_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
+    }
+
+    fun cancelRecordVideo() = intent {
+        stopTimer()
+        recording?.stop()
+        recording = null
+
+        val previousRecordDuration = recordDuration
+        recordDuration = 0
+        state.videoFile?.delete()
+
+        reduce {
+            state.copy(
+                timeText = "00 : 00",
+                recordingVideoState = RecordingVideoState.Ready,
+                videoFile = null,
+            )
+        }
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "cancel_recording",
+            properties = mutableMapOf("record_duration" to previousRecordDuration),
+        )
+    }
+
+    fun finishRecordVideo() = intent {
+        if (state.recordingVideoState !is RecordingVideoState.Recording && state.recordingVideoState !is RecordingVideoState.Paused) return@intent
+
+        stopTimer()
+        recording?.stop()
+        recording = null
+
+        reduce {
+            state.copy(recordingVideoState = RecordingVideoState.Completed)
+        }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_video",
+            actionName = "finish_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
+    }
+
+    private fun startTimer() = intent {
+        timerJob = viewModelScope.launch {
+            while (state.recordingVideoState == RecordingVideoState.Recording) {
+                delay(1000)
+                recordDuration += 1000
+                reduce {
+                    val minutes = (recordDuration / 1000) / 60
+                    val seconds = (recordDuration / 1000) % 60
+                    state.copy(
+                        timeText = String.format(Locale.US, "%02d : %02d", minutes, seconds),
+                    )
+                }
+
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    private fun onProgressUpdate(status: UploadFileStatus) = intent {
+        reduce {
+            state.copy(uploadFileStatus = status)
         }
     }
 
@@ -176,142 +385,6 @@ class RecordVideoViewModel @Inject constructor(
             provider.bindToLifecycle(
                 lifecycleOwner, cameraSelector, preview, videoCapture,
             )
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun startRecordVideo() = intent {
-        if (recording != null || videoCapture == null) return@intent
-
-        val videoFile = File(
-            context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
-            "video_${System.currentTimeMillis()}.mp4",
-        )
-
-        val outputOptions = FileOutputOptions.Builder(videoFile).build()
-
-        val pendingRecording = videoCapture!!.output.prepareRecording(context, outputOptions)
-            .withAudioEnabled()
-
-        reduce {
-            state.copy(
-                recordingVideoState = RecordingVideoState.Recording,
-                videoFile = videoFile,
-            )
-        }
-
-        recording = pendingRecording.start(ContextCompat.getMainExecutor(context)) { event ->
-            handleVideoRecordEvent(event, videoFile)
-        }
-    }
-
-    private fun handleVideoRecordEvent(event: VideoRecordEvent, videoFile: File) = intent {
-        when (event) {
-            is VideoRecordEvent.Start -> {
-                startTimer()
-            }
-
-            is VideoRecordEvent.Finalize -> {
-                if (event.hasError()) {
-                    Log.e(
-                        "RecordVideoViewModel",
-                        "Recording failed with error: ${event.error}, cause : ${event.cause}",
-                    )
-                    cancelRecordVideo()
-                    videoFile.delete()
-                }
-
-                recording = null
-                recording?.stop()
-                stopTimer()
-            }
-
-
-            is VideoRecordEvent.Status -> {
-                // Log.d("RecordVideoViewModel", "📊 Recording status: ${event.recordingStats}")
-            }
-
-            is VideoRecordEvent.Pause -> {
-
-            }
-
-            is VideoRecordEvent.Resume -> {
-
-            }
-        }
-    }
-
-    private fun pauseRecordVideo() = intent {
-        if (state.recordingVideoState !is RecordingVideoState.Recording) return@intent
-        recording?.pause()
-        stopTimer()
-
-        reduce {
-            state.copy(recordingVideoState = RecordingVideoState.Paused)
-        }
-    }
-
-    private fun resumeRecordVideo() = intent {
-        if (state.recordingVideoState !is RecordingVideoState.Paused) return@intent
-        recording?.resume()
-        startTimer()
-
-        reduce {
-            state.copy(recordingVideoState = RecordingVideoState.Recording)
-        }
-    }
-
-    fun cancelRecordVideo() = intent {
-        stopTimer()
-        recording?.stop()
-        recording = null
-        recordDuration = 0
-        reduce {
-            state.copy(
-                timeText = "00 : 00",
-                recordingVideoState = RecordingVideoState.Ready,
-                videoFile = null,
-            )
-        }
-    }
-
-    fun finishRecordVideo() = intent {
-        if (state.recordingVideoState !is RecordingVideoState.Recording && state.recordingVideoState !is RecordingVideoState.Paused) return@intent
-
-        stopTimer()
-        recording?.stop()
-        recording = null
-
-        reduce {
-            state.copy(recordingVideoState = RecordingVideoState.Completed)
-        }
-    }
-
-    private fun startTimer() = intent {
-        timerJob = viewModelScope.launch {
-            while (state.recordingVideoState == RecordingVideoState.Recording) {
-                delay(1000)
-                recordDuration += 1000
-                reduce {
-                    val minutes = (recordDuration / 1000) / 60
-                    val seconds = (recordDuration / 1000) % 60
-                    state.copy(
-                        timeText = String.format(Locale.US, "%02d : %02d", minutes, seconds),
-                    )
-                }
-
-            }
-        }
-    }
-
-    private fun stopTimer() {
-        timerJob?.cancel()
-        timerJob = null
-    }
-
-    private fun onProgressUpdate(status: UploadFileStatus) = intent {
-        reduce {
-            state.copy(uploadFileStatus = status)
         }
     }
 

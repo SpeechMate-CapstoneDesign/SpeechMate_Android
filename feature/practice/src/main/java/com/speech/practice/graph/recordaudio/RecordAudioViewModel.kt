@@ -6,6 +6,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.practice.util.MediaUtil
 import com.speech.domain.model.speech.SpeechConfig
@@ -28,6 +30,8 @@ import javax.inject.Inject
 class RecordAudioViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val speechRepository: SpeechRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<RecordAudioState, RecordAudioSideEffect>, ViewModel() {
 
     override val container = container<RecordAudioState, RecordAudioSideEffect>(RecordAudioState())
@@ -50,11 +54,17 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     private fun onBackPressed() = intent {
-        val isPlaying = state.recordingAudioState == RecordingAudioState.Recording
-        if (isPlaying) pauseRecordAudio()
-        else {
+        val isRecording = state.recordingAudioState == RecordingAudioState.Recording
+        if (isRecording) {
+            pauseRecordAudio()
+        } else {
             postSideEffect(RecordAudioSideEffect.NavigateToBack)
         }
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "on_back_pressed",
+            properties = mutableMapOf("is_recording" to isRecording),
+        )
     }
 
     private fun validateSpeechFile(uri: Uri): Boolean = MediaUtil.isDurationValid(context, uri)
@@ -64,6 +74,11 @@ class RecordAudioViewModel @Inject constructor(
 
         if (!validateSpeechFile(state.audioFile!!.toUri())) {
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일은 1분 이상 20분 이하만 피드백 가능합니다."))
+            analyticsHelper.trackActionEvent(
+                screenName = "record_audio",
+                actionName = "request_feedback_invalid_duration",
+                properties = mutableMapOf("duration" to recordDuration),
+            )
             return@intent
         }
 
@@ -83,8 +98,14 @@ class RecordAudioViewModel @Inject constructor(
                     speechConfig = state.speechConfig,
                 ),
             )
+
+            analyticsHelper.trackActionEvent(
+                screenName = "record_audio",
+                actionName = "request_feedback_success",
+            )
         }.onFailure {
             postSideEffect(RecordAudioSideEffect.ShowSnackBar("발표 파일 업로드에 실패했습니다."))
+            errorHelper.logError(it)
         }.also {
             reduce {
                 state.copy(uploadFileStatus = null)
@@ -96,6 +117,17 @@ class RecordAudioViewModel @Inject constructor(
         reduce {
             state.copy(speechConfig = speechConfig)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "set_speech_config",
+            properties = mutableMapOf(
+                "file_name" to speechConfig.fileName,
+                "speech_type" to speechConfig.speechType?.label,
+                "audience" to speechConfig.audience?.label,
+                "venue" to speechConfig.venue?.label,
+            ),
+        )
     }
 
     private fun startRecordAudio() = intent {
@@ -110,23 +142,32 @@ class RecordAudioViewModel @Inject constructor(
             )
         }
 
-        recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(context)
-        } else {
-            MediaRecorder()
-        }.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(state.audioFile!!.absolutePath)
-            prepare()
-            start()
-        }
+        runCatching {
+            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(context)
+            } else {
+                MediaRecorder()
+            }.apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(state.audioFile!!.absolutePath)
+                prepare()
+                start()
+            }
+        }.onSuccess {
+            startTimer()
+            reduce {
+                state.copy(recordingAudioState = RecordingAudioState.Recording)
+            }
 
-        startTimer()
-
-        reduce {
-            state.copy(recordingAudioState = RecordingAudioState.Recording)
+            analyticsHelper.trackActionEvent(
+                screenName = "record_audio",
+                actionName = "start_recording",
+            )
+        }.onFailure {
+            postSideEffect(RecordAudioSideEffect.ShowSnackBar("녹음을 시작하지 못했습니다."))
+            errorHelper.logError(it)
         }
     }
 
@@ -137,6 +178,12 @@ class RecordAudioViewModel @Inject constructor(
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Paused)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "pause_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
     }
 
     private fun resumeRecordAudio() = intent {
@@ -146,6 +193,12 @@ class RecordAudioViewModel @Inject constructor(
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Recording)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "resume_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
     }
 
     private fun finishRecordAudio() = intent {
@@ -159,6 +212,12 @@ class RecordAudioViewModel @Inject constructor(
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Completed)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "finish_recording",
+            properties = mutableMapOf("record_duration" to recordDuration),
+        )
     }
 
     private fun cancelRecordAudio() = intent {
@@ -166,12 +225,19 @@ class RecordAudioViewModel @Inject constructor(
         recorder?.stop()
         recorder?.release()
         recorder = null
+
+        val previousRecordDuration = recordDuration
         recordDuration = 0
         state.audioFile?.let { runCatching { it.delete() } }
 
         reduce {
             state.copy(recordingAudioState = RecordingAudioState.Ready, timeText = "00 : 00 . 00")
         }
+        analyticsHelper.trackActionEvent(
+            screenName = "record_audio",
+            actionName = "cancel_recording",
+            properties = mutableMapOf("record_duration" to previousRecordDuration),
+        )
     }
 
     private fun startTimer() {

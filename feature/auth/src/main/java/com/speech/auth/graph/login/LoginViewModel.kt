@@ -1,6 +1,9 @@
 package com.speech.auth.graph.login
 
 import androidx.lifecycle.ViewModel
+import com.speech.analytics.AnalyticsEvent
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.designsystem.R
 import com.speech.domain.repository.AuthRepository
@@ -12,6 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<Unit, LoginSideEffect>, ViewModel() {
     override val container = container<Unit, LoginSideEffect>(Unit)
     fun onIntent(event: LoginIntent) {
@@ -29,8 +34,15 @@ class LoginViewModel @Inject constructor(
             } else {
                 postSideEffect(LoginSideEffect.NavigateToPractice)
             }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "login",
+                actionName = "login_kakao",
+                properties = mutableMapOf("newUser" to isNewUser),
+            )
         }.onFailure {
             postSideEffect(LoginSideEffect.ShowSnackBar("로그인에 실패했습니다."))
+            errorHelper.logError(it)
         }
     }
 }

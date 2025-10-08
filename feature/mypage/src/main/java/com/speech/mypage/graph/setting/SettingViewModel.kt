@@ -1,6 +1,8 @@
 package com.speech.mypage.graph.setting
 
 import androidx.lifecycle.ViewModel
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,7 +12,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<Unit, SettingSideEffect>, ViewModel() {
     override val container = container<Unit, SettingSideEffect>(Unit)
     fun onIntent(intent: SettingIntent) {
@@ -39,8 +43,13 @@ class SettingViewModel @Inject constructor(
             authRepository.logout()
         }.onSuccess {
             postSideEffect(SettingSideEffect.NavigateToLogin)
+            analyticsHelper.trackActionEvent(
+                screenName = "setting",
+                actionName = "sign_out",
+            )
         }.onFailure {
             postSideEffect(SettingSideEffect.NavigateToLogin)
+            errorHelper.logError(it)
         }
     }
 
@@ -49,6 +58,10 @@ class SettingViewModel @Inject constructor(
             authRepository.unRegisterUser()
         }.onSuccess {
             postSideEffect(SettingSideEffect.NavigateToLogin)
+            analyticsHelper.trackActionEvent(
+                screenName = "setting",
+                actionName = "un_register",
+            )
         }.onFailure {
             postSideEffect(SettingSideEffect.ShowSnackbar("회원탈퇴에 실패했습니다."))
         }

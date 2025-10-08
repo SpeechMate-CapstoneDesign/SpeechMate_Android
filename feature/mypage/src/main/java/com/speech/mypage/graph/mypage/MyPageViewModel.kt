@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
+import com.speech.analytics.AnalyticsHelper
+import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.SpeechRepository
 import com.speech.mypage.graph.mypage.MyPageSideEffect.*
@@ -22,6 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val speechRepository: SpeechRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val errorHelper: ErrorHelper,
 ) : ContainerHost<MyPageState, MyPageSideEffect>, ViewModel() {
     override val container = container<MyPageState, MyPageSideEffect>(MyPageState())
     private val refreshTrigger = MutableStateFlow(false)
@@ -35,9 +39,10 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             speechRepository.speechUpdateEvents.collect { event ->
                 when (event) {
-                    is SpeechRepository.SpeechUpdateEvent.SpeechAdded -> refreshTrigger.value = !refreshTrigger.value
+                    is SpeechRepository.SpeechUpdateEvent.SpeechAdded -> {
+                        refreshTrigger.value = !refreshTrigger.value
+                    }
                     is SpeechRepository.SpeechUpdateEvent.SpeechDeleted -> {
-                        Log.d("speechUpdateEvent", "speech deleted: ${event.speechId})")
                         deletedSpeechIds.value += event.speechId
                     }
                 }
@@ -86,6 +91,10 @@ class MyPageViewModel @Inject constructor(
 
     fun onRefresh() {
         deletedSpeechIds.value = emptySet()
+        analyticsHelper.trackActionEvent(
+            screenName = "my_page",
+            actionName = "refresh_speech_feeds",
+        )
     }
 
     private fun onDeleteClick(speechId: Int) = intent {
@@ -93,8 +102,13 @@ class MyPageViewModel @Inject constructor(
             speechRepository.deleteSpeech(speechId)
         }.onSuccess {
             deletedSpeechIds.value += speechId
+            analyticsHelper.trackActionEvent(
+                screenName = "my_page",
+                actionName = "delete_speech",
+            )
         }.onFailure {
             postSideEffect(ShowSnackbar("스피치 삭제에 실패했습니다."))
+            errorHelper.logError(it)
         }
     }
 }
