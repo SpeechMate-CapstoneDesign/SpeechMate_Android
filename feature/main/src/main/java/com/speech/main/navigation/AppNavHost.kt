@@ -12,6 +12,7 @@ import com.speech.auth.navigation.navigateToLogin
 import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.mypage.navigation.myPageNavGraph
 import com.speech.mypage.navigation.navigateToSetting
+import com.speech.mypage.navigation.navigateToWebView
 import com.speech.navigation.SplashRoute
 import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
@@ -65,11 +66,8 @@ fun AppNavHost(
             },
             navigateToSetting = navController::navigateToSetting,
             navigateToFeedBack = navController::navigateToFeedback,
-            navigateToPolicy = {},
-            navigateToInquiry = {},
+            navigateToWebView = navController::navigateToWebView
         )
     }
-
-    // TrackNavigationDestination(navController)
 }
 
