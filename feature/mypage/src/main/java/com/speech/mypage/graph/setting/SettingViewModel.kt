@@ -64,6 +64,7 @@ class SettingViewModel @Inject constructor(
             )
         }.onFailure {
             postSideEffect(SettingSideEffect.ShowSnackbar("회원탈퇴에 실패했습니다."))
+            errorHelper.logError(it)
         }
     }
 }
