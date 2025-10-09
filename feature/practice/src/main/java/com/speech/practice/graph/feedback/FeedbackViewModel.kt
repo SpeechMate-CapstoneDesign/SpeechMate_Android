@@ -329,6 +329,9 @@ class FeedbackViewModel @Inject constructor(
                     )) + (FeedbackTab.SCRIPT_ANALYSIS to TabState(
                         isLoading = false,
                         isError = true,
+                    )) + (FeedbackTab.VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
                     )),
                     speechDetail = state.speechDetail.copy(
                         script = "대본을 불러오는데 실패했습니다.",
