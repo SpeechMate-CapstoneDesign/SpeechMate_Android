@@ -80,7 +80,6 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
     implementation(projects.core.domain)
-
     implementation(projects.feature.main)
 
     implementation(libs.kakao.user)

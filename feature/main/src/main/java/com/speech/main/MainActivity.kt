@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -37,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.example.designsystem.component.SpeechMateSnackBar
 import com.example.designsystem.component.SpeechMateSnackBarHost
+import com.kakao.sdk.common.util.Utility
 import com.speech.analytics.AnalyticsEvent
 import com.speech.analytics.AnalyticsEvent.PropertiesKeys.SCREEN_NAME
 import com.speech.analytics.AnalyticsEvent.Types.SCREEN_VIEW
