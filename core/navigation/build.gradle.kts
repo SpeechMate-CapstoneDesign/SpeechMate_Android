@@ -5,6 +5,10 @@ plugins {
 
 android {
     namespace = "com.speech.navigation"
+
+    buildTypes {
+        release { consumerProguardFiles("consumer-rules.pro") }
+    }
 }
 
 dependencies {

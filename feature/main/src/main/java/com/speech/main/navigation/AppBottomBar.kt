@@ -78,7 +78,7 @@ internal fun AppBottomBar(
 
                             Spacer(Modifier.height(3.dp))
 
-                            Text(topLevelRoute.label, style = SmTheme.typography.bodyXSM)
+                            Text(topLevelRoute.label, style = SmTheme.typography.bodyXSM, color = SmTheme.colors.textSecondary)
                         }
                     },
                     onClick = {

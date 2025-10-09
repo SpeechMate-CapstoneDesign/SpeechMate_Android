@@ -1,5 +1,6 @@
 package com.speech.navigation
 
+import android.util.Log
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -24,11 +25,6 @@ fun NavDestination?.shouldHideBottomBar(): Boolean =
 
 fun NavDestination?.isRouteInHierarchy(route: KClass<*>): Boolean =
     this?.hierarchy?.any { it.hasRoute(route) } == true
-
-fun NavDestination?.containsRoute(routes: List<KClass<*>>): Boolean {
-    val currentRoute = this?.route ?: return false
-    return routes.mapNotNull { it.simpleName }.any { currentRoute.contains(it) }
-}
 
 fun NavDestination.getRouteName(): String? = this.route?.let { mapRouteToName(it) }
 

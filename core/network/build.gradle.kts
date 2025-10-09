@@ -18,7 +18,7 @@ android {
         buildConfigField(
             "String",
             "SPEECHMATE_BASE_URL",
-            localProperties["SPEECHMATE_BASE_URL"] as String
+            localProperties["SPEECHMATE_BASE_URL"] as String,
         )
     }
 
@@ -26,6 +26,9 @@ android {
         buildConfig = true
     }
 
+    buildTypes {
+        release { consumerProguardFiles("consumer-rules.pro") }
+    }
 }
 
 dependencies {

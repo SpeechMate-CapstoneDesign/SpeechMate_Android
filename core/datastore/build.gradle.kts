@@ -5,6 +5,10 @@ plugins {
 
 android {
     namespace = "com.speech.datastore"
+
+    buildTypes {
+        release { consumerProguardFiles("consumer-rules.pro") }
+    }
 }
 
 dependencies {

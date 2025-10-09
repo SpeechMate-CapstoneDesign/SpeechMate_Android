@@ -160,13 +160,15 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun onBackPressed() = intent {
-        val isPlaying = state.playingState == PlayingState.Playing
+    private fun onBackPressed() {
+        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
         if (isPlaying) {
             pausePlaying()
         } else {
             clearResource()
-            postSideEffect(FeedbackSideEffect.NavigateToBack)
+            intent {
+                postSideEffect(FeedbackSideEffect.NavigateToBack)
+            }
         }
         analyticsHelper.trackActionEvent(
             screenName = "feedback",
@@ -221,6 +223,7 @@ class FeedbackViewModel @Inject constructor(
                         }
                     }
                 }
+
                 delay(1000)
             }
         }
@@ -235,6 +238,7 @@ class FeedbackViewModel @Inject constructor(
         reduce {
             state.copy(feedbackTab = feedbackTab)
         }
+
         analyticsHelper.trackActionEvent(
             screenName = "feedback",
             actionName = "select_tab",
@@ -242,50 +246,60 @@ class FeedbackViewModel @Inject constructor(
         )
     }
 
-    private fun startPlaying() = intent {
+    private fun startPlaying() {
         _exoPlayer?.play()
 
-        analyticsHelper.trackActionEvent(
-            screenName = "feedback",
-            actionName = "start_playing",
-            properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
-        )
+        intent {
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "start_playing",
+                properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
     }
 
-    private fun pausePlaying() = intent {
+    private fun pausePlaying() {
         _exoPlayer?.pause()
 
-        analyticsHelper.trackActionEvent(
-            screenName = "feedback",
-            actionName = "pause_playing",
-            properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
-        )
+        intent {
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "pause_playing",
+                properties = mutableMapOf("current_position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
     }
 
-    fun seekTo(position: Long) = intent {
+    fun seekTo(position: Long) {
         _exoPlayer?.seekTo(position)
-        reduce {
-            state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
-        }
 
-        analyticsHelper.trackActionEvent(
-            screenName = "feedback",
-            actionName = "seek_to",
-            properties = mutableMapOf("position" to position),
-        )
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_to",
+                properties = mutableMapOf("position" to position),
+            )
+        }
     }
 
-    fun setPlaybackSpeed(speed: Float) = intent {
+    fun setPlaybackSpeed(speed: Float) {
         _exoPlayer?.setPlaybackSpeed(speed)
-        reduce {
-            state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
-        }
 
-        analyticsHelper.trackActionEvent(
-            screenName = "feedback",
-            actionName = "set_playback_speed",
-            properties = mutableMapOf("speed" to speed),
-        )
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(playbackSpeed = speed))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "set_playback_speed",
+                properties = mutableMapOf("speed" to speed),
+            )
+        }
     }
 
     private fun loadMedia(fieUrl: String) {
