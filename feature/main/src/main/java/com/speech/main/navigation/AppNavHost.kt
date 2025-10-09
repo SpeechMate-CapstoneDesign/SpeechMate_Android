@@ -34,7 +34,11 @@ fun AppNavHost(
 
         authNavGraph(
             navigateToPractice = {
-                navController.navigateToPractice()
+                navController.navigateToPractice(
+                    navOptions {
+                        popUpTo(0) { inclusive = true }
+                    },
+                )
             },
             navigateToOnBoarding = { idToken ->
                 navController.navigateToOnBoarding(idToken)
