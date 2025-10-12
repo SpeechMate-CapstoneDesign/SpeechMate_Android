@@ -146,13 +146,15 @@ fun OnBoardingScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 NonVerbalSkill.entries.forEach { skill ->
+                    val isSelected = state.selectedNonVerbalSkills.contains(skill)
+
                     SMOutlineButton(
                         modifier = Modifier.fillMaxWidth(),
-                        isSelected = state.selectedNonVerbalSkills.contains(skill),
+                        isSelected = isSelected,
                         onClick = { onNonVerbalSkillClick(skill) },
                     ) {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            Text(skill.label, style = SmTheme.typography.bodySM)
+                            Text(skill.label, style = SmTheme.typography.bodySM, color = if (isSelected) SmTheme.colors.primaryDefault else SmTheme.colors.textSecondary)
                         }
                     }
 
