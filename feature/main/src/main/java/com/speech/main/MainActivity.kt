@@ -44,6 +44,7 @@ import com.speech.analytics.AnalyticsEvent.PropertiesKeys.SCREEN_NAME
 import com.speech.analytics.AnalyticsEvent.Types.SCREEN_VIEW
 import com.speech.analytics.AnalyticsHelper
 import com.speech.auth.navigation.navigateToLogin
+import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechMateBottomBarAnimation
 import com.speech.designsystem.theme.SmTheme
@@ -158,7 +159,8 @@ class MainActivity : ComponentActivity() {
                             }
 
                             is MainSideEffect.NavigateToLogin -> {
-                                navController.navigateToLogin(
+                                navController.navigateToOnBoarding(
+                                    "",
                                     navOptions {
                                         popUpTo(0) {
                                             inclusive = true
