@@ -82,7 +82,8 @@ fun OnBoardingScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 83.dp),
         ) {
             item {
                 Spacer(modifier = Modifier.height(25.dp))
@@ -118,13 +119,15 @@ fun OnBoardingScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 VerbalSkill.entries.forEach { skill ->
+                    val isSelected = state.selectedVerbalSkills.contains(skill)
+
                     SMOutlineButton(
                         modifier = Modifier.fillMaxWidth(),
-                        isSelected = state.selectedVerbalSkills.contains(skill),
+                        isSelected = isSelected,
                         onClick = { onVerbalSkillClick(skill) },
                     ) {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            Text(skill.label, style = SmTheme.typography.bodySM, color = SmTheme.colors.textSecondary)
+                            Text(skill.label, style = SmTheme.typography.bodySM, color = if(isSelected) SmTheme.colors.primaryDefault else SmTheme.colors.textSecondary)
                         }
                     }
 
@@ -143,13 +146,15 @@ fun OnBoardingScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 NonVerbalSkill.entries.forEach { skill ->
+                    val isSelected = state.selectedNonVerbalSkills.contains(skill)
+
                     SMOutlineButton(
                         modifier = Modifier.fillMaxWidth(),
-                        isSelected = state.selectedNonVerbalSkills.contains(skill),
+                        isSelected = isSelected,
                         onClick = { onNonVerbalSkillClick(skill) },
                     ) {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                            Text(skill.label, style = SmTheme.typography.bodySM)
+                            Text(skill.label, style = SmTheme.typography.bodySM, color = if (isSelected) SmTheme.colors.primaryDefault else SmTheme.colors.textSecondary)
                         }
                     }
 
@@ -184,7 +189,10 @@ fun OnBoardingScreen(
                     },
                     enabled = state.signUpAvailable,
                     colors = ButtonDefaults.buttonColors(
-                        if (state.signUpAvailable) SmTheme.colors.primaryDefault else SmTheme.colors.primaryLight,
+                        containerColor = SmTheme.colors.primaryDefault,
+                        disabledContainerColor = SmTheme.colors.primaryLight,
+                        contentColor = SmTheme.colors.white,
+                        disabledContentColor = SmTheme.colors.white,
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
@@ -192,6 +200,7 @@ fun OnBoardingScreen(
                         .padding(horizontal = 20.dp),
 
                     ) {
+
                     Text(
                         "${stringResource(R.string.complete)} (${state.selectedVerbalSkills.size + state.selectedNonVerbalSkills.size}개 선택)",
                         color = Color.White,
