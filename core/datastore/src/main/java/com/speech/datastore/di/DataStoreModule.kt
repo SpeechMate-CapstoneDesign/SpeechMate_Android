@@ -25,10 +25,6 @@ object DataStoreProvidesModule {
 
     @Provides
     @Singleton
-    fun provideGson(): Gson = GsonBuilder().create()
-
-    @Provides
-    @Singleton
     @Named("token")
     fun provideTokenDataStore(
         @ApplicationContext context: Context

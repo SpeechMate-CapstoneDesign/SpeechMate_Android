@@ -17,17 +17,17 @@ androidxNavigation = "2.9.5"
 # https://developer.android.com/jetpack/androidx/releases/core
 androidxSplashscreen = "1.0.1"
 # https://developer.android.com/develop/ui/compose/bom/bom-mapping
-androidxComposeBom = "2025.09.01"
+androidxComposeBom = "2025.10.00"
 # https://developer.android.com/jetpack/androidx/releases/navigation
 androidxComposeNavigation = "2.9.5"
 # https://developer.android.com/jetpack/androidx/releases/compose-foundation
-androidxComposeFoundation = "1.9.2"
+androidxComposeFoundation = "1.9.3"
 
 # https://google.github.io/accompanist/permissions/
 accompanistPermission = "0.37.3"
 
 # https://github.com/google/ksp/releases
-ksp = "2.2.20-2.0.3"
+ksp = "2.2.20-2.0.4"
 
 # Hilt
 hilt = "2.57.2"
@@ -37,7 +37,7 @@ hiltNavigationCompose = "1.3.0"
 material = "1.13.0"
 
 # Network
-okhttp = "5.2.0"
+okhttp = "5.2.1"
 retrofit = "3.0.0"
 
 # BenchMark
@@ -59,12 +59,12 @@ orbit = "10.0.0"
 kakao = "2.22.0"
 
 # firebase
-googleServices = "4.4.3"
-firebaseBom = "34.3.0"
+googleServices = "4.4.4"
+firebaseBom = "34.4.0"
 crashlytics = "3.0.6"
 
 # https://amplitude.com/docs/sdks/analytics/android
-amplitude = "1.22.3"
+amplitude = "1.22.4"
 
 # coil
 coil = "3.3.0"
@@ -73,7 +73,7 @@ coil = "3.3.0"
 media3 = "1.8.0"
 
 # https://developer.android.com/jetpack/androidx/releases/camera?hl=ko
-camerax = "1.5.0"
+camerax = "1.5.1"
 
 # paging
 paging = "3.3.6"
@@ -96,7 +96,7 @@ androidxEspresso = "3.7.0"
 # https://kotest.io/
 kotest = "6.0.3"
 firebaseCommonKtx = "21.0.0"
-foundationAndroid = "1.9.2"
+foundationAndroid = "1.9.3"
 activityKtx = "1.11.0"
 baselineprofile = "1.4.1"
 
