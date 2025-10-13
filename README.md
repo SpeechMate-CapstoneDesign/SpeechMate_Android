@@ -58,7 +58,7 @@
 <table>
   <tr>
     <td align="center"><b>마이페이지</b></td>
-    <td align="center"><b>피드백/b></td>
+    <td align="center"><b>피드백</b></td>
     <td align="center"><b>설정</b></td>
   </tr>
         
@@ -102,6 +102,6 @@
 <br><br>
 
 ## Module Dependency Graph
-
+<img width="1723" height="890" alt="project dot" src="https://github.com/user-attachments/assets/c38d820f-4daf-4892-94fc-5d34cd84498a" />
 
 <br><br>
