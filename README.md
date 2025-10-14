@@ -94,6 +94,11 @@
 - Firebase Analytics & Crashlytics
 - Amplitude
 
+### Media
+- MediaRecorder
+- CameraX
+- Jetpack Media3
+
 ### etc
 - KtLint
 - Custom Plugin
