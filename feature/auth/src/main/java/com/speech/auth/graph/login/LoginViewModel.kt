@@ -31,10 +31,12 @@ class LoginViewModel @Inject constructor(
     fun loginKakao(idToken: String) = intent {
         suspendRunCatching {
             authRepository.loginKakao(idToken)
-        }.onSuccess { isNewUser ->
+        }.onSuccess { (isNewUser, userId) ->
             if (isNewUser) {
                 postSideEffect(LoginSideEffect.NavigateToOnBoarding(idToken))
             } else {
+                analyticsHelper.setUserId(userId.toString())
+                errorHelper.setUserId(userId.toString())
                 postSideEffect(LoginSideEffect.NavigateToPractice)
             }
 
