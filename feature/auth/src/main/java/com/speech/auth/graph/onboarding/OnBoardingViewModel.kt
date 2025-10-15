@@ -98,7 +98,10 @@ class OnBoardingViewModel @Inject constructor(
                 idToken = idToken,
                 skills = selectedSkills,
             )
-        }.onSuccess {
+        }.onSuccess { userId ->
+            analyticsHelper.setUserId(userId.toString())
+            errorHelper.setUserId(userId.toString())
+
             analyticsHelper.trackActionEvent(
                 screenName = "onboarding",
                 actionName = "sign_up",
