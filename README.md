@@ -1,8 +1,6 @@
 ## 🗣️ SpeechMate - 스피치 AI가 분석하고 피드백해주는 앱
 <img width="400"  alt="PlayStore 1" src="https://github.com/user-attachments/assets/99f86c03-346f-4b8b-9240-39e77e21dfee" />
 
-<br><br>
-
 <table>
   <tr>
     <td align="center"><img width="1010" height="1263" alt="PlayStore - 홈" src="https://github.com/user-attachments/assets/76de59ae-f2fd-4d55-8ed3-512fefc8411b"/></td>
@@ -14,7 +12,7 @@
 
 ## 🎤 주요 기능
 
-### 온보딩 및 회원가입
+### 로그인 및 회원가입
 <table>
   <tr>
     <td align="center"><b>로그인</b></td>
