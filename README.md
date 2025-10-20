@@ -32,6 +32,9 @@
 <table>
 <tr>
      <td align="center"><img width="250" alt="홈" src="https://github.com/user-attachments/assets/463627c3-7a58-48d1-ba28-32e621088ee2" /></td>
+     <td align="center"><img width="250" alt="홈_다크" src="https://github.com/user-attachments/assets/9b463fa3-ebba-403f-b23d-0ea097633e8a" /></td>
+  
+
 </tr>
 </table>
 
