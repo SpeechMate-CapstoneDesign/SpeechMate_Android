@@ -72,8 +72,7 @@ class MyPageViewModel @Inject constructor(
             is MyPageIntent.OnDeleteClick -> onDeleteClick(event.speechId)
         }
     }
-
-
+    
     fun getSpeechFeeds() = intent {
         reduce {
             state.copy(

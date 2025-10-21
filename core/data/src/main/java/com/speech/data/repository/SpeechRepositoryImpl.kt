@@ -7,10 +7,12 @@ import androidx.core.net.toUri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.speech.common.util.suspendRunCatching
 import com.speech.data.paging.SpeechFeedPagingSource
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
+import com.speech.domain.model.speech.Script
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
@@ -113,7 +115,7 @@ class SpeechRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getScript(speechId: Int): String =
+    override suspend fun getScript(speechId: Int): Script =
         speechDataSource.getScript(speechId).toDomain()
 
 

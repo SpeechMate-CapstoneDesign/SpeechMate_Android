@@ -228,7 +228,7 @@ internal fun VerbalAnalysisContent(
 
                                 Text(
                                     text = "${formatDuration(silence.startTime)} ~ ${formatDuration(silence.endTime)}",
-                                    style = SmTheme.typography.bodySM,
+                                    style = SmTheme.typography.bodyXMM,
                                     color = SmTheme.colors.primaryDefault,
                                     modifier = Modifier.clickable {
                                         seekTo(silence.startTime.inWholeMilliseconds)

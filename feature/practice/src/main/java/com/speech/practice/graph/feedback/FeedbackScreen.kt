@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import com.speech.common.util.formatDuration
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SectionDivider
@@ -232,7 +233,8 @@ private fun FeedbackScreen(
                     player = exoPlayer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f),
+                        .aspectRatio(16f / 9f)
+                        .align(Alignment.Center),
                 )
 
                 when (state.playingState) {
@@ -300,7 +302,8 @@ private fun FeedbackScreen(
                         }
 
                         FeedbackTab.SCRIPT -> {
-                            if (state.speechDetail.script.isEmpty()) {
+                            val scriptTab = state.tabStates[FeedbackTab.SCRIPT] ?: TabState()
+                            if (scriptTab.isLoading) {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -321,8 +324,38 @@ private fun FeedbackScreen(
                                         color = SmTheme.colors.textPrimary,
                                     )
                                 }
+                            } else if (scriptTab.isError) {
+                                Text(
+                                    text = stringResource(R.string.failed_script),
+                                    style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary,
+                                )
                             } else {
-                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
+                                val sentences = state.speechDetail.script.sentences
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                                ) {
+                                    sentences.forEach { (timestamp, sentence) ->
+                                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                            Text(
+                                                text = formatDuration(timestamp),
+                                                style = SmTheme.typography.bodyXMM,
+                                                color = SmTheme.colors.primaryDefault,
+                                                modifier = Modifier.clickable {
+                                                    onSeekTo(timestamp.inWholeMilliseconds)
+                                                },
+                                            )
+
+                                            Spacer(Modifier.width(5.dp))
+
+                                            Text(text = sentence, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
+                                        }
+                                    }
+
+                                }
+
                             }
                         }
 
@@ -347,14 +380,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_script_analysis),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
+                                        color = SmTheme.colors.textPrimary,
                                     )
                                 }
                             } else if (scriptAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_script_analysis),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             } else {
                                 ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
@@ -381,14 +414,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_verbal_analysis),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
+                                        color = SmTheme.colors.textPrimary,
                                     )
                                 }
                             } else if (verbalAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_verbal_analysis),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             } else {
                                 VerbalAnalysisContent(
@@ -410,7 +443,7 @@ private fun FeedbackScreen(
                                 Text(
                                     text = stringResource(R.string.non_verbal_analysis_preparation),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             }
 

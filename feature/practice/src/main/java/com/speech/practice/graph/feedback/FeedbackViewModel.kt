@@ -315,7 +315,14 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.getScript(state.speechDetail.id)
         }.onSuccess {
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(script = it))
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(script = it),
+                )
+
             }
 
             getScriptAnalysis()
@@ -333,9 +340,6 @@ class FeedbackViewModel @Inject constructor(
                         isLoading = false,
                         isError = true,
                     )),
-                    speechDetail = state.speechDetail.copy(
-                        script = "대본을 불러오는데 실패했습니다.",
-                    ),
                 )
             }
             errorHelper.logError(it)
