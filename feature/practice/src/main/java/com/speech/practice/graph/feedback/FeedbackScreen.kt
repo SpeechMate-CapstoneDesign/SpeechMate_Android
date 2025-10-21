@@ -2,6 +2,7 @@ package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,16 +70,17 @@ import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
+import com.speech.designsystem.component.SimpleCircle
 import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
-import com.speech.practice.graph.feedback.component.MediaControls
 import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
 import com.speech.practice.graph.feedback.component.SpeechConfigContent
 import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -133,6 +135,12 @@ internal fun FeedbackRoute(
         onSeekTo = { position ->
             viewModel.onIntent(FeedbackIntent.SeekTo(position))
         },
+        onSeekForward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekForward)
+        },
+        onSeekBackward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekBackward)
+        },
         onChangePlaybackSpeed = { speed ->
             viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
@@ -146,6 +154,7 @@ internal fun FeedbackRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FeedbackScreen(
     state: FeedbackState,
@@ -155,6 +164,8 @@ private fun FeedbackScreen(
     onStartPlaying: () -> Unit,
     onPausePlaying: () -> Unit,
     onSeekTo: (Long) -> Unit,
+    onSeekForward: () -> Unit,
+    onSeekBackward: () -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
     onMenuClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -226,14 +237,27 @@ private fun FeedbackScreen(
         }
 
         Column(Modifier.padding(horizontal = 20.dp)) {
+            var controlsVisible by remember { mutableStateOf(false) }
+            LaunchedEffect(controlsVisible, state.playingState) {
+                if (controlsVisible && state.playingState is PlayingState.Playing) {
+                    delay(3000)
+                    controlsVisible = false
+
+                }
+            }
+
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        controlsVisible = !controlsVisible
+                    },
             ) {
                 PlayerSurface(
                     player = exoPlayer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+                        .aspectRatio(16f / 10f)
                         .align(Alignment.Center),
                 )
 
@@ -256,17 +280,147 @@ private fun FeedbackScreen(
 
                     else -> {}
                 }
+
+                if (controlsVisible) {
+                    val isPlaying = state.playingState == PlayingState.Playing
+                    var sliderValue by remember { mutableFloatStateOf(0f) }
+                    var isDragging by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(state.playerState.progress) {
+                        if (!isDragging) {
+                            sliderValue = state.playerState.progress
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier.clickable {
+                                onSeekBackward()
+                            },
+                        ) {
+                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+
+                                painterResource(R.drawable.seek_backward_ic),
+                                contentDescription = "10초 전",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier.clickable {
+                                if (isPlaying) onPausePlaying() else onStartPlaying()
+                            },
+                        ) {
+                            SimpleCircle(diameter = 64.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+                                painter = if (isPlaying) {
+                                    painterResource(R.drawable.ic_pause)
+                                } else {
+                                    painterResource(R.drawable.ic_play)
+                                },
+                                contentDescription = if (isPlaying) "일시정지" else "재생",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clickable { onSeekForward() },
+                        ) {
+                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+                                painterResource(R.drawable.seek_forward_ic),
+                                contentDescription = "10초 후",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart)
+                            .padding(start = 16.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = state.playerState.formattedCurrentPosition,
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.white,
+                            )
+
+                            Text(
+                                text = " / ${state.playerState.formattedDuration}",
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.white,
+                            )
+                        }
+
+                        Slider(
+                            value = sliderValue,
+                            onValueChange = {
+                                isDragging = true
+                                sliderValue = it
+                            },
+                            onValueChangeFinished = {
+                                isDragging = false
+                                val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
+                                onSeekTo(newPosition)
+                            },
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.Transparent,
+                                activeTrackColor = SmTheme.colors.primaryDefault,
+                                inactiveTrackColor = SmTheme.colors.iconDefault,
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent,
+                            ),
+                            thumb = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .clip(CircleShape)
+                                        .background(color = SmTheme.colors.primaryDefault, shape = CircleShape),
+                                )
+                            },
+                            track = { sliderState ->
+                                SliderDefaults.Track(
+                                    sliderState = sliderState,
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color.Transparent,
+                                        activeTrackColor = SmTheme.colors.primaryDefault,
+                                        inactiveTrackColor = SmTheme.colors.iconDefault,
+                                        activeTickColor = Color.Transparent,
+                                        inactiveTickColor = Color.Transparent,
+                                    ),
+                                    thumbTrackGapSize = 0.dp,
+                                    modifier = Modifier.height(6.dp),
+                                )
+                            },
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
+
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            MediaControls(
-                state = state,
-                onStartPlaying = onStartPlaying,
-                onPausePlaying = onPausePlaying,
-                onSeekTo = onSeekTo,
-                onChangePlaybackSpeed = onChangePlaybackSpeed,
-            )
 
             Spacer(Modifier.height(20.dp))
         }
@@ -505,6 +659,8 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
@@ -530,6 +686,8 @@ private fun FeedbackScreenScriptPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
@@ -555,6 +713,8 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
@@ -580,6 +740,8 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
@@ -605,6 +767,8 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},

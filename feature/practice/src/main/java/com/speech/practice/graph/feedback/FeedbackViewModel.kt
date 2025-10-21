@@ -154,6 +154,8 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.StartPlaying -> startPlaying()
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
+            is FeedbackIntent.OnSeekForward -> seekForward()
+            is FeedbackIntent.OnSeekBackward -> seekBackward()
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
@@ -282,6 +284,38 @@ class FeedbackViewModel @Inject constructor(
                 screenName = "feedback",
                 actionName = "seek_to",
                 properties = mutableMapOf("position" to position),
+            )
+        }
+    }
+
+    fun seekForward() {
+        _exoPlayer?.seekTo(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds + SEEK_INTERVAL)
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = state.playerState.currentPosition + SEEK_INTERVAL.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_forward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
+    }
+
+    fun seekBackward() {
+        _exoPlayer?.seekTo(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds - SEEK_INTERVAL)
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = state.playerState.currentPosition - SEEK_INTERVAL.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_backward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
             )
         }
     }
@@ -427,5 +461,9 @@ class FeedbackViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         clearResource()
+    }
+
+    companion object {
+        const val SEEK_INTERVAL = 10000L
     }
 }
