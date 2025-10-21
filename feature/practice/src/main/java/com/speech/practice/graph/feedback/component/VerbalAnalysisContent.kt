@@ -28,6 +28,7 @@ import com.speech.designsystem.component.SMCard
 import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.VerbalAnalysis
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun VerbalAnalysisContent(
@@ -87,7 +88,7 @@ internal fun VerbalAnalysisContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Text(verbalAnalysis.wordCount.toString(), style = SmTheme.typography.headingSB, color = SmTheme.colors.primaryDefault)
+                        Text(wpm.toString(), style = SmTheme.typography.headingSB, color = SmTheme.colors.primaryDefault)
 
                         Spacer(Modifier.height(2.dp))
 
@@ -215,8 +216,8 @@ internal fun VerbalAnalysisContent(
                             .padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                                 val silenceDuration = silence.endTime - silence.startTime
-                                val durationInSeconds = silenceDuration.inWholeMilliseconds / 100.0
-                                val formattedDuration = "%.1f초".format(durationInSeconds / 10.0)
+                                val durationInSeconds = silenceDuration.inWholeMilliseconds / 1000.0
+                                val formattedDuration = "%.1f초".format(durationInSeconds)
 
                                 Text(
                                     text = formattedDuration,
@@ -226,14 +227,25 @@ internal fun VerbalAnalysisContent(
 
                                 Spacer(Modifier.width(8.dp))
 
-                                Text(
-                                    text = "${formatDuration(silence.startTime)} ~ ${formatDuration(silence.endTime)}",
-                                    style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.primaryDefault,
-                                    modifier = Modifier.clickable {
-                                        seekTo(silence.startTime.inWholeMilliseconds)
-                                    },
-                                )
+                                Row {
+                                    Text(
+                                        text = "${formatDuration(silence.startTime)} ~ ",
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.primaryDefault,
+                                        modifier = Modifier.clickable {
+                                            seekTo((silence.startTime - silenceDuration).inWholeMilliseconds)
+                                        },
+                                    )
+
+                                    Text(
+                                        text = formatDuration(silence.endTime),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.primaryDefault,
+                                        modifier = Modifier.clickable {
+                                            seekTo(silence.endTime.inWholeMilliseconds)
+                                        },
+                                    )
+                                }
                             }
 
                             Spacer(Modifier.height(3.dp))
