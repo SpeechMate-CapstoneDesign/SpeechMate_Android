@@ -243,12 +243,12 @@ private fun FeedbackScreen(
         Column(Modifier.padding(horizontal = 20.dp)) {
             var controlsVisible by remember { mutableStateOf(false) }
             var sliderValue by remember { mutableFloatStateOf(0f) }
+            val isPlaying = state.playingState == PlayingState.Playing
 
-            LaunchedEffect(controlsVisible, state.playingState) {
-                if (controlsVisible && state.playingState is PlayingState.Playing) {
+            LaunchedEffect(controlsVisible, isPlaying) {
+                if (controlsVisible && isPlaying) {
                     delay(3000)
                     controlsVisible = false
-
                 }
             }
 
@@ -287,8 +287,7 @@ private fun FeedbackScreen(
                     else -> {}
                 }
 
-                if (!controlsVisible) {
-                    val isPlaying = state.playingState == PlayingState.Playing
+                if (controlsVisible) {
                     var isDragging by remember { mutableStateOf(false) }
 
                     LaunchedEffect(sliderValue) {
