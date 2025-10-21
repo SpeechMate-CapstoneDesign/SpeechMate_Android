@@ -157,6 +157,7 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.OnSeekForward -> seekForward()
             is FeedbackIntent.OnSeekBackward -> seekBackward()
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+            is FeedbackIntent.OnProgressChanged -> onProgressChanged(event.position)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
         }
@@ -317,6 +318,12 @@ class FeedbackViewModel @Inject constructor(
                 actionName = "seek_backward",
                 properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
             )
+        }
+    }
+
+    fun onProgressChanged(position: Long) = intent {
+        reduce {
+            state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
         }
     }
 

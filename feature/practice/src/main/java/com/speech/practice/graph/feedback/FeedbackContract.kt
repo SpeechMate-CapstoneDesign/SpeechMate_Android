@@ -58,6 +58,7 @@ sealed class FeedbackIntent : UiIntent {
     data class SeekTo(val position: Long) : FeedbackIntent()
     data object OnSeekForward : FeedbackIntent()
     data object OnSeekBackward : FeedbackIntent()
+    data class OnProgressChanged(val position: Long) : FeedbackIntent()
     data class ChangePlaybackSpeed(val speed: Float) : FeedbackIntent()
     data object OnMenuClick : FeedbackIntent()
     data object OnDeleteClick : FeedbackIntent()

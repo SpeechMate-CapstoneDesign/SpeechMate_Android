@@ -141,6 +141,9 @@ internal fun FeedbackRoute(
         onSeekBackward = {
             viewModel.onIntent(FeedbackIntent.OnSeekBackward)
         },
+        onProgressChanged = { position ->
+            viewModel.onIntent(FeedbackIntent.OnProgressChanged(position))
+        },
         onChangePlaybackSpeed = { speed ->
             viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
@@ -170,6 +173,7 @@ private fun FeedbackScreen(
     onMenuClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
+    onProgressChanged: (Long) -> Unit,
 ) {
     var showDeleteDg by remember { mutableStateOf(false) }
     if (showDeleteDg) {
@@ -238,6 +242,8 @@ private fun FeedbackScreen(
 
         Column(Modifier.padding(horizontal = 20.dp)) {
             var controlsVisible by remember { mutableStateOf(false) }
+            var sliderValue by remember { mutableFloatStateOf(0f) }
+
             LaunchedEffect(controlsVisible, state.playingState) {
                 if (controlsVisible && state.playingState is PlayingState.Playing) {
                     delay(3000)
@@ -281,10 +287,16 @@ private fun FeedbackScreen(
                     else -> {}
                 }
 
-                if (controlsVisible) {
+                if (!controlsVisible) {
                     val isPlaying = state.playingState == PlayingState.Playing
-                    var sliderValue by remember { mutableFloatStateOf(0f) }
                     var isDragging by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(sliderValue) {
+                        if(isDragging) {
+                            val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
+                            onProgressChanged(newPosition)
+                        }
+                    }
 
                     LaunchedEffect(state.playerState.progress) {
                         if (!isDragging) {
@@ -307,7 +319,6 @@ private fun FeedbackScreen(
                             SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
 
                             Icon(
-
                                 painterResource(R.drawable.seek_backward_ic),
                                 contentDescription = "10초 전",
                                 tint = SmTheme.colors.white,
@@ -339,8 +350,7 @@ private fun FeedbackScreen(
                         }
 
                         Box(
-                            modifier = Modifier
-                                .clickable { onSeekForward() },
+                            modifier = Modifier.clickable { onSeekForward() },
                         ) {
                             SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
 
@@ -359,7 +369,7 @@ private fun FeedbackScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomStart)
-                            .padding(start = 16.dp),
+                            .padding(horizontal = 10.dp),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
@@ -665,6 +675,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -692,7 +703,9 @@ private fun FeedbackScreenScriptPreview() {
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
-    )
+        onProgressChanged = {},
+
+        )
 }
 
 @Preview(showBackground = true, name = "대본 분석 탭")
@@ -719,6 +732,7 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -746,6 +760,7 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -773,5 +788,6 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
