@@ -154,7 +154,10 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.StartPlaying -> startPlaying()
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
+            is FeedbackIntent.OnSeekForward -> seekForward()
+            is FeedbackIntent.OnSeekBackward -> seekBackward()
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+            is FeedbackIntent.OnProgressChanged -> onProgressChanged(event.position)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
         }
@@ -271,6 +274,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekTo(position: Long) {
+        if(position < 0 || position > container.stateFlow.value.playerState.duration.inWholeMilliseconds) return
         _exoPlayer?.seekTo(position)
 
         intent {
@@ -283,6 +287,46 @@ class FeedbackViewModel @Inject constructor(
                 actionName = "seek_to",
                 properties = mutableMapOf("position" to position),
             )
+        }
+    }
+
+    fun seekForward() {
+        val newPosition = minOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds + SEEK_INTERVAL, container.stateFlow.value.playerState.duration.inWholeMilliseconds)
+        _exoPlayer?.seekTo(newPosition)
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_forward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
+    }
+
+    fun seekBackward() {
+        val newPosition = maxOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds - SEEK_INTERVAL, 0)
+        _exoPlayer?.seekTo(newPosition)
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_backward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
+    }
+
+    fun onProgressChanged(position: Long) = intent {
+        reduce {
+            state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
         }
     }
 
@@ -315,7 +359,14 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.getScript(state.speechDetail.id)
         }.onSuccess {
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(script = it))
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(script = it),
+                )
+
             }
 
             getScriptAnalysis()
@@ -333,9 +384,6 @@ class FeedbackViewModel @Inject constructor(
                         isLoading = false,
                         isError = true,
                     )),
-                    speechDetail = state.speechDetail.copy(
-                        script = "대본을 불러오는데 실패했습니다.",
-                    ),
                 )
             }
             errorHelper.logError(it)
@@ -423,5 +471,9 @@ class FeedbackViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         clearResource()
+    }
+
+    companion object {
+        const val SEEK_INTERVAL = 10000L
     }
 }

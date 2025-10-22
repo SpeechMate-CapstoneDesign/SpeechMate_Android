@@ -34,7 +34,7 @@ data class GetVerbalAnalysisResponse(
 @Serializable
 data class FillerResponse(
     val word: String,
-    val timestamps: List<Int>
+    val timestamps: List<Long>
 ) {
     fun toDomain(): Filler =
         Filler(
@@ -59,9 +59,9 @@ data class RepeatedWordResponse(
 
 @Serializable
 data class SilenceResponse(
-    val duration: Int,
-    val startTime: Int,
-    val endTime: Int,
+    val duration: Long,
+    val startTime: Long,
+    val endTime: Long,
     val wordBefore: String,
     val wordAfter: String
 ) {

@@ -2,6 +2,7 @@ package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import com.speech.common.util.formatDuration
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SectionDivider
@@ -68,16 +70,17 @@ import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
+import com.speech.designsystem.component.SimpleCircle
 import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
-import com.speech.practice.graph.feedback.component.MediaControls
 import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
 import com.speech.practice.graph.feedback.component.SpeechConfigContent
 import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -132,6 +135,15 @@ internal fun FeedbackRoute(
         onSeekTo = { position ->
             viewModel.onIntent(FeedbackIntent.SeekTo(position))
         },
+        onSeekForward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekForward)
+        },
+        onSeekBackward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekBackward)
+        },
+        onProgressChanged = { position ->
+            viewModel.onIntent(FeedbackIntent.OnProgressChanged(position))
+        },
         onChangePlaybackSpeed = { speed ->
             viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
@@ -145,6 +157,7 @@ internal fun FeedbackRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FeedbackScreen(
     state: FeedbackState,
@@ -154,10 +167,13 @@ private fun FeedbackScreen(
     onStartPlaying: () -> Unit,
     onPausePlaying: () -> Unit,
     onSeekTo: (Long) -> Unit,
+    onSeekForward: () -> Unit,
+    onSeekBackward: () -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
     onMenuClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
+    onProgressChanged: (Long) -> Unit,
 ) {
     var showDeleteDg by remember { mutableStateOf(false) }
     if (showDeleteDg) {
@@ -225,14 +241,30 @@ private fun FeedbackScreen(
         }
 
         Column(Modifier.padding(horizontal = 20.dp)) {
+            var controlsVisible by remember { mutableStateOf(false) }
+            var sliderValue by remember { mutableFloatStateOf(0f) }
+            val isPlaying = state.playingState == PlayingState.Playing
+
+            LaunchedEffect(controlsVisible, isPlaying) {
+                if (controlsVisible && isPlaying) {
+                    delay(3000)
+                    controlsVisible = false
+                }
+            }
+
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        controlsVisible = !controlsVisible
+                    },
             ) {
                 PlayerSurface(
                     player = exoPlayer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f),
+                        .aspectRatio(16f / 10f)
+                        .align(Alignment.Center),
                 )
 
                 when (state.playingState) {
@@ -254,17 +286,150 @@ private fun FeedbackScreen(
 
                     else -> {}
                 }
+
+                if (controlsVisible) {
+                    var isDragging by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(sliderValue) {
+                        if(isDragging) {
+                            val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
+                            onProgressChanged(newPosition)
+                        }
+                    }
+
+                    LaunchedEffect(state.playerState.progress) {
+                        if (!isDragging) {
+                            sliderValue = state.playerState.progress
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier.clickable {
+                                onSeekBackward()
+                            },
+                        ) {
+                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+                                painterResource(R.drawable.seek_backward_ic),
+                                contentDescription = "10초 전",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier.clickable {
+                                if (isPlaying) onPausePlaying() else onStartPlaying()
+                            },
+                        ) {
+                            SimpleCircle(diameter = 64.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+                                painter = if (isPlaying) {
+                                    painterResource(R.drawable.ic_pause)
+                                } else {
+                                    painterResource(R.drawable.ic_play)
+                                },
+                                contentDescription = if (isPlaying) "일시정지" else "재생",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier.clickable { onSeekForward() },
+                        ) {
+                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
+
+                            Icon(
+                                painterResource(R.drawable.seek_forward_ic),
+                                contentDescription = "10초 후",
+                                tint = SmTheme.colors.white,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center),
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = 10.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = state.playerState.formattedCurrentPosition,
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.white,
+                            )
+
+                            Text(
+                                text = " / ${state.playerState.formattedDuration}",
+                                style = SmTheme.typography.bodyXSM,
+                                color = SmTheme.colors.white,
+                            )
+                        }
+
+                        Slider(
+                            value = sliderValue,
+                            onValueChange = {
+                                isDragging = true
+                                sliderValue = it
+                            },
+                            onValueChangeFinished = {
+                                isDragging = false
+                                val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
+                                onSeekTo(newPosition)
+                            },
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.Transparent,
+                                activeTrackColor = SmTheme.colors.primaryDefault,
+                                inactiveTrackColor = SmTheme.colors.iconDefault,
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent,
+                            ),
+                            thumb = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .clip(CircleShape)
+                                        .background(color = SmTheme.colors.primaryDefault, shape = CircleShape),
+                                )
+                            },
+                            track = { sliderState ->
+                                SliderDefaults.Track(
+                                    sliderState = sliderState,
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color.Transparent,
+                                        activeTrackColor = SmTheme.colors.primaryDefault,
+                                        inactiveTrackColor = SmTheme.colors.iconDefault,
+                                        activeTickColor = Color.Transparent,
+                                        inactiveTickColor = Color.Transparent,
+                                    ),
+                                    thumbTrackGapSize = 0.dp,
+                                    modifier = Modifier.height(6.dp),
+                                )
+                            },
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
+
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            MediaControls(
-                state = state,
-                onStartPlaying = onStartPlaying,
-                onPausePlaying = onPausePlaying,
-                onSeekTo = onSeekTo,
-                onChangePlaybackSpeed = onChangePlaybackSpeed,
-            )
 
             Spacer(Modifier.height(20.dp))
         }
@@ -300,7 +465,8 @@ private fun FeedbackScreen(
                         }
 
                         FeedbackTab.SCRIPT -> {
-                            if (state.speechDetail.script.isEmpty()) {
+                            val scriptTab = state.tabStates[FeedbackTab.SCRIPT] ?: TabState()
+                            if (scriptTab.isLoading) {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -321,8 +487,38 @@ private fun FeedbackScreen(
                                         color = SmTheme.colors.textPrimary,
                                     )
                                 }
+                            } else if (scriptTab.isError) {
+                                Text(
+                                    text = stringResource(R.string.failed_script),
+                                    style = SmTheme.typography.bodyXMM,
+                                    color = SmTheme.colors.textPrimary,
+                                )
                             } else {
-                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
+                                val sentences = state.speechDetail.script.sentences
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                                ) {
+                                    sentences.forEach { (timestamp, sentence) ->
+                                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                            Text(
+                                                text = formatDuration(timestamp),
+                                                style = SmTheme.typography.bodyXMM,
+                                                color = SmTheme.colors.primaryDefault,
+                                                modifier = Modifier.clickable {
+                                                    onSeekTo(timestamp.inWholeMilliseconds)
+                                                },
+                                            )
+
+                                            Spacer(Modifier.width(5.dp))
+
+                                            Text(text = sentence, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
+                                        }
+                                    }
+
+                                }
+
                             }
                         }
 
@@ -347,14 +543,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_script_analysis),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
+                                        color = SmTheme.colors.textPrimary,
                                     )
                                 }
                             } else if (scriptAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_script_analysis),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             } else {
                                 ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
@@ -381,14 +577,14 @@ private fun FeedbackScreen(
                                     Text(
                                         stringResource(R.string.loading_verbal_analysis),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
+                                        color = SmTheme.colors.textPrimary,
                                     )
                                 }
                             } else if (verbalAnalysisTab.isError) {
                                 Text(
                                     stringResource(R.string.failed_verbal_analysis),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             } else {
                                 VerbalAnalysisContent(
@@ -410,7 +606,7 @@ private fun FeedbackScreen(
                                 Text(
                                     text = stringResource(R.string.non_verbal_analysis_preparation),
                                     style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
+                                    color = SmTheme.colors.textPrimary,
                                 )
                             }
 
@@ -472,10 +668,13 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -497,11 +696,15 @@ private fun FeedbackScreenScriptPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
-    )
+        onProgressChanged = {},
+
+        )
 }
 
 @Preview(showBackground = true, name = "대본 분석 탭")
@@ -522,10 +725,13 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -547,10 +753,13 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }
 
@@ -572,9 +781,12 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
     )
 }

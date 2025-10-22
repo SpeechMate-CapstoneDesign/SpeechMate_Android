@@ -2,6 +2,7 @@ package com.speech.domain.model.speech
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration
 
 data class SpeechDetail(
     val id: Int = 0,
@@ -9,7 +10,7 @@ data class SpeechDetail(
     val fileUrl: String = "",
     val speechFileType: SpeechFileType = SpeechFileType.AUDIO,
     val speechConfig: SpeechConfig = SpeechConfig(),
-    val script: String = "",
+    val script: Script = Script(),
     val scriptAnalysis: ScriptAnalysis = ScriptAnalysis(),
     val verbalAnalysis: VerbalAnalysis = VerbalAnalysis(),
     val nonVerbalAnalysis: String = "",
@@ -17,6 +18,15 @@ data class SpeechDetail(
     val formattedDate: String =
         createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"))
 }
+
+data class Script(
+    val sentences: List<Sentence> = emptyList(),
+)
+
+data class Sentence(
+    val startTime: Duration,
+    val sentence: String,
+)
 
 data class ScriptAnalysis(
     val summary: String = "",
