@@ -211,10 +211,16 @@ internal fun VerbalAnalysisContent(
                             .clip(RoundedCornerShape(8.dp))
                             .background(SmTheme.colors.gray.copy(0.1f)),
                     ) {
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 val silenceDuration = silence.endTime - silence.startTime
                                 val durationInSeconds = silenceDuration.inWholeMilliseconds / 1000.0
                                 val formattedDuration = "%.1f초".format(durationInSeconds)
@@ -233,7 +239,7 @@ internal fun VerbalAnalysisContent(
                                         style = SmTheme.typography.bodyXMM,
                                         color = SmTheme.colors.primaryDefault,
                                         modifier = Modifier.clickable {
-                                            seekTo((silence.startTime - silenceDuration).inWholeMilliseconds)
+                                            seekTo(((silence.startTime - silenceDuration).inWholeMilliseconds).coerceAtLeast(0))
                                         },
                                     )
 

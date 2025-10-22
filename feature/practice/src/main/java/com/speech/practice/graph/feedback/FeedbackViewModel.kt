@@ -274,6 +274,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekTo(position: Long) {
+        if(position < 0 || position > container.stateFlow.value.playerState.duration.inWholeMilliseconds) return
         _exoPlayer?.seekTo(position)
 
         intent {
@@ -290,11 +291,12 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekForward() {
-        _exoPlayer?.seekTo(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds + SEEK_INTERVAL)
+        val newPosition = minOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds + SEEK_INTERVAL, container.stateFlow.value.playerState.duration.inWholeMilliseconds)
+        _exoPlayer?.seekTo(newPosition)
 
         intent {
             reduce {
-                state.copy(playerState = state.playerState.copy(currentPosition = state.playerState.currentPosition + SEEK_INTERVAL.milliseconds))
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
             }
 
             analyticsHelper.trackActionEvent(
@@ -306,11 +308,12 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekBackward() {
-        _exoPlayer?.seekTo(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds - SEEK_INTERVAL)
+        val newPosition = maxOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds - SEEK_INTERVAL, 0)
+        _exoPlayer?.seekTo(newPosition)
 
         intent {
             reduce {
-                state.copy(playerState = state.playerState.copy(currentPosition = state.playerState.currentPosition - SEEK_INTERVAL.milliseconds))
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
             }
 
             analyticsHelper.trackActionEvent(
