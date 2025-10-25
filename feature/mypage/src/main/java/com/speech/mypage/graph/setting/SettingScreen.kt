@@ -138,7 +138,7 @@ private fun SettingScreen(
                             Spacer(Modifier.weight(1f))
 
                             Text(
-                                text = "1.0.0",
+                                text = stringResource(R.string.app_version_value),
                                 color = SmTheme.colors.textSecondary,
                                 style = SmTheme.typography.bodySM,
                             )
