@@ -160,6 +160,7 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.OnProgressChanged -> onProgressChanged(event.position)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
+            is FeedbackIntent.OnFullScreenClick -> onFullScreenClick()
         }
     }
 
@@ -178,6 +179,12 @@ class FeedbackViewModel @Inject constructor(
             actionName = "on_back_pressed",
             properties = mutableMapOf("is_playing" to isPlaying),
         )
+    }
+
+    private fun onFullScreenClick() = intent {
+        reduce {
+            state.copy(isFullScreen = !state.isFullScreen)
+        }
     }
 
     private fun onMenuClick() = intent {

@@ -32,6 +32,7 @@
             android:name="com.speech.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.SpeechMate.Splash">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

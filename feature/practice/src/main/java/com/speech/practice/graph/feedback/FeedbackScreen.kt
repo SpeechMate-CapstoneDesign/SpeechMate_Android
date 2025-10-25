@@ -39,6 +39,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -77,6 +78,7 @@ import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
+import com.speech.practice.graph.feedback.component.FeedbackPlayer
 import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
 import com.speech.practice.graph.feedback.component.SpeechConfigContent
 import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
@@ -154,6 +156,9 @@ internal fun FeedbackRoute(
             viewModel.onIntent(FeedbackIntent.OnDeleteClick)
         },
         onDismissDropDownMenu = viewModel::onDismissDropdownMenu,
+        onFullScreenClick = {
+            viewModel.onIntent(FeedbackIntent.OnFullScreenClick)
+        }
     )
 }
 
@@ -174,7 +179,9 @@ private fun FeedbackScreen(
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
     onProgressChanged: (Long) -> Unit,
+    onFullScreenClick : () -> Unit,
 ) {
+
     var showDeleteDg by remember { mutableStateOf(false) }
     if (showDeleteDg) {
         CheckCancelDialog(
@@ -185,7 +192,7 @@ private fun FeedbackScreen(
             content = stringResource(R.string.delete_speech_confirmation),
         )
     }
-    var headerHeightPx by remember { mutableStateOf(0) }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
 
     Column(
@@ -242,16 +249,6 @@ private fun FeedbackScreen(
 
         Column(Modifier.padding(horizontal = 20.dp)) {
             var controlsVisible by remember { mutableStateOf(false) }
-            var sliderValue by remember { mutableFloatStateOf(0f) }
-            val isPlaying = state.playingState == PlayingState.Playing
-
-            LaunchedEffect(controlsVisible, isPlaying) {
-                if (controlsVisible && isPlaying) {
-                    delay(3000)
-                    controlsVisible = false
-                }
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,176 +256,19 @@ private fun FeedbackScreen(
                         controlsVisible = !controlsVisible
                     },
             ) {
-                PlayerSurface(
-                    player = exoPlayer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 10f)
-                        .align(Alignment.Center),
+                FeedbackPlayer(
+                    state = state,
+                    exoPlayer = exoPlayer,
+                    controlsVisible = controlsVisible,
+                    onControlsVisibilityChange = { controlsVisible = !controlsVisible },
+                    onStartPlaying = onStartPlaying,
+                    onPausePlaying = onPausePlaying,
+                    onSeekTo = onSeekTo,
+                    onSeekForward = onSeekForward,
+                    onSeekBackward = onSeekBackward,
+                    onProgressChanged = onProgressChanged,
+                    onFullScreenClick = onFullScreenClick,
                 )
-
-                when (state.playingState) {
-                    is PlayingState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = SmTheme.colors.primaryDefault,
-                        )
-                    }
-
-                    is PlayingState.Error -> {
-                        Text(
-                            stringResource(R.string.error_failed_to_load_media),
-                            modifier = Modifier.align(Alignment.Center),
-                            color = Color.White,
-                            style = SmTheme.typography.bodySM,
-                        )
-                    }
-
-                    else -> {}
-                }
-
-                if (controlsVisible) {
-                    var isDragging by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(sliderValue) {
-                        if(isDragging) {
-                            val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
-                            onProgressChanged(newPosition)
-                        }
-                    }
-
-                    LaunchedEffect(state.playerState.progress) {
-                        if (!isDragging) {
-                            sliderValue = state.playerState.progress
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(
-                            modifier = Modifier.clickable {
-                                onSeekBackward()
-                            },
-                        ) {
-                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
-
-                            Icon(
-                                painterResource(R.drawable.seek_backward_ic),
-                                contentDescription = "10초 전",
-                                tint = SmTheme.colors.white,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(Alignment.Center),
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier.clickable {
-                                if (isPlaying) onPausePlaying() else onStartPlaying()
-                            },
-                        ) {
-                            SimpleCircle(diameter = 64.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
-
-                            Icon(
-                                painter = if (isPlaying) {
-                                    painterResource(R.drawable.ic_pause)
-                                } else {
-                                    painterResource(R.drawable.ic_play)
-                                },
-                                contentDescription = if (isPlaying) "일시정지" else "재생",
-                                tint = SmTheme.colors.white,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .align(Alignment.Center),
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier.clickable { onSeekForward() },
-                        ) {
-                            SimpleCircle(diameter = 48.dp, color = SmTheme.colors.black.copy(0.3f), modifier = Modifier.align(Alignment.Center))
-
-                            Icon(
-                                painterResource(R.drawable.seek_forward_ic),
-                                contentDescription = "10초 후",
-                                tint = SmTheme.colors.white,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(Alignment.Center),
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 10.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = state.playerState.formattedCurrentPosition,
-                                style = SmTheme.typography.bodyXSM,
-                                color = SmTheme.colors.white,
-                            )
-
-                            Text(
-                                text = " / ${state.playerState.formattedDuration}",
-                                style = SmTheme.typography.bodyXSM,
-                                color = SmTheme.colors.white,
-                            )
-                        }
-
-                        Slider(
-                            value = sliderValue,
-                            onValueChange = {
-                                isDragging = true
-                                sliderValue = it
-                            },
-                            onValueChangeFinished = {
-                                isDragging = false
-                                val newPosition = (sliderValue * state.playerState.duration.inWholeMilliseconds).toLong()
-                                onSeekTo(newPosition)
-                            },
-                            colors = SliderDefaults.colors(
-                                thumbColor = Color.Transparent,
-                                activeTrackColor = SmTheme.colors.primaryDefault,
-                                inactiveTrackColor = SmTheme.colors.iconDefault,
-                                activeTickColor = Color.Transparent,
-                                inactiveTickColor = Color.Transparent,
-                            ),
-                            thumb = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .clip(CircleShape)
-                                        .background(color = SmTheme.colors.primaryDefault, shape = CircleShape),
-                                )
-                            },
-                            track = { sliderState ->
-                                SliderDefaults.Track(
-                                    sliderState = sliderState,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = Color.Transparent,
-                                        activeTrackColor = SmTheme.colors.primaryDefault,
-                                        inactiveTrackColor = SmTheme.colors.iconDefault,
-                                        activeTickColor = Color.Transparent,
-                                        inactiveTickColor = Color.Transparent,
-                                    ),
-                                    thumbTrackGapSize = 0.dp,
-                                    modifier = Modifier.height(6.dp),
-                                )
-                            },
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
-                    }
-                }
-
             }
 
             Spacer(Modifier.height(20.dp))
@@ -675,6 +515,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onDeleteClick = {},
         onDismissDropDownMenu = {},
         onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -703,8 +544,8 @@ private fun FeedbackScreenScriptPreview() {
         onDeleteClick = {},
         onDismissDropDownMenu = {},
         onProgressChanged = {},
-
-        )
+        onFullScreenClick = {},
+    )
 }
 
 @Preview(showBackground = true, name = "대본 분석 탭")
@@ -732,6 +573,7 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onDeleteClick = {},
         onDismissDropDownMenu = {},
         onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -760,6 +602,7 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onDeleteClick = {},
         onDismissDropDownMenu = {},
         onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -788,5 +631,6 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onDeleteClick = {},
         onDismissDropDownMenu = {},
         onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
