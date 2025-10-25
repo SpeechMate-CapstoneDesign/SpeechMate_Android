@@ -167,8 +167,8 @@ internal fun FeedbackPlayer(
                         onClick = onFullScreenClick,
                         iconRes = R.drawable.full_screen_ic,
                         contentDescription = "전체 화면",
-                        diameter = 28.dp,
-                        iconSize = 18.dp,
+                        diameter = 32.dp,
+                        iconSize = 24.dp,
                     )
                 }
 
@@ -197,7 +197,7 @@ private fun PlayerControlButton(
     ) {
         SimpleCircle(
             diameter = diameter,
-            color = SmTheme.colors.black.copy(0.3f),
+            color = SmTheme.colors.black.copy(0.4f),
             modifier = Modifier.align(Alignment.Center),
         )
 
