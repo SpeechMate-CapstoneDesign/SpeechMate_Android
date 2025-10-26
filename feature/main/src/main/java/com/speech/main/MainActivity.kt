@@ -19,7 +19,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,12 +47,16 @@ import com.speech.analytics.AnalyticsEvent.PropertiesKeys.SCREEN_NAME
 import com.speech.analytics.AnalyticsEvent.Types.SCREEN_VIEW
 import com.speech.analytics.AnalyticsHelper
 import com.speech.auth.navigation.navigateToLogin
+import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
+import com.speech.common_ui.compositionlocal.LocalShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechMateBottomBarAnimation
 import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppBottomBar
 import com.speech.main.navigation.AppNavHost
+import com.speech.navigation.PracticeGraph
+import com.speech.navigation.SplashRoute
 import com.speech.navigation.getRouteName
 import com.speech.navigation.shouldHideBottomBar
 import com.speech.practice.navigation.navigateToPractice
@@ -65,6 +72,8 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -77,9 +86,16 @@ class MainActivity : ComponentActivity() {
             val currentDestination = navController.currentBackStackEntryAsState()
                 .value?.destination
             val snackBarHostState = remember { SnackbarHostState() }
+            var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
+            val currentRoute = currentDestination?.route
+            val shouldRemovePadding = currentRoute?.contains(SplashRoute.toString()) ?: false
 
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackBarHostState,
+                LocalShouldApplyScaffoldPadding provides shouldApplyScaffoldPadding,
+                LocalSetShouldApplyScaffoldPadding provides { shouldApply ->
+                    shouldApplyScaffoldPadding = shouldApply
+                },
             ) {
                 SpeechMateTheme {
                     Scaffold(
@@ -116,9 +132,12 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         AppNavHost(
                             navController = navController,
-                            Modifier.padding(innerPadding),
+                            modifier = if (shouldRemovePadding || !shouldApplyScaffoldPadding) {
+                              Modifier
+                            } else {
+                                Modifier.padding(innerPadding)
+                            }
                         )
-
                     }
                 }
 
@@ -126,7 +145,7 @@ class MainActivity : ComponentActivity() {
                 LifecycleStartEffect(navController) {
                     val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
                         val screenName = destination.getRouteName()
-                        if(screenName != null) {
+                        if (screenName != null) {
                             analyticsHelper.logEvent(
                                 AnalyticsEvent(
                                     type = SCREEN_VIEW,

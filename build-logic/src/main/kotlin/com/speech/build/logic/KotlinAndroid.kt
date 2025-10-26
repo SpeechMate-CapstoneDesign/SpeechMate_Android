@@ -36,11 +36,10 @@ internal fun Project.configureKotlinAndroid() {
 
         packaging {
             resources {
-                excludes += "/META-INF/**"
+                excludes += "META-INF/LICENSE.md"
+                excludes += "META-INF/LICENSE-notice.md"
             }
         }
-
-
     }
 
     val libs = extensions.libs

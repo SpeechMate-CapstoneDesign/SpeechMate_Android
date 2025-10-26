@@ -61,6 +61,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common.util.formatDuration
+import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SectionDivider
@@ -94,6 +95,7 @@ internal fun FeedbackRoute(
     val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
+    val setScaffoldPadding = LocalSetShouldApplyScaffoldPadding.current
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -110,6 +112,13 @@ internal fun FeedbackRoute(
 
     BackHandler(enabled = true) {
         viewModel.onIntent(FeedbackIntent.OnBackPressed)
+    }
+
+    DisposableEffect(state.isFullScreen) {
+        setScaffoldPadding(!state.isFullScreen)
+        onDispose {
+            setScaffoldPadding(true)
+        }
     }
 
     FeedbackScreen(

@@ -62,7 +62,6 @@ android {
         debug {
             manifestPlaceholders["APP_NAME"] = "@string/app_name_debug"
             applicationIdSuffix = ".debug"
-            isMinifyEnabled = false
             isDebuggable = true
         }
     }

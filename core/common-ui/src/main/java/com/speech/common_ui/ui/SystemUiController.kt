@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import javax.inject.Singleton
 
 @Composable
 fun rememberSystemUiController(): SystemUiController? {
@@ -24,6 +25,7 @@ fun rememberSystemUiController(): SystemUiController? {
         }
     }
 }
+@Singleton
 class SystemUiController(private val activity: Activity) {
 
     private val windowInsetsController = WindowCompat.getInsetsController(
