@@ -59,6 +59,7 @@ import com.speech.designsystem.component.SimpleCircle
 import com.speech.designsystem.theme.SmTheme
 import com.speech.practice.graph.feedback.FeedbackState
 import com.speech.practice.graph.feedback.PlayingState
+import kotlinx.coroutines.delay
 import kotlin.times
 
 @Composable
@@ -76,6 +77,13 @@ internal fun FeedbackPlayer(
     val isPlaying = state.playingState == PlayingState.Playing
     val systemUiController = rememberSystemUiController()
     var controlsVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(controlsVisible, isPlaying) {
+        if (controlsVisible && isPlaying) {
+            delay(3000)
+            controlsVisible = false
+        }
+    }
 
     DisposableEffect(state.isFullScreen) {
         if (state.isFullScreen) {
@@ -132,7 +140,7 @@ internal fun FeedbackPlayer(
             else -> {}
         }
 
-        if (!controlsVisible) {
+        if (controlsVisible) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
