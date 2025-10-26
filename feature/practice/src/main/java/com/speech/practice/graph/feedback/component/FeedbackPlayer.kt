@@ -272,7 +272,7 @@ fun PlayerProgressSlider(
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(thumbRadius * 2)
+            .height(thumbRadius * 4)
             .onSizeChanged { sliderWidth = it.width.toFloat() }
             .pointerInput(Unit) {
                 detectDragGestures(
