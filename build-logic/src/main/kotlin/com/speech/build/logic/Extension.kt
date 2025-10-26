@@ -1,4 +1,4 @@
-package com.example.app
+package com.speech.build.logic
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension

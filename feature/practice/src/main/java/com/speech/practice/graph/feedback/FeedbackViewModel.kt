@@ -165,8 +165,14 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun onBackPressed() {
+        val isFullScreen = container.stateFlow.value.isFullScreen
         val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
-        if (isPlaying) {
+        if(isFullScreen) {
+            intent {
+                reduce { state.copy(isFullScreen = false) }
+            }
+        }
+        else if (isPlaying) {
             pausePlaying()
         } else {
             clearResource()
@@ -470,9 +476,9 @@ class FeedbackViewModel @Inject constructor(
             removeListener(playerListener)
             release()
         }
-
         _exoPlayer = null
         stopProgressUpdate()
+
     }
 
     override fun onCleared() {

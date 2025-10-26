@@ -1,4 +1,4 @@
-package com.example.app
+package com.speech.build.logic
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies

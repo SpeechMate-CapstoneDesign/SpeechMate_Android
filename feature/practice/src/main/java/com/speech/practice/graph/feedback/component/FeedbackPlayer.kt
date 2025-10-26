@@ -1,5 +1,7 @@
 package com.speech.practice.graph.feedback.component
 
+import android.content.pm.ActivityInfo
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -25,6 +28,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -47,6 +51,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import com.speech.common_ui.ui.LockScreenOrientation
+import com.speech.common_ui.ui.rememberSystemUiController
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.component.SimpleCircle
@@ -59,8 +65,6 @@ import kotlin.times
 internal fun FeedbackPlayer(
     state: FeedbackState,
     exoPlayer: ExoPlayer?,
-    controlsVisible: Boolean,
-    onControlsVisibilityChange: () -> Unit,
     onStartPlaying: () -> Unit,
     onPausePlaying: () -> Unit,
     onSeekTo: (Long) -> Unit,
@@ -70,19 +74,41 @@ internal fun FeedbackPlayer(
     onFullScreenClick: () -> Unit,
 ) {
     val isPlaying = state.playingState == PlayingState.Playing
+    val systemUiController = rememberSystemUiController()
+    var controlsVisible by remember { mutableStateOf(false) }
+
+    DisposableEffect(state.isFullScreen) {
+        if (state.isFullScreen) {
+            systemUiController?.hideSystemBars()
+        } else {
+            systemUiController?.showSystemBars()
+        }
+
+        onDispose {
+            systemUiController?.showSystemBars()
+        }
+    }
+
+    if (state.isFullScreen) {
+        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    } else {
+        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onControlsVisibilityChange()
+                controlsVisible = !controlsVisible
             },
     ) {
         PlayerSurface(
             player = exoPlayer,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 10f)
+                .then(
+                    if(state.isFullScreen) Modifier else Modifier.aspectRatio(16f / 10f)
+                )
                 .align(Alignment.Center),
         )
 
@@ -139,11 +165,13 @@ internal fun FeedbackPlayer(
                 )
             }
 
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .padding(bottom = 4.dp)
-                .align(Alignment.BottomCenter)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 4.dp)
+                    .align(Alignment.BottomCenter),
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -265,7 +293,7 @@ fun PlayerProgressSlider(
                             val newValue = (change.position.x / sliderWidth).coerceIn(0f, 1f)
                             sliderValue = newValue
                         }
-                    }
+                    },
                 )
             }
             .pointerInput(Unit) {
@@ -277,7 +305,7 @@ fun PlayerProgressSlider(
                         onSeekTo(newPosition)
                     }
                 }
-            }
+            },
     ) {
         val centerY = size.height / 2
         val trackHeightPx = trackHeight.toPx()
@@ -289,7 +317,7 @@ fun PlayerProgressSlider(
             color = inactiveColor,
             topLeft = Offset(0f, centerY - trackHeightPx / 2),
             size = Size(size.width, trackHeightPx),
-            cornerRadius = CornerRadius(trackHeightPx / 2, trackHeightPx / 2)
+            cornerRadius = CornerRadius(trackHeightPx / 2, trackHeightPx / 2),
         )
 
         // Active track
@@ -297,14 +325,14 @@ fun PlayerProgressSlider(
             color = activeColor,
             topLeft = Offset(0f, centerY - trackHeightPx / 2),
             size = Size(thumbX, trackHeightPx),
-            cornerRadius = CornerRadius(trackHeightPx / 2, trackHeightPx / 2)
+            cornerRadius = CornerRadius(trackHeightPx / 2, trackHeightPx / 2),
         )
 
         // Thumb
         drawCircle(
             color = activeColor,
             radius = thumbRadiusPx * if (isDragging) 1.4f else 1f,
-            center = Offset(thumbX, centerY)
+            center = Offset(thumbX, centerY),
         )
     }
 }

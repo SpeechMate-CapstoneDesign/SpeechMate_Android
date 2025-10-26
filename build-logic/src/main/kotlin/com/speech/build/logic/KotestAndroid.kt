@@ -1,5 +1,4 @@
-package com.example.app
-
+package com.speech.build.logic
 import org.gradle.api.Project
 
 internal fun Project.configureKotestAndroid() {

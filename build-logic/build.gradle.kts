@@ -13,11 +13,11 @@ gradlePlugin {
     plugins {
         register("androidHilt") {
             id = "speechmate.android.hilt"
-            implementationClass = "com.example.app.HiltAndroidPlugin"
+            implementationClass = "com.speech.build.logic.HiltAndroidPlugin"
         }
         register("kotlinHilt") {
             id = "speechmate.kotlin.hilt"
-            implementationClass = "com.example.app.HiltKotlinPlugin"
+            implementationClass = "com.speech.build.logic.HiltKotlinPlugin"
         }
     }
 }

@@ -1,5 +1,5 @@
-import com.example.app.configureKotest
-import com.example.app.configureKotlin
+import com.speech.build.logic.configureKotest
+import com.speech.build.logic.configureKotlin
 import org.gradle.kotlin.dsl.kotlin
 
 plugins {
