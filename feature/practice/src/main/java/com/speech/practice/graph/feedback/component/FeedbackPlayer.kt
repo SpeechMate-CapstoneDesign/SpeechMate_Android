@@ -115,7 +115,7 @@ internal fun FeedbackPlayer(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    if(state.isFullScreen) Modifier else Modifier.aspectRatio(16f / 10f)
+                    if (state.isFullScreen) Modifier else Modifier.aspectRatio(16f / 10f),
                 )
                 .align(Alignment.Center),
         )

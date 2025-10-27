@@ -118,7 +118,6 @@ class FeedbackViewModel @Inject constructor(
             .setSeekForwardIncrementMs(
                 SEEK_INTERVAL,
             ).build().apply {
-
                 playWhenReady = true
                 addListener(playerListener)
             }
@@ -275,7 +274,6 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun startPlaying() {
-
         _exoPlayer?.play()
 
         intent {

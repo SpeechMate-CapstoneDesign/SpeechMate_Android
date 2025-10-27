@@ -25,7 +25,6 @@ fun rememberSystemUiController(): SystemUiController? {
         }
     }
 }
-@Singleton
 class SystemUiController(private val activity: Activity) {
 
     private val windowInsetsController = WindowCompat.getInsetsController(

@@ -195,7 +195,6 @@ private fun FeedbackScreen(
     }
     var headerHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
-    var controlsVisible by remember { mutableStateOf(false) }
 
     if (state.isFullScreen) {
         Box(
@@ -272,9 +271,6 @@ private fun FeedbackScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            controlsVisible = !controlsVisible
-                        },
                 ) {
                     FeedbackPlayer(
                         state = state,
