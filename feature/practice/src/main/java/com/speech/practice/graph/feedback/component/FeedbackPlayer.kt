@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common_ui.ui.LockScreenOrientation
+import com.speech.common_ui.ui.ScreenOrientationEffect
 import com.speech.common_ui.ui.rememberSystemUiController
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
@@ -98,9 +99,9 @@ internal fun FeedbackPlayer(
     }
 
     if (state.isFullScreen) {
-        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
     } else {
-        LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
 
     Box(
