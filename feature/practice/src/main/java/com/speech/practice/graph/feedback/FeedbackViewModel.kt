@@ -165,8 +165,9 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun onBackPressed() {
-        val isFullScreen = container.stateFlow.value.isFullScreen
-        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
+        val currentState = container.stateFlow.value
+        val isFullScreen = currentState.isFullScreen
+        val isPlaying = currentState.playingState == PlayingState.Playing
         if(isFullScreen) {
             intent {
                 reduce { state.copy(isFullScreen = false) }
@@ -191,6 +192,12 @@ class FeedbackViewModel @Inject constructor(
         reduce {
             state.copy(isFullScreen = !state.isFullScreen)
         }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "on_full_screen_click",
+            properties = mutableMapOf("is_full_screen" to state.isFullScreen),
+        )
     }
 
     private fun onMenuClick() = intent {
