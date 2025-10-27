@@ -61,7 +61,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.LockScreenOrientation
 import com.speech.common_ui.ui.ScreenOrientationEffect
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R

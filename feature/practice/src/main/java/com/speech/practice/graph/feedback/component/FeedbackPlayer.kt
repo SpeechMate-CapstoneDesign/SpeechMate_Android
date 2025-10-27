@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
-import com.speech.common_ui.ui.LockScreenOrientation
 import com.speech.common_ui.ui.ScreenOrientationEffect
 import com.speech.common_ui.ui.rememberSystemUiController
 import com.speech.common_ui.util.clickable

@@ -113,9 +113,15 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun initializePlayer() {
-        _exoPlayer = ExoPlayer.Builder(context).build().apply {
-            addListener(playerListener)
-        }
+        _exoPlayer = ExoPlayer.Builder(context)
+            .setSeekBackIncrementMs(SEEK_INTERVAL)
+            .setSeekForwardIncrementMs(
+                SEEK_INTERVAL,
+            ).build().apply {
+
+                playWhenReady = true
+                addListener(playerListener)
+            }
     }
 
     init {
@@ -168,12 +174,11 @@ class FeedbackViewModel @Inject constructor(
         val currentState = container.stateFlow.value
         val isFullScreen = currentState.isFullScreen
         val isPlaying = currentState.playingState == PlayingState.Playing
-        if(isFullScreen) {
+        if (isFullScreen) {
             intent {
                 reduce { state.copy(isFullScreen = false) }
             }
-        }
-        else if (isPlaying) {
+        } else if (isPlaying) {
             pausePlaying()
         } else {
             clearResource()
@@ -270,6 +275,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun startPlaying() {
+
         _exoPlayer?.play()
 
         intent {
@@ -294,7 +300,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekTo(position: Long) {
-        if(position < 0 || position > container.stateFlow.value.playerState.duration.inWholeMilliseconds) return
+        if (position < 0 || position > container.stateFlow.value.playerState.duration.inWholeMilliseconds) return
         _exoPlayer?.seekTo(position)
 
         intent {
@@ -311,8 +317,8 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekForward() {
-        val newPosition = minOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds + SEEK_INTERVAL, container.stateFlow.value.playerState.duration.inWholeMilliseconds)
-        _exoPlayer?.seekTo(newPosition)
+        _exoPlayer?.seekForward()
+        val newPosition = _exoPlayer?.currentPosition ?: return
 
         intent {
             reduce {
@@ -328,8 +334,8 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekBackward() {
-        val newPosition = maxOf(container.stateFlow.value.playerState.currentPosition.inWholeMilliseconds - SEEK_INTERVAL, 0)
-        _exoPlayer?.seekTo(newPosition)
+        _exoPlayer?.seekBack()
+        val newPosition = _exoPlayer?.currentPosition ?: return
 
         intent {
             reduce {
