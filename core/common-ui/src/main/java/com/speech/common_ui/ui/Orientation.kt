@@ -1,14 +1,12 @@
 package com.speech.common_ui.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
+import com.speech.common_ui.util.findActivity
 
 @Composable
-fun LockScreenOrientation(orientation: Int) {
+fun ScreenOrientationEffect(orientation: Int) {
     val context = LocalContext.current
     DisposableEffect(orientation) {
         val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
@@ -19,11 +17,3 @@ fun LockScreenOrientation(orientation: Int) {
         }
     }
 }
-
-// Context에서 Activity를 찾는 확장 함수
-fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
-

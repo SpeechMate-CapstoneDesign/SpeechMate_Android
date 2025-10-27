@@ -1,7 +1,7 @@
-import com.example.app.configureCoroutineAndroid
-import com.example.app.configureHiltAndroid
-import com.example.app.configureKotest
-import com.example.app.configureKotlinAndroid
+import com.speech.build.logic.configureCoroutineAndroid
+import com.speech.build.logic.configureHiltAndroid
+import com.speech.build.logic.configureKotest
+import com.speech.build.logic.configureKotlinAndroid
 
 
 plugins {

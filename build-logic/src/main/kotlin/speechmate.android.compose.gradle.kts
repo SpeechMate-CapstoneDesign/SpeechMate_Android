@@ -1,3 +1,3 @@
-import com.example.app.configureAndroidCompose
+import com.speech.build.logic.configureAndroidCompose
 
 configureAndroidCompose()

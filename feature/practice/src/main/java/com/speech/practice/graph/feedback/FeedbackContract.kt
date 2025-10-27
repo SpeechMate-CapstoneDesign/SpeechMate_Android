@@ -21,6 +21,7 @@ data class FeedbackState(
     val playingState: PlayingState = PlayingState.Ready,
     val playerState: PlayerState = PlayerState(),
     val showDropdownMenu: Boolean = false,
+    val isFullScreen : Boolean = false,
 ) : UiState
 
 data class TabState(
@@ -62,6 +63,7 @@ sealed class FeedbackIntent : UiIntent {
     data class ChangePlaybackSpeed(val speed: Float) : FeedbackIntent()
     data object OnMenuClick : FeedbackIntent()
     data object OnDeleteClick : FeedbackIntent()
+    data object OnFullScreenClick : FeedbackIntent()
 }
 
 sealed interface FeedbackSideEffect : UiSideEffect {

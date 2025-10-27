@@ -1,5 +1,5 @@
-import com.example.app.configureHiltAndroid
-import com.example.app.libs
+import com.speech.build.logic.configureHiltAndroid
+import com.speech.build.logic.libs
 import org.gradle.kotlin.dsl.dependencies
 
 plugins {

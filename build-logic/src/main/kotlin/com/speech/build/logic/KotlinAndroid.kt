@@ -1,4 +1,4 @@
-package com.example.app
+package com.speech.build.logic
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -36,11 +36,10 @@ internal fun Project.configureKotlinAndroid() {
 
         packaging {
             resources {
-                excludes += "/META-INF/**"
+                excludes += "META-INF/LICENSE.md"
+                excludes += "META-INF/LICENSE-notice.md"
             }
         }
-
-
     }
 
     val libs = extensions.libs
@@ -50,7 +49,7 @@ internal fun Project.configureKotlinAndroid() {
         add("implementation", libs.findLibrary("firebase-analytics").get())
         add("implementation", libs.findLibrary("firebase-crashlytics").get())
     }
-    
+
     configureKotlin()
 }
 

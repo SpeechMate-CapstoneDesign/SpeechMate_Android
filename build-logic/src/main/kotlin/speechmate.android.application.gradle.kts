@@ -1,6 +1,6 @@
-import com.example.app.configureHiltAndroid
-import com.example.app.configureKotestAndroid
-import com.example.app.configureKotlinAndroid
+import com.speech.build.logic.configureHiltAndroid
+import com.speech.build.logic.configureKotestAndroid
+import com.speech.build.logic.configureKotlinAndroid
 
 plugins {
     id("com.android.application")

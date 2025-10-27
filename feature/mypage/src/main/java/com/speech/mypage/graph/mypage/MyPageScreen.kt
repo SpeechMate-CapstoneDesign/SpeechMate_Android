@@ -54,7 +54,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.util.clickable
 import com.speech.common_ui.util.combinedClickable
-import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.common_ui.util.rememberLazyListState
 import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
@@ -207,11 +206,9 @@ private fun MyPageScreen(
                 modifier = Modifier
                     .size(28.dp)
                     .align(Alignment.TopEnd)
-                    .clickable(
-                        onClick = rememberDebouncedOnClick {
-                            onSettingClick()
-                        },
-                    ),
+                    .clickable {
+                        onSettingClick()
+                    },
                 tint = SmTheme.colors.content,
             )
         }

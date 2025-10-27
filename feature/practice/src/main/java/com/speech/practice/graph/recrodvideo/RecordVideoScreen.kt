@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,7 +61,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
-import com.speech.common_ui.ui.LockScreenOrientation
+import com.speech.common_ui.ui.ScreenOrientationEffect
 import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.component.SimpleCircle
@@ -155,7 +156,7 @@ fun RecordVideoScreen(
         colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
     )
 
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
     LaunchedEffect(state.cameraSelector) {
         bindCamera(
@@ -243,7 +244,7 @@ fun RecordVideoScreen(
                         },
                     )
 
-                    var rotationState by remember { mutableStateOf(0f) }
+                    var rotationState by remember { mutableFloatStateOf(0f) }
 
                     Box(
                         modifier = Modifier

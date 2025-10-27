@@ -37,24 +37,45 @@ fun AppNavHost(
                 navController.navigateToPractice(
                     navOptions {
                         popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     },
                 )
             },
             navigateToOnBoarding = { idToken ->
-                navController.navigateToOnBoarding(idToken)
+                navController.navigateToOnBoarding(
+                    idToken,
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
             },
         )
 
         practiceNavGraph(
             navigateBack = navController::popBackStack,
-            navigateToRecordAudio = navController::navigateToRecordAudio,
-            navigateToRecordVideo = navController::navigateToRecordVideo,
+            navigateToRecordAudio = {
+                navController.navigateToRecordAudio(
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
+            },
+            navigateToRecordVideo = {
+                navController.navigateToRecordVideo(
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
+            },
             navigateToFeedback = { speechId, fileUrl, speechFileType, speechConfig ->
                 navController.navigateToFeedback(
                     speechId = speechId,
                     fileUrl = fileUrl,
                     speechFileType = speechFileType,
                     speechConfig = speechConfig,
+                    navOptions {
+                        launchSingleTop = true
+                    },
                 )
             },
         )
@@ -65,13 +86,33 @@ fun AppNavHost(
                 navController.navigateToLogin(
                     navOptions {
                         popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     },
                 )
             },
-            navigateToSetting = navController::navigateToSetting,
-            navigateToFeedBack = navController::navigateToFeedback,
-            navigateToWebView = navController::navigateToWebView
+            navigateToSetting = {
+                navController.navigateToSetting(
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
+            },
+            navigateToFeedBack = { speechId, url, speechFileType, speechConfig ->
+                navController.navigateToFeedback(
+                    speechId, url, speechFileType, speechConfig,
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
+            },
+            navigateToWebView = { url ->
+                navController.navigateToWebView(
+                    url,
+                    navOptions {
+                        launchSingleTop = true
+                    },
+                )
+            },
         )
     }
 }
-
