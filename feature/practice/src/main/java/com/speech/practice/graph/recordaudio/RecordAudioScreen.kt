@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,10 +46,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SimpleCircle
@@ -64,6 +69,7 @@ import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.practice.graph.feedback.FeedbackIntent
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -77,6 +83,24 @@ internal fun RecordAudioRoute(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val state by viewModel.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    viewModel.onIntent(RecordAudioIntent.OnAppBackground)
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
