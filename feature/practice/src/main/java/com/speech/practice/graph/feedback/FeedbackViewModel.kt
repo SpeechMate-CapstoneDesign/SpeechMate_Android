@@ -157,6 +157,8 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun initializePlayer() {
+        if(_exoPlayer != null) clearResource()
+
         val currentState = container.stateFlow.value
         val fileUrl = currentState.speechDetail.fileUrl
         val mediaItem = MediaItem.fromUri(fileUrl)
@@ -198,7 +200,10 @@ class FeedbackViewModel @Inject constructor(
     }
 
     private fun onAppBackground() {
+        _exoPlayer?.pause()
         _exoPlayer?.release()
+        stopProgressUpdate()
+        _exoPlayer = null
     }
 
     private fun onFullScreenClick() = intent {
@@ -498,7 +503,6 @@ class FeedbackViewModel @Inject constructor(
         }
         _exoPlayer = null
         stopProgressUpdate()
-
     }
 
     override fun onCleared() {

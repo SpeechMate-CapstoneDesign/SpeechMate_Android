@@ -90,6 +90,7 @@ internal fun RecordVideoRoute(
     val scope = rememberCoroutineScope()
     val state by viewModel.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val systemUiController = rememberSystemUiController()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -109,6 +110,13 @@ internal fun RecordVideoRoute(
     }
 
 
+    DisposableEffect(Unit) {
+        systemUiController?.hideSystemBars()
+
+        onDispose {
+            systemUiController?.showSystemBars()
+        }
+    }
 
 
     viewModel.collectSideEffect { sideEffect ->
@@ -345,7 +353,7 @@ fun RecordVideoScreen(
                                 .align(
                                     Center,
                                 ),
-                            tint = SmTheme.colors.black
+                            tint = SmTheme.colors.black,
                         )
                     }
 
