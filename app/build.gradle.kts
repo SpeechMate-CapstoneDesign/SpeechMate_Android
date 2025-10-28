@@ -83,5 +83,5 @@ dependencies {
 
     implementation(libs.kakao.user)
     implementation(libs.androidx.profileinstaller)
-    //"baselineProfile"(project(":baselineprofile"))
+//    "baselineProfile"(project(":baselineprofile"))
 }

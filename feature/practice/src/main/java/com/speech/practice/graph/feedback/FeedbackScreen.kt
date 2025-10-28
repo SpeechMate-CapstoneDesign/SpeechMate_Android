@@ -58,6 +58,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common.util.formatDuration
@@ -95,7 +98,29 @@ internal fun FeedbackRoute(
     val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val setScaffoldPadding = LocalSetShouldApplyScaffoldPadding.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    viewModel.onIntent(FeedbackIntent.OnAppBackground)
+                }
+
+                Lifecycle.Event.ON_RESUME -> {
+                    viewModel.initializePlayer()
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
