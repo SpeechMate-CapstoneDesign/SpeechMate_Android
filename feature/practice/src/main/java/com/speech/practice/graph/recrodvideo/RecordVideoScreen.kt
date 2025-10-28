@@ -192,8 +192,6 @@ fun RecordVideoScreen(
         colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
     )
 
-    ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-
     LaunchedEffect(state.cameraSelector) {
         bindCamera(
             lifecycleOwner,
