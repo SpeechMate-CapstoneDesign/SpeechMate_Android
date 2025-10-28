@@ -80,6 +80,7 @@ class RecordVideoViewModel @Inject constructor(
             is RecordVideoIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
             is RecordVideoIntent.OnRequestFeedback -> onRequestFeedback()
             is RecordVideoIntent.SwitchCamera -> switchCamera()
+            is RecordVideoIntent.OnAppBackground -> onAppBackground()
         }
     }
 
@@ -98,6 +99,10 @@ class RecordVideoViewModel @Inject constructor(
             actionName = "on_back_pressed",
             properties = mutableMapOf("is_recording" to isRecording),
         )
+    }
+
+    fun onAppBackground() {
+        finishRecordVideo()
     }
 
     fun setSpeechConfig(speechConfig: SpeechConfig) = intent {
@@ -394,5 +399,4 @@ class RecordVideoViewModel @Inject constructor(
         recording?.stop()
         stopTimer()
     }
-
 }
