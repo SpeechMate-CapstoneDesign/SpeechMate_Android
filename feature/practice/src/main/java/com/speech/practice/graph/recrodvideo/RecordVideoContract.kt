@@ -37,6 +37,7 @@ sealed class RecordVideoIntent : UiIntent {
     data object OnRequestFeedback : RecordVideoIntent()
     data object SwitchCamera : RecordVideoIntent()
     data class OnSpeechConfigChange(val speechConfig: SpeechConfig) : RecordVideoIntent()
+    data object OnAppBackground : RecordVideoIntent()
 }
 
 sealed interface RecordVideoSideEffect : UiSideEffect {

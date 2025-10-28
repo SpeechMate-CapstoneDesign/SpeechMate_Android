@@ -112,22 +112,8 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun initializePlayer() {
-        _exoPlayer = ExoPlayer.Builder(context)
-            .setSeekBackIncrementMs(SEEK_INTERVAL)
-            .setSeekForwardIncrementMs(
-                SEEK_INTERVAL,
-            ).build().apply {
-                playWhenReady = true
-                addListener(playerListener)
-            }
-    }
-
     init {
         val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
-        initializePlayer()
-        loadMedia(routeArgs.fileUrl)
-
         intent {
             reduce {
                 state.copy(
@@ -166,7 +152,28 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
             is FeedbackIntent.OnFullScreenClick -> onFullScreenClick()
+            is FeedbackIntent.OnAppBackground -> onAppBackground()
         }
+    }
+
+    fun initializePlayer() {
+        if(_exoPlayer != null) clearResource()
+
+        val currentState = container.stateFlow.value
+        val fileUrl = currentState.speechDetail.fileUrl
+        val mediaItem = MediaItem.fromUri(fileUrl)
+        val currentPosition = currentState.playerState.currentPosition
+
+        _exoPlayer = ExoPlayer.Builder(context)
+            .setSeekBackIncrementMs(SEEK_INTERVAL)
+            .setSeekForwardIncrementMs(
+                SEEK_INTERVAL,
+            ).build().apply {
+                addListener(playerListener)
+                setMediaItem(mediaItem)
+                prepare()
+                seekTo(currentPosition.inWholeMilliseconds)
+            }
     }
 
     private fun onBackPressed() {
@@ -190,6 +197,13 @@ class FeedbackViewModel @Inject constructor(
             actionName = "on_back_pressed",
             properties = mutableMapOf("is_playing" to isPlaying),
         )
+    }
+
+    private fun onAppBackground() {
+        _exoPlayer?.pause()
+        _exoPlayer?.release()
+        stopProgressUpdate()
+        _exoPlayer = null
     }
 
     private fun onFullScreenClick() = intent {
@@ -489,7 +503,6 @@ class FeedbackViewModel @Inject constructor(
         }
         _exoPlayer = null
         stopProgressUpdate()
-
     }
 
     override fun onCleared() {

@@ -64,6 +64,7 @@ sealed class FeedbackIntent : UiIntent {
     data object OnMenuClick : FeedbackIntent()
     data object OnDeleteClick : FeedbackIntent()
     data object OnFullScreenClick : FeedbackIntent()
+    data object OnAppBackground : FeedbackIntent()
 }
 
 sealed interface FeedbackSideEffect : UiSideEffect {

@@ -88,7 +88,9 @@ class MainActivity : ComponentActivity() {
             val snackBarHostState = remember { SnackbarHostState() }
             var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
             val currentRoute = currentDestination?.route
-            val shouldRemovePadding = currentRoute?.contains(SplashRoute.toString()) ?: false
+            val shouldRemovePadding = ROUTES_WITHOUT_PADDING.any { route ->
+                currentRoute?.contains(route) == true
+            }
 
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackBarHostState,
@@ -192,7 +194,16 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    companion object {
+        private val ROUTES_WITHOUT_PADDING = listOf(
+            SplashRoute.toString(),
+            PracticeGraph.RecordVideoRoute.toString()
+        )
+    }
 }
+
+
 
 private fun requestPermissions(activity: Activity) {
     val permissions = arrayOf(
