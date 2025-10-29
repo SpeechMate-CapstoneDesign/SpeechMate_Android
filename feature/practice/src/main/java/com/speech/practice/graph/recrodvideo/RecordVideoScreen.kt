@@ -99,9 +99,13 @@ internal fun RecordVideoRoute(
     val systemUiController = rememberSystemUiController()
     val darkTheme = isSystemInDarkTheme()
 
-    val soundPlayer = MediaActionSound()
-    soundPlayer.load(MediaActionSound.START_VIDEO_RECORDING)
-    soundPlayer.load(MediaActionSound.STOP_VIDEO_RECORDING)
+    val soundPlayer = remember {
+        MediaActionSound().apply {
+            load(MediaActionSound.START_VIDEO_RECORDING)
+            load(MediaActionSound.STOP_VIDEO_RECORDING)
+        }
+    }
+
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

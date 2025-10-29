@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         requestPermissions(this)
+
         window.isNavigationBarContrastEnforced = false
 
         setContent {
