@@ -113,7 +113,7 @@ internal fun RecordVideoRoute(
     }
 
     DisposableEffect(Unit) {
-        systemUiController?.hideSystemBars()
+        systemUiController?.hideStatusBar()
 
         onDispose {
             systemUiController?.showSystemBars()
@@ -338,7 +338,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 36.dp,
+                            diameter = 48.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
@@ -367,7 +367,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 50.dp,
+                            diameter = 72.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
@@ -378,7 +378,7 @@ fun RecordVideoScreen(
                                 painter = painterResource(R.drawable.ic_pause),
                                 contentDescription = "일시 정지",
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .size(32.dp)
                                     .align(
                                         Center,
                                     ),
@@ -405,7 +405,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = SmTheme.colors.white,
-                            diameter = 36.dp,
+                            diameter = 48.dp,
                             modifier = Modifier
                                 .align(Center),
                         )
@@ -414,7 +414,7 @@ fun RecordVideoScreen(
                             painter = painterResource(R.drawable.ic_stop),
                             contentDescription = "정지",
                             modifier = Modifier
-                                .size(16.dp)
+                                .size(24.dp)
                                 .align(
                                     Center,
                                 ),

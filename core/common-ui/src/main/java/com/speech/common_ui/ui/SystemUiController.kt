@@ -42,6 +42,13 @@ class SystemUiController(private val activity: Activity) {
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
+    fun hideStatusBar() {
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
+
     fun showSystemBars() {
         // 상태바, 네비게이션 바 표시
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
