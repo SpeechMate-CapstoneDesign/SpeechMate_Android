@@ -3,7 +3,6 @@ package com.speech.main.navigation
 import com.speech.practice.navigation.practiceNavGraph
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
@@ -18,7 +17,7 @@ import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import com.speech.practice.navigation.navigateToRecordAudio
 import com.speech.practice.navigation.navigateToRecordVideo
-import com.speech.splash.splashScreen
+import com.speech.splash.navigation.splashScreen
 
 @Composable
 fun AppNavHost(
@@ -30,7 +29,24 @@ fun AppNavHost(
         startDestination = SplashRoute,
         modifier = modifier,
     ) {
-        splashScreen()
+        splashScreen(
+            navigateToPractice = {
+                navController.navigateToPractice(
+                    navOptions {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    },
+                )
+            },
+            navigateToLogin = {
+                navController.navigateToLogin(
+                    navOptions {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    },
+                )
+            },
+        )
 
         authNavGraph(
             navigateToPractice = {

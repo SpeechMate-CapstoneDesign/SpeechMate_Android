@@ -6,6 +6,7 @@ import com.speech.common_ui.util.findActivity
 
 
 import android.app.Activity
+import android.graphics.Color
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
@@ -42,11 +43,22 @@ class SystemUiController(private val activity: Activity) {
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
+    fun hideStatusBar() {
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
+
     fun showSystemBars() {
         // 상태바, 네비게이션 바 표시
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 
         // 화면 켜짐 플래그 제거
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    fun setNavigationBarAppearance(darkIcons : Boolean) {
+        windowInsetsController.isAppearanceLightNavigationBars = !darkIcons
     }
 }

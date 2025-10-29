@@ -67,19 +67,18 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by viewModels()
 
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-
         requestPermissions(this)
+
+        window.isNavigationBarContrastEnforced = false
 
         setContent {
             val navController = rememberNavController()
@@ -135,10 +134,10 @@ class MainActivity : ComponentActivity() {
                         AppNavHost(
                             navController = navController,
                             modifier = if (shouldRemovePadding || !shouldApplyScaffoldPadding) {
-                              Modifier
+                                Modifier
                             } else {
                                 Modifier.padding(innerPadding)
-                            }
+                            },
                         )
                     }
                 }
@@ -164,33 +163,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                LaunchedEffect(Unit) {
-                    viewModel.container.sideEffectFlow.collect { sideEffect ->
-                        when (sideEffect) {
-                            is MainSideEffect.NavigateToPractice -> {
-                                navController.navigateToPractice(
-                                    navOptions {
-                                        popUpTo(0) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    },
-                                )
-                            }
-
-                            is MainSideEffect.NavigateToLogin -> {
-                                navController.navigateToLogin(
-                                    navOptions {
-                                        popUpTo(0) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -198,11 +170,10 @@ class MainActivity : ComponentActivity() {
     companion object {
         private val ROUTES_WITHOUT_PADDING = listOf(
             SplashRoute.toString(),
-            PracticeGraph.RecordVideoRoute.toString()
+            PracticeGraph.RecordVideoRoute.toString(),
         )
     }
 }
-
 
 
 private fun requestPermissions(activity: Activity) {

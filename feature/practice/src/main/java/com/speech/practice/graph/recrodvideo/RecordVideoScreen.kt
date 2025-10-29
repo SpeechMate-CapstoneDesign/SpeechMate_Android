@@ -3,6 +3,7 @@ package com.speech.practice.graph.recrodvideo
 import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.media.MediaActionSound
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -12,17 +13,22 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -91,6 +97,15 @@ internal fun RecordVideoRoute(
     val state by viewModel.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
     val systemUiController = rememberSystemUiController()
+    val darkTheme = isSystemInDarkTheme()
+
+    val soundPlayer = remember {
+        MediaActionSound().apply {
+            load(MediaActionSound.START_VIDEO_RECORDING)
+            load(MediaActionSound.STOP_VIDEO_RECORDING)
+        }
+    }
+
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -109,15 +124,20 @@ internal fun RecordVideoRoute(
         }
     }
 
-
     DisposableEffect(Unit) {
-        systemUiController?.hideSystemBars()
+        systemUiController?.apply {
+            hideStatusBar()
+            setNavigationBarAppearance(darkIcons = true)
+        }
 
         onDispose {
-            systemUiController?.showSystemBars()
+            systemUiController?.apply {
+                showSystemBars()
+                setNavigationBarAppearance(darkIcons = darkTheme)
+                soundPlayer.release()
+            }
         }
     }
-
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -143,8 +163,14 @@ internal fun RecordVideoRoute(
         state = state,
         bindCamera = viewModel::bindCamera,
         onSwitchCamera = { viewModel.onIntent(RecordVideoIntent.SwitchCamera) },
-        onStartRecording = { viewModel.onIntent(RecordVideoIntent.StartRecording) },
-        onFinishRecording = { viewModel.onIntent(RecordVideoIntent.FinishRecording) },
+        onStartRecording = {
+            soundPlayer.play(MediaActionSound.START_VIDEO_RECORDING)
+            viewModel.onIntent(RecordVideoIntent.StartRecording)
+        },
+        onFinishRecording = {
+            viewModel.onIntent(RecordVideoIntent.FinishRecording)
+            soundPlayer.play(MediaActionSound.STOP_VIDEO_RECORDING)
+        },
         onPauseRecording = { viewModel.onIntent(RecordVideoIntent.PauseRecording) },
         onResumeRecording = { viewModel.onIntent(RecordVideoIntent.ResumeRecording) },
         onCancelRecording = { viewModel.onIntent(RecordVideoIntent.CancelRecording) },
@@ -190,8 +216,6 @@ fun RecordVideoScreen(
         colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
     )
 
-    ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-
     LaunchedEffect(state.cameraSelector) {
         bindCamera(
             lifecycleOwner,
@@ -200,11 +224,16 @@ fun RecordVideoScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SmTheme.colors.black)
+            .windowInsetsPadding(WindowInsets.displayCutout)
+            .navigationBarsPadding(),
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -227,8 +256,8 @@ fun RecordVideoScreen(
                 ) {
                     Text(
                         text = state.timeText,
-                        style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                        color = Color.White,
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                        color = SmTheme.colors.white,
                     )
                 }
 
@@ -339,7 +368,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 36.dp,
+                            diameter = 48.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
@@ -368,7 +397,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = Color.White,
-                            diameter = 50.dp,
+                            diameter = 72.dp,
                             modifier = Modifier
                                 .align(Center)
                                 .shadow(elevation = 4.dp, shape = CircleShape),
@@ -379,7 +408,7 @@ fun RecordVideoScreen(
                                 painter = painterResource(R.drawable.ic_pause),
                                 contentDescription = "일시 정지",
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .size(32.dp)
                                     .align(
                                         Center,
                                     ),
@@ -406,7 +435,7 @@ fun RecordVideoScreen(
                     ) {
                         SimpleCircle(
                             color = SmTheme.colors.white,
-                            diameter = 36.dp,
+                            diameter = 48.dp,
                             modifier = Modifier
                                 .align(Center),
                         )
@@ -415,7 +444,7 @@ fun RecordVideoScreen(
                             painter = painterResource(R.drawable.ic_stop),
                             contentDescription = "정지",
                             modifier = Modifier
-                                .size(16.dp)
+                                .size(24.dp)
                                 .align(
                                     Center,
                                 ),
