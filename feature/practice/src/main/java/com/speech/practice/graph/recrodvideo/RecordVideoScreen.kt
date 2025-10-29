@@ -3,6 +3,7 @@ package com.speech.practice.graph.recrodvideo
 import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.media.MediaActionSound
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -98,6 +99,10 @@ internal fun RecordVideoRoute(
     val systemUiController = rememberSystemUiController()
     val darkTheme = isSystemInDarkTheme()
 
+    val soundPlayer = MediaActionSound()
+    soundPlayer.load(MediaActionSound.START_VIDEO_RECORDING)
+    soundPlayer.load(MediaActionSound.STOP_VIDEO_RECORDING)
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -125,6 +130,7 @@ internal fun RecordVideoRoute(
             systemUiController?.apply {
                 showSystemBars()
                 setNavigationBarAppearance(darkIcons = darkTheme)
+                soundPlayer.release()
             }
         }
     }
@@ -153,8 +159,14 @@ internal fun RecordVideoRoute(
         state = state,
         bindCamera = viewModel::bindCamera,
         onSwitchCamera = { viewModel.onIntent(RecordVideoIntent.SwitchCamera) },
-        onStartRecording = { viewModel.onIntent(RecordVideoIntent.StartRecording) },
-        onFinishRecording = { viewModel.onIntent(RecordVideoIntent.FinishRecording) },
+        onStartRecording = {
+            soundPlayer.play(MediaActionSound.START_VIDEO_RECORDING)
+            viewModel.onIntent(RecordVideoIntent.StartRecording)
+        },
+        onFinishRecording = {
+            viewModel.onIntent(RecordVideoIntent.FinishRecording)
+            soundPlayer.play(MediaActionSound.STOP_VIDEO_RECORDING)
+        },
         onPauseRecording = { viewModel.onIntent(RecordVideoIntent.PauseRecording) },
         onResumeRecording = { viewModel.onIntent(RecordVideoIntent.ResumeRecording) },
         onCancelRecording = { viewModel.onIntent(RecordVideoIntent.CancelRecording) },
@@ -240,8 +252,8 @@ fun RecordVideoScreen(
                 ) {
                     Text(
                         text = state.timeText,
-                        style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                        color = Color.White,
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                        color = SmTheme.colors.white,
                     )
                 }
 
