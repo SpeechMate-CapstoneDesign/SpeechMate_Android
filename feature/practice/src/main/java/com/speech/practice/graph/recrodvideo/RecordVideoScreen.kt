@@ -12,6 +12,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -94,6 +96,7 @@ internal fun RecordVideoRoute(
     val state by viewModel.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
     val systemUiController = rememberSystemUiController()
+    val darkTheme = isSystemInDarkTheme()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -113,13 +116,18 @@ internal fun RecordVideoRoute(
     }
 
     DisposableEffect(Unit) {
-        systemUiController?.hideStatusBar()
+        systemUiController?.apply {
+            hideStatusBar()
+            setNavigationBarAppearance(darkIcons = true)
+        }
 
         onDispose {
-            systemUiController?.showSystemBars()
+            systemUiController?.apply {
+                showSystemBars()
+                setNavigationBarAppearance(darkIcons = darkTheme)
+            }
         }
     }
-
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -200,7 +208,13 @@ fun RecordVideoScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(SmTheme.colors.black).windowInsetsPadding(WindowInsets.displayCutout)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SmTheme.colors.black)
+            .windowInsetsPadding(WindowInsets.displayCutout)
+            .navigationBarsPadding(),
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),

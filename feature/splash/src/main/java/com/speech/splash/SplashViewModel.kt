@@ -1,20 +1,19 @@
-package com.speech.main
+package com.speech.splash
 
 import androidx.lifecycle.ViewModel
-import com.speech.analytics.AnalyticsHelper
 import com.speech.common.util.suspendRunCatching
 import com.speech.domain.repository.AuthRepository
-import com.speech.practice.graph.practice.PracticeSideEffect
-import com.speech.practice.graph.practice.PracticeState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import javax.inject.Inject
+
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class SplashViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-) : ContainerHost<Unit, MainSideEffect>, ViewModel() {
-    override val container = container<Unit, MainSideEffect>(Unit)
+) : ContainerHost<Unit, SplashSideEffect>, ViewModel() {
+    override val container = container<Unit, SplashSideEffect>(Unit)
 
     init {
         checkSession()
@@ -23,11 +22,11 @@ class MainViewModel @Inject constructor(
     private fun checkSession() = intent {
         suspendRunCatching {
             authRepository.checkSession()
+            delay(1000)
         }.onSuccess {
-            postSideEffect(MainSideEffect.NavigateToPractice)
+            postSideEffect(SplashSideEffect.NavigateToPractice)
         }.onFailure {
-            postSideEffect(MainSideEffect.NavigateToLogin)
+            postSideEffect(SplashSideEffect.NavigateToLogin)
         }
     }
-
 }

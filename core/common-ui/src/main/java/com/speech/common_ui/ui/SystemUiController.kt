@@ -6,6 +6,7 @@ import com.speech.common_ui.util.findActivity
 
 
 import android.app.Activity
+import android.graphics.Color
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
@@ -55,5 +56,9 @@ class SystemUiController(private val activity: Activity) {
 
         // 화면 켜짐 플래그 제거
         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    fun setNavigationBarAppearance(darkIcons : Boolean) {
+        windowInsetsController.isAppearanceLightNavigationBars = !darkIcons
     }
 }
