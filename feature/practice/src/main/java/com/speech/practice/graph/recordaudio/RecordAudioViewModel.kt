@@ -50,6 +50,7 @@ class RecordAudioViewModel @Inject constructor(
             is RecordAudioIntent.OnBackPressed -> onBackPressed()
             is RecordAudioIntent.OnSpeechConfigChange -> setSpeechConfig(event.speechConfig)
             is RecordAudioIntent.OnRequestFeedback -> onRequestFeedback()
+            is RecordAudioIntent.OnAppBackground -> onAppBackground()
         }
     }
 
@@ -65,6 +66,10 @@ class RecordAudioViewModel @Inject constructor(
             actionName = "on_back_pressed",
             properties = mutableMapOf("is_recording" to isRecording),
         )
+    }
+
+    private fun onAppBackground() {
+        pauseRecordAudio()
     }
 
     private fun validateSpeechFile(uri: Uri): Boolean = MediaUtil.isDurationValid(context, uri)

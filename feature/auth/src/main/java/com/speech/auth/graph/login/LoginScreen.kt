@@ -1,6 +1,7 @@
 package com.speech.auth.graph.login
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,6 @@ import com.speech.designsystem.R
 import com.speech.common_ui.util.clickable
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectSideEffect
-import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.theme.SmTheme
 
 
@@ -73,13 +73,6 @@ fun LoginScreen(
     onLoginFailure: () -> Unit,
 ) {
     val context = LocalContext.current
-    val debouncedKakaoLoginClick = rememberDebouncedOnClick {
-        loginKakao(
-            context,
-            onSuccess = { idToken -> onLoginKakaoClick(idToken) },
-            onFailure = { onLoginFailure() },
-        )
-    }
     val primaryToWhite = Brush.verticalGradient(
         colors = listOf(SmTheme.colors.primaryDefault, SmTheme.colors.white),
     )
@@ -112,7 +105,13 @@ fun LoginScreen(
         Image(
             painter = painterResource(R.drawable.ic_kakao_login),
             contentDescription = "카카오 로그인",
-            modifier = Modifier.clickable { debouncedKakaoLoginClick() },
+            modifier = Modifier.clickable {
+                loginKakao(
+                    context,
+                    onSuccess = { idToken -> onLoginKakaoClick(idToken) },
+                    onFailure = { onLoginFailure() },
+                )
+            },
         )
 
         Spacer(Modifier.weight(2f))

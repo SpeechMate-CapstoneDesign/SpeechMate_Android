@@ -112,17 +112,8 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun initializePlayer() {
-        _exoPlayer = ExoPlayer.Builder(context).build().apply {
-            addListener(playerListener)
-        }
-    }
-
     init {
         val routeArgs: PracticeGraph.FeedbackRoute = savedStateHandle.toRoute()
-        initializePlayer()
-        loadMedia(routeArgs.fileUrl)
-
         intent {
             reduce {
                 state.copy(
@@ -154,15 +145,46 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.StartPlaying -> startPlaying()
             is FeedbackIntent.PausePlaying -> pausePlaying()
             is FeedbackIntent.SeekTo -> seekTo(event.position)
+            is FeedbackIntent.OnSeekForward -> seekForward()
+            is FeedbackIntent.OnSeekBackward -> seekBackward()
             is FeedbackIntent.ChangePlaybackSpeed -> setPlaybackSpeed(event.speed)
+            is FeedbackIntent.OnProgressChanged -> onProgressChanged(event.position)
             is FeedbackIntent.OnMenuClick -> onMenuClick()
             is FeedbackIntent.OnDeleteClick -> onDeleteClick()
+            is FeedbackIntent.OnFullScreenClick -> onFullScreenClick()
+            is FeedbackIntent.OnAppBackground -> onAppBackground()
         }
     }
 
+    fun initializePlayer() {
+        if(_exoPlayer != null) clearResource()
+
+        val currentState = container.stateFlow.value
+        val fileUrl = currentState.speechDetail.fileUrl
+        val mediaItem = MediaItem.fromUri(fileUrl)
+        val currentPosition = currentState.playerState.currentPosition
+
+        _exoPlayer = ExoPlayer.Builder(context)
+            .setSeekBackIncrementMs(SEEK_INTERVAL)
+            .setSeekForwardIncrementMs(
+                SEEK_INTERVAL,
+            ).build().apply {
+                addListener(playerListener)
+                setMediaItem(mediaItem)
+                prepare()
+                seekTo(currentPosition.inWholeMilliseconds)
+            }
+    }
+
     private fun onBackPressed() {
-        val isPlaying = container.stateFlow.value.playingState == PlayingState.Playing
-        if (isPlaying) {
+        val currentState = container.stateFlow.value
+        val isFullScreen = currentState.isFullScreen
+        val isPlaying = currentState.playingState == PlayingState.Playing
+        if (isFullScreen) {
+            intent {
+                reduce { state.copy(isFullScreen = false) }
+            }
+        } else if (isPlaying) {
             pausePlaying()
         } else {
             clearResource()
@@ -174,6 +196,25 @@ class FeedbackViewModel @Inject constructor(
             screenName = "feedback",
             actionName = "on_back_pressed",
             properties = mutableMapOf("is_playing" to isPlaying),
+        )
+    }
+
+    private fun onAppBackground() {
+        _exoPlayer?.pause()
+        _exoPlayer?.release()
+        stopProgressUpdate()
+        _exoPlayer = null
+    }
+
+    private fun onFullScreenClick() = intent {
+        reduce {
+            state.copy(isFullScreen = !state.isFullScreen)
+        }
+
+        analyticsHelper.trackActionEvent(
+            screenName = "feedback",
+            actionName = "on_full_screen_click",
+            properties = mutableMapOf("is_full_screen" to state.isFullScreen),
         )
     }
 
@@ -271,6 +312,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun seekTo(position: Long) {
+        if (position < 0 || position > container.stateFlow.value.playerState.duration.inWholeMilliseconds) return
         _exoPlayer?.seekTo(position)
 
         intent {
@@ -283,6 +325,46 @@ class FeedbackViewModel @Inject constructor(
                 actionName = "seek_to",
                 properties = mutableMapOf("position" to position),
             )
+        }
+    }
+
+    fun seekForward() {
+        _exoPlayer?.seekForward()
+        val newPosition = _exoPlayer?.currentPosition ?: return
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_forward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
+    }
+
+    fun seekBackward() {
+        _exoPlayer?.seekBack()
+        val newPosition = _exoPlayer?.currentPosition ?: return
+
+        intent {
+            reduce {
+                state.copy(playerState = state.playerState.copy(currentPosition = newPosition.milliseconds))
+            }
+
+            analyticsHelper.trackActionEvent(
+                screenName = "feedback",
+                actionName = "seek_backward",
+                properties = mutableMapOf("position" to state.playerState.currentPosition.inWholeMilliseconds),
+            )
+        }
+    }
+
+    fun onProgressChanged(position: Long) = intent {
+        reduce {
+            state.copy(playerState = state.playerState.copy(currentPosition = position.milliseconds))
         }
     }
 
@@ -315,7 +397,14 @@ class FeedbackViewModel @Inject constructor(
             speechRepository.getScript(state.speechDetail.id)
         }.onSuccess {
             reduce {
-                state.copy(speechDetail = state.speechDetail.copy(script = it))
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.SCRIPT to TabState(
+                        isLoading = false,
+                        isError = false,
+                    )),
+                    speechDetail = state.speechDetail.copy(script = it),
+                )
+
             }
 
             getScriptAnalysis()
@@ -333,9 +422,6 @@ class FeedbackViewModel @Inject constructor(
                         isLoading = false,
                         isError = true,
                     )),
-                    speechDetail = state.speechDetail.copy(
-                        script = "대본을 불러오는데 실패했습니다.",
-                    ),
                 )
             }
             errorHelper.logError(it)
@@ -415,7 +501,6 @@ class FeedbackViewModel @Inject constructor(
             removeListener(playerListener)
             release()
         }
-
         _exoPlayer = null
         stopProgressUpdate()
     }
@@ -423,5 +508,9 @@ class FeedbackViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         clearResource()
+    }
+
+    companion object {
+        const val SEEK_INTERVAL = 10000L
     }
 }

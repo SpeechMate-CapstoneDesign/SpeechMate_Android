@@ -13,7 +13,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val tokenManager: TokenManager,
-    private val localTokenDataSource: LocalTokenDataSource
+    private val localTokenDataSource: LocalTokenDataSource,
 ) : AuthRepository {
     override suspend fun checkSession() {
         val refreshToken = tokenManager.getRefreshToken()
@@ -32,7 +32,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun loginKakao(idToken: String): Boolean {
+    override suspend fun loginKakao(idToken: String): Pair<Boolean, Int> {
         val response = authDataSource.loginKakao(idToken)
 
         if (!response.newUser) {
@@ -49,10 +49,10 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
 
-        return response.newUser
+        return Pair(response.newUser, response.userId ?: -1)
     }
 
-    override suspend fun signupKakao(idToken: String, skills: List<String>) {
+    override suspend fun signupKakao(idToken: String, skills: List<String>) : Int {
         val response = authDataSource.signupKakao(idToken = idToken, skills = skills)
 
         coroutineScope {
@@ -66,11 +66,11 @@ class AuthRepositoryImpl @Inject constructor(
 
             joinAll(accessTokenJob, refreshTokenJob)
         }
+
+        return response.userId
     }
 
     override suspend fun logout() {
-        // localTokenDataSource.setAccessToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJpYXQiOjE3NTYzNzk4NDIsImV4cCI6MTc1NjM4MzQ0Mn0.6xZZ3iaAAIrqJBAVR6rz0MkKez0DReYpZHWVZHgkAN0\",\"refresh\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwiY2F0ZWdvcnkiOiJyZWZyZXNoIiwiaWF0IjoxNzU2Mzc5ODQyLCJleHAiOjE3NTY5ODQ2NDJ9.t6mfmibuRhN9LgRpEIMIraf1dSzrx5C-9yRfHLiLf7o")
-
         coroutineScope {
             val clearTokenJob = launch {
                 localTokenDataSource.clearToken()

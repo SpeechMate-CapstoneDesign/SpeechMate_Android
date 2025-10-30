@@ -38,7 +38,10 @@
     <string name="error_failed_to_load_media">영상 또는 음성 파일을 불러오는데 실패했습니다.</string>
 
     <string name="date">날짜</string>
+
     <string name="loading_script">대본을 불러오는 중입니다.</string>
+    <string name="failed_script">대본을 불러오는데 실패했습니다.</string>
+
     <string name="loading_script_analysis">대본을 분석한 결과를 불러오는 중입니다.</string>
     <string name="failed_script_analysis">대본을 분석한 결과를 불러오는데 실패했습니다.</string>
 

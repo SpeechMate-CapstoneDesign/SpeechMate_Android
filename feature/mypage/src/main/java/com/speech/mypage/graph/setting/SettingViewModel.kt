@@ -60,7 +60,7 @@ class SettingViewModel @Inject constructor(
             postSideEffect(SettingSideEffect.NavigateToLogin)
             analyticsHelper.trackActionEvent(
                 screenName = "setting",
-                actionName = "un_register",
+                actionName = "unregister_user",
             )
         }.onFailure {
             postSideEffect(SettingSideEffect.ShowSnackbar("회원탈퇴에 실패했습니다."))

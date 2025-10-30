@@ -153,11 +153,9 @@ private fun SettingScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable(
-                                    onClick = rememberDebouncedOnClick {
-                                        onInquiryClick()
-                                    },
-                                ),
+                                .clickable {
+                                    onInquiryClick()
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
@@ -185,11 +183,9 @@ private fun SettingScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable(
-                                    onClick = rememberDebouncedOnClick {
+                                .clickable {
                                         onPolicyClick()
-                                    },
-                                ),
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(

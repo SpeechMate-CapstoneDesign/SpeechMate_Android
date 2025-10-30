@@ -34,10 +34,10 @@ interface SpeechMateApi {
     suspend fun reissueToken(@Body reissueTokenRequest: ReissueTokenRequest): ApiResponse<ReissueTokenResponse>
 
     @POST("/api/auth/logout")
-    suspend fun logout(): ApiResponse<Unit>
+    suspend fun logout()
 
     @POST("/api/auth/withdraw")
-    suspend fun unRegisterUser(): ApiResponse<Unit>
+    suspend fun unRegisterUser()
 
     // Speech Analysis
     @GET("/api/speech/myFeed")

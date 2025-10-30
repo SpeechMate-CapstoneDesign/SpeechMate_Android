@@ -62,7 +62,6 @@ android {
         debug {
             manifestPlaceholders["APP_NAME"] = "@string/app_name_debug"
             applicationIdSuffix = ".debug"
-            isMinifyEnabled = false
             isDebuggable = true
         }
     }
@@ -84,5 +83,5 @@ dependencies {
 
     implementation(libs.kakao.user)
     implementation(libs.androidx.profileinstaller)
-    "baselineProfile"(project(":baselineprofile"))
+//    "baselineProfile"(project(":baselineprofile"))
 }

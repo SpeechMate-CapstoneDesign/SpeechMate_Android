@@ -31,7 +31,7 @@ fun SMOutlineButton(
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isSelected) SmTheme.colors.primaryDefault else Color.Gray,
+            color = if (isSelected) SmTheme.colors.primaryDefault else SmTheme.colors.gray,
         ),
         shape = RoundedCornerShape(cornerRadius.dp),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp),

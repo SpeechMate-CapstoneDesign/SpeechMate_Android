@@ -14,6 +14,8 @@ plugins {
     alias(libs.plugins.baselineprofile) apply false
 }
 
+apply(from = "gradle/dependencyGraph.gradle")
+
 ktlint {
     version.set("1.7.1")
 }

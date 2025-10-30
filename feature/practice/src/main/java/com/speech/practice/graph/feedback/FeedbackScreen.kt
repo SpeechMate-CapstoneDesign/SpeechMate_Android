@@ -2,6 +2,7 @@ package com.speech.practice.graph.feedback
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,28 +58,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import com.speech.common.util.formatDuration
+import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SectionDivider
 import com.speech.designsystem.component.SpeechMateTab
 import com.speech.common_ui.util.clickable
-import com.speech.common_ui.util.rememberDebouncedOnClick
 import com.speech.designsystem.R
 import com.speech.designsystem.component.CheckCancelDialog
 import com.speech.designsystem.component.SMDropDownMenu
 import com.speech.designsystem.component.SMDropdownMenuItem
+import com.speech.designsystem.component.SimpleCircle
 import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
-import com.speech.practice.graph.feedback.component.MediaControls
+import com.speech.practice.graph.feedback.component.FeedbackPlayer
 import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
 import com.speech.practice.graph.feedback.component.SpeechConfigContent
 import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -90,6 +98,29 @@ internal fun FeedbackRoute(
     val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val setScaffoldPadding = LocalSetShouldApplyScaffoldPadding.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    viewModel.onIntent(FeedbackIntent.OnAppBackground)
+                }
+
+                Lifecycle.Event.ON_RESUME -> {
+                    viewModel.initializePlayer()
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -104,14 +135,15 @@ internal fun FeedbackRoute(
         }
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clearResource()
-        }
-    }
-
     BackHandler(enabled = true) {
         viewModel.onIntent(FeedbackIntent.OnBackPressed)
+    }
+
+    DisposableEffect(state.isFullScreen) {
+        setScaffoldPadding(!state.isFullScreen)
+        onDispose {
+            setScaffoldPadding(true)
+        }
     }
 
     FeedbackScreen(
@@ -132,6 +164,15 @@ internal fun FeedbackRoute(
         onSeekTo = { position ->
             viewModel.onIntent(FeedbackIntent.SeekTo(position))
         },
+        onSeekForward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekForward)
+        },
+        onSeekBackward = {
+            viewModel.onIntent(FeedbackIntent.OnSeekBackward)
+        },
+        onProgressChanged = { position ->
+            viewModel.onIntent(FeedbackIntent.OnProgressChanged(position))
+        },
         onChangePlaybackSpeed = { speed ->
             viewModel.onIntent(FeedbackIntent.ChangePlaybackSpeed(speed))
         },
@@ -142,9 +183,13 @@ internal fun FeedbackRoute(
             viewModel.onIntent(FeedbackIntent.OnDeleteClick)
         },
         onDismissDropDownMenu = viewModel::onDismissDropdownMenu,
+        onFullScreenClick = {
+            viewModel.onIntent(FeedbackIntent.OnFullScreenClick)
+        },
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FeedbackScreen(
     state: FeedbackState,
@@ -154,10 +199,14 @@ private fun FeedbackScreen(
     onStartPlaying: () -> Unit,
     onPausePlaying: () -> Unit,
     onSeekTo: (Long) -> Unit,
+    onSeekForward: () -> Unit,
+    onSeekBackward: () -> Unit,
     onChangePlaybackSpeed: (Float) -> Unit,
     onMenuClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onDismissDropDownMenu: () -> Unit,
+    onProgressChanged: (Long) -> Unit,
+    onFullScreenClick: () -> Unit,
 ) {
     var showDeleteDg by remember { mutableStateOf(false) }
     if (showDeleteDg) {
@@ -169,250 +218,276 @@ private fun FeedbackScreen(
             content = stringResource(R.string.delete_speech_confirmation),
         )
     }
-    var headerHeightPx by remember { mutableStateOf(0) }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .onSizeChanged { headerHeightPx = it.height },
-    ) {
-        Row(
+    if (state.isFullScreen) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, end = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxSize()
+                .background(SmTheme.colors.black.copy(0.8f))
+                .padding(horizontal = 40.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            val debouncedOnBackPressed = rememberDebouncedOnClick { onBackPressed() }
-
-            BackButton(onBackPressed = debouncedOnBackPressed)
-
-            Spacer(Modifier.width(5.dp))
-
-            Text(
-                state.speechDetail.speechConfig.fileName,
-                style = SmTheme.typography.headingSB,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = SmTheme.colors.textPrimary,
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            Box {
-                Icon(
-                    painter = painterResource(R.drawable.ic_menu),
-                    contentDescription = "메뉴",
-                    modifier = Modifier.clickable(isRipple = true) {
-                        onMenuClick()
-                    },
-                    tint = SmTheme.colors.content,
-                )
-
-                SMDropDownMenu(
-                    expanded = state.showDropdownMenu,
-                    onDismiss = onDismissDropDownMenu,
-                    alignment = Alignment.TopEnd,
-                    offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
-                    items = listOf(
-                        SMDropdownMenuItem(
-                            labelRes = R.string.delete,
-                            action = { showDeleteDg = true },
-                        ),
-                    ),
-                )
-            }
-        }
-
-        Column(Modifier.padding(horizontal = 20.dp)) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                PlayerSurface(
-                    player = exoPlayer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 9f),
-                )
-
-                when (state.playingState) {
-                    is PlayingState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = SmTheme.colors.primaryDefault,
-                        )
-                    }
-
-                    is PlayingState.Error -> {
-                        Text(
-                            stringResource(R.string.error_failed_to_load_media),
-                            modifier = Modifier.align(Alignment.Center),
-                            color = Color.White,
-                            style = SmTheme.typography.bodySM,
-                        )
-                    }
-
-                    else -> {}
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            MediaControls(
+            FeedbackPlayer(
                 state = state,
+                exoPlayer = exoPlayer,
                 onStartPlaying = onStartPlaying,
                 onPausePlaying = onPausePlaying,
                 onSeekTo = onSeekTo,
-                onChangePlaybackSpeed = onChangePlaybackSpeed,
+                onSeekForward = onSeekForward,
+                onSeekBackward = onSeekBackward,
+                onProgressChanged = onProgressChanged,
+                onFullScreenClick = onFullScreenClick,
             )
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onSizeChanged { headerHeightPx = it.height },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 5.dp, end = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                BackButton(onBackPressed = onBackPressed)
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.width(5.dp))
+
+                Text(
+                    state.speechDetail.speechConfig.fileName,
+                    style = SmTheme.typography.headingSB,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = SmTheme.colors.textPrimary,
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Box {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_menu),
+                        contentDescription = "메뉴",
+                        modifier = Modifier.clickable(isRipple = true) {
+                            onMenuClick()
+                        },
+                        tint = SmTheme.colors.content,
+                    )
+
+                    SMDropDownMenu(
+                        expanded = state.showDropdownMenu,
+                        onDismiss = onDismissDropDownMenu,
+                        alignment = Alignment.TopEnd,
+                        offset = IntOffset(0, with(LocalDensity.current) { 16.dp.roundToPx() }),
+                        items = listOf(
+                            SMDropdownMenuItem(
+                                labelRes = R.string.delete,
+                                action = { showDeleteDg = true },
+                            ),
+                        ),
+                    )
+                }
+            }
+
+            Column(Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    FeedbackPlayer(
+                        state = state,
+                        exoPlayer = exoPlayer,
+                        onStartPlaying = onStartPlaying,
+                        onPausePlaying = onPausePlaying,
+                        onSeekTo = onSeekTo,
+                        onSeekForward = onSeekForward,
+                        onSeekBackward = onSeekBackward,
+                        onProgressChanged = onProgressChanged,
+                        onFullScreenClick = onFullScreenClick,
+                    )
+                }
+
+                Spacer(Modifier.height(10.dp))
+            }
+
+            CustomScrollableTabRow(
+                tabs = FeedbackTab.entries.filterNot {
+                    state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
+                },
+                selectedTab = state.feedbackTab,
+                onTabSelected = onTabSelected,
+            )
         }
 
-        CustomScrollableTabRow(
-            tabs = FeedbackTab.entries.filterNot {
-                state.speechDetail.speechFileType == SpeechFileType.AUDIO && it == FeedbackTab.NON_VERBAL_ANALYSIS
-            },
-            selectedTab = state.feedbackTab,
-            onTabSelected = onTabSelected,
-        )
-    }
 
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = with(density) { headerHeightPx.toDp() }),
+        Box(
+            modifier = Modifier.fillMaxSize(),
         ) {
-            item {
-                Column(Modifier.padding(horizontal = 20.dp)) {
-                    Spacer(Modifier.height(15.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = with(density) { headerHeightPx.toDp() }),
+            ) {
+                item {
+                    Column(Modifier.padding(horizontal = 20.dp)) {
+                        Spacer(Modifier.height(15.dp))
 
-                    when (state.feedbackTab) {
-                        FeedbackTab.SPEECH_CONFIG -> {
-                            SpeechConfigContent(
-                                date = state.speechDetail.formattedDate,
-                                speechConfig = state.speechDetail.speechConfig,
-                            )
-                        }
+                        when (state.feedbackTab) {
+                            FeedbackTab.SPEECH_CONFIG -> {
+                                SpeechConfigContent(
+                                    date = state.speechDetail.formattedDate,
+                                    speechConfig = state.speechDetail.speechConfig,
+                                )
+                            }
 
-                        FeedbackTab.SCRIPT -> {
-                            if (state.speechDetail.script.isEmpty()) {
+                            FeedbackTab.SCRIPT -> {
+                                val scriptTab = state.tabStates[FeedbackTab.SCRIPT] ?: TabState()
+                                if (scriptTab.isLoading) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Spacer(Modifier.height(100.dp))
+
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(48.dp),
+                                            color = SmTheme.colors.primaryLight,
+                                        )
+
+                                        Spacer(Modifier.height(15.dp))
+
+                                        Text(
+                                            stringResource(R.string.loading_script),
+                                            style = SmTheme.typography.bodyXMM,
+                                            color = SmTheme.colors.textPrimary,
+                                        )
+                                    }
+                                } else if (scriptTab.isError) {
+                                    Text(
+                                        text = stringResource(R.string.failed_script),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary,
+                                    )
+                                } else {
+                                    val sentences = state.speechDetail.script.sentences
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                                    ) {
+                                        sentences.forEach { (timestamp, sentence) ->
+                                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                                Text(
+                                                    text = formatDuration(timestamp),
+                                                    style = SmTheme.typography.bodyXMM,
+                                                    color = SmTheme.colors.primaryDefault,
+                                                    modifier = Modifier.clickable {
+                                                        onSeekTo(timestamp.inWholeMilliseconds)
+                                                    },
+                                                )
+
+                                                Spacer(Modifier.width(5.dp))
+
+                                                Text(text = sentence, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
+                                            }
+                                        }
+
+                                    }
+
+                                }
+                            }
+
+                            FeedbackTab.SCRIPT_ANALYSIS -> {
+                                val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
+
+                                if (scriptAnalysisTab.isLoading) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Spacer(Modifier.height(100.dp))
+
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(48.dp),
+                                            color = SmTheme.colors.primaryLight,
+                                        )
+
+                                        Spacer(Modifier.height(15.dp))
+
+                                        Text(
+                                            stringResource(R.string.loading_script_analysis),
+                                            style = SmTheme.typography.bodyXMM,
+                                            color = SmTheme.colors.textPrimary,
+                                        )
+                                    }
+                                } else if (scriptAnalysisTab.isError) {
+                                    Text(
+                                        stringResource(R.string.failed_script_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary,
+                                    )
+                                } else {
+                                    ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
+                                }
+                            }
+
+                            FeedbackTab.VERBAL_ANALYSIS -> {
+                                val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
+                                if (verbalAnalysisTab.isLoading) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Spacer(Modifier.height(100.dp))
+
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(48.dp),
+                                            color = SmTheme.colors.primaryLight,
+                                        )
+
+                                        Spacer(Modifier.height(15.dp))
+
+                                        Text(
+                                            stringResource(R.string.loading_verbal_analysis),
+                                            style = SmTheme.typography.bodyXMM,
+                                            color = SmTheme.colors.textPrimary,
+                                        )
+                                    }
+                                } else if (verbalAnalysisTab.isError) {
+                                    Text(
+                                        stringResource(R.string.failed_verbal_analysis),
+                                        style = SmTheme.typography.bodyXMM,
+                                        color = SmTheme.colors.textPrimary,
+                                    )
+                                } else {
+                                    VerbalAnalysisContent(
+                                        duration = state.playerState.duration,
+                                        verbalAnalysis = state.speechDetail.verbalAnalysis,
+                                        seekTo = onSeekTo,
+                                    )
+                                }
+                            }
+
+                            FeedbackTab.NON_VERBAL_ANALYSIS -> {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
                                 ) {
-                                    Spacer(Modifier.height(100.dp))
-
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(48.dp),
-                                        color = SmTheme.colors.primaryLight,
-                                    )
-
-                                    Spacer(Modifier.height(15.dp))
+                                    Spacer(Modifier.height(50.dp))
 
                                     Text(
-                                        stringResource(R.string.loading_script),
+                                        text = stringResource(R.string.non_verbal_analysis_preparation),
                                         style = SmTheme.typography.bodyXMM,
                                         color = SmTheme.colors.textPrimary,
                                     )
                                 }
-                            } else {
-                                Text(text = state.speechDetail.script, style = SmTheme.typography.bodyXMM, color = SmTheme.colors.textPrimary)
-                            }
-                        }
-
-                        FeedbackTab.SCRIPT_ANALYSIS -> {
-                            val scriptAnalysisTab = state.tabStates[FeedbackTab.SCRIPT_ANALYSIS] ?: TabState()
-
-                            if (scriptAnalysisTab.isLoading) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Spacer(Modifier.height(100.dp))
-
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(48.dp),
-                                        color = SmTheme.colors.primaryLight,
-                                    )
-
-                                    Spacer(Modifier.height(15.dp))
-
-                                    Text(
-                                        stringResource(R.string.loading_script_analysis),
-                                        style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
-                                    )
-                                }
-                            } else if (scriptAnalysisTab.isError) {
-                                Text(
-                                    stringResource(R.string.failed_script_analysis),
-                                    style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
-                                )
-                            } else {
-                                ScriptAnalysisContent(state.speechDetail.scriptAnalysis)
-                            }
-                        }
-
-                        FeedbackTab.VERBAL_ANALYSIS -> {
-                            val verbalAnalysisTab = state.tabStates[FeedbackTab.VERBAL_ANALYSIS] ?: TabState()
-                            if (verbalAnalysisTab.isLoading) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Spacer(Modifier.height(100.dp))
-
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(48.dp),
-                                        color = SmTheme.colors.primaryLight,
-                                    )
-
-                                    Spacer(Modifier.height(15.dp))
-
-                                    Text(
-                                        stringResource(R.string.loading_verbal_analysis),
-                                        style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary
-                                    )
-                                }
-                            } else if (verbalAnalysisTab.isError) {
-                                Text(
-                                    stringResource(R.string.failed_verbal_analysis),
-                                    style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
-                                )
-                            } else {
-                                VerbalAnalysisContent(
-                                    duration = state.playerState.duration,
-                                    verbalAnalysis = state.speechDetail.verbalAnalysis,
-                                    seekTo = onSeekTo,
-                                )
-                            }
-                        }
-
-                        FeedbackTab.NON_VERBAL_ANALYSIS -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(Modifier.height(50.dp))
-
-                                Text(
-                                    text = stringResource(R.string.non_verbal_analysis_preparation),
-                                    style = SmTheme.typography.bodyXMM,
-                                    color = SmTheme.colors.textPrimary
-                                )
-                            }
 
 //                        val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
 //                        if (nonVerbalAnalysisTab.isLoading) {
@@ -443,15 +518,15 @@ private fun FeedbackScreen(
 //                        } else {
 //                            NonVerbalAnalysisContent(state.speechDetail.nonverbalAnalysis)
 //                        }
+                            }
                         }
-                    }
 
-                    Spacer(Modifier.height(80.dp))
+                        Spacer(Modifier.height(80.dp))
+                    }
                 }
             }
         }
     }
-
 }
 
 @Preview(showBackground = true, name = "발표 설정 탭")
@@ -472,10 +547,14 @@ private fun FeedbackScreenSpeechConfigPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -497,10 +576,14 @@ private fun FeedbackScreenScriptPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -522,10 +605,14 @@ private fun FeedbackScreenScriptAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -547,10 +634,14 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }
 
@@ -572,9 +663,13 @@ private fun FeedbackScreenNonVerbalAnalysisPreview() {
         onStartPlaying = {},
         onPausePlaying = {},
         onSeekTo = {},
+        onSeekForward = {},
+        onSeekBackward = {},
         onChangePlaybackSpeed = {},
         onMenuClick = {},
         onDeleteClick = {},
         onDismissDropDownMenu = {},
+        onProgressChanged = {},
+        onFullScreenClick = {},
     )
 }

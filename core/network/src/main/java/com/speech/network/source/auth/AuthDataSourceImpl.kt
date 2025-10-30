@@ -25,10 +25,10 @@ class AuthDataSourceImpl @Inject constructor(
         speechMateApi.signupKakao(SignUpKakaoRequest(idToken, OnBoardingDto(skills))).getData()
 
     override suspend fun logout() =
-        speechMateApi.logout().getData()
+        speechMateApi.logout()
 
     override suspend fun unRegisterUser() =
-        speechMateApi.unRegisterUser().getData()
+        speechMateApi.unRegisterUser()
 
     companion object {
         private const val KAKAO_PROVIDER = "KAKAO"

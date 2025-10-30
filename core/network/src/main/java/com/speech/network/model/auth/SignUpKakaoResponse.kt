@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SignUpKakaoResponse(
+    val userId : Int,
     val access: String,
     val refresh: String,
     val accessExpiredAt: String,

@@ -88,7 +88,7 @@ fun UploadFileDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "${status.progress}%",
+                        text = "%.1f%%".format(status.progress),
                         style = SmTheme.typography.bodyXSM,
                         color = SmTheme.colors.textSecondary,
                     )

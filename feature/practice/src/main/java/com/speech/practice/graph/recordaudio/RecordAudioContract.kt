@@ -33,6 +33,7 @@ sealed class RecordAudioIntent : UiIntent {
     data object OnBackPressed : RecordAudioIntent()
     data object OnRequestFeedback : RecordAudioIntent()
     data class OnSpeechConfigChange(val speechConfig: SpeechConfig) : RecordAudioIntent()
+    data object OnAppBackground : RecordAudioIntent()
 }
 
 sealed interface RecordAudioSideEffect : UiSideEffect {
