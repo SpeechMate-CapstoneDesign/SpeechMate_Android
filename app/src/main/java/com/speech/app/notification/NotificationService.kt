@@ -60,7 +60,7 @@ class NotificationService : FirebaseMessagingService() {
         )
 
         val builder = NotificationCompat.Builder(this, SPEECHMATE_CHANNEL_ID)
-            .setSmallIcon(R.drawable.speechmate_icon)
+            .setSmallIcon(R.drawable.ic_speechmate_noti)
             .setColor(ContextCompat.getColor(this, R.color.white))
             .setContentTitle(title)
             .setContentText(body)
