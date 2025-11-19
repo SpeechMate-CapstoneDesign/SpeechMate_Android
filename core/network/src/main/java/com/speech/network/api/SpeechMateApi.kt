@@ -7,6 +7,7 @@ import com.speech.network.model.auth.ReissueTokenRequest
 import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
+import com.speech.network.model.notification.PostDeviceTokenRequest
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
 import com.speech.network.model.speech.GetVerbalAnalysisResponse
@@ -70,4 +71,10 @@ interface SpeechMateApi {
 
     @DELETE("/api/speech/delete/{speechId}")
     suspend fun deleteSpeech(@Path("speechId") speechId: Int)
+
+    // Notification
+    @POST("/api/fcm/token")
+    suspend fun postDeviceToken(
+        @Body postDeviceTokenRequest: PostDeviceTokenRequest
+    )
 }

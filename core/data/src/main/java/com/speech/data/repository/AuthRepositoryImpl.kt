@@ -4,6 +4,7 @@ import com.speech.common.util.suspendRunCatching
 import com.speech.datastore.datasource.LocalTokenDataSource
 import com.speech.domain.repository.AuthRepository
 import com.speech.network.source.auth.AuthDataSource
+import com.speech.network.source.notification.NotificationDataSource
 import com.speech.network.token.TokenManager
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -14,6 +15,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val tokenManager: TokenManager,
     private val localTokenDataSource: LocalTokenDataSource,
+    private val notificationDataSource: NotificationDataSource,
 ) : AuthRepository {
     override suspend fun checkSession() {
         val refreshToken = tokenManager.getRefreshToken()
@@ -49,6 +51,8 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
 
+        // notificationDataSource.postDeviceToken()
+
         return Pair(response.newUser, response.userId ?: -1)
     }
 
@@ -66,6 +70,8 @@ class AuthRepositoryImpl @Inject constructor(
 
             joinAll(accessTokenJob, refreshTokenJob)
         }
+
+        // notificationDataSource.postDeviceToken()
 
         return response.userId
     }
