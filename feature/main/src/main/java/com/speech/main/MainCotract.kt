@@ -12,6 +12,6 @@ sealed class MainIntent : UiIntent {
 
 
 sealed interface MainSideEffect : UiSideEffect {
-    data class ShowSnackbar(val message : String, val action : () -> Unit) : MainSideEffect
+    data class ShowSnackbar(val message : String) : MainSideEffect
     data class NavigateToFeedback(val speechId : Int, val tab: FeedbackTab) : MainSideEffect
 }

@@ -36,6 +36,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -56,6 +57,8 @@ import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppBottomBar
 import com.speech.main.navigation.AppNavHost
+import com.speech.navigation.AuthGraph
+import com.speech.navigation.MyPageGraph
 import com.speech.navigation.PracticeGraph
 import com.speech.navigation.SplashRoute
 import com.speech.navigation.getRouteName
@@ -90,23 +93,29 @@ class MainActivity : ComponentActivity() {
             val currentDestination = navController.currentBackStackEntryAsState()
                 .value?.destination
             val snackbarHostState = remember { SnackbarHostState() }
-            var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
-            val currentRoute = currentDestination?.route
-            val shouldRemovePadding = ROUTES_WITHOUT_PADDING.any { route ->
-                currentRoute?.contains(route) == true
-            }
 
             viewModel.collectSideEffect { sideEffect ->
                 when(sideEffect) {
                     is MainSideEffect.ShowSnackbar -> {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(sideEffect.message)
+                       val isNoSnackbarRoute = noSnackbarRoutes.any { route ->
+                           currentDestination?.hasRoute(route) == true
+                       }
+
+                        if(!isNoSnackbarRoute) {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(sideEffect.message)
+                        }
                     }
                     is MainSideEffect.NavigateToFeedback -> {
                         navController.navigateToPractice()
                         navController.navigateToFeedback(speechId = sideEffect.speechId, tab = sideEffect.tab)
                     }
                 }
+            }
+
+            var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
+            val shouldRemovePadding = nonePaddingRoutes.any { route ->
+                currentDestination?.hasRoute(route) == true
             }
 
             CompositionLocalProvider(
@@ -200,11 +209,19 @@ class MainActivity : ComponentActivity() {
 
 
     companion object {
-        private const val NON_VERBAL_ANALYSIS = "non_verbal_analysis"
+        private val nonePaddingRoutes = setOf(
+            SplashRoute::class,
+            PracticeGraph.RecordVideoRoute::class,
+        )
 
-        private val ROUTES_WITHOUT_PADDING = listOf(
-            SplashRoute.toString(),
-            PracticeGraph.RecordVideoRoute.toString(),
+        private val noSnackbarRoutes = setOf(
+            SplashRoute::class,
+            AuthGraph.LoginRoute::class,
+            AuthGraph.OnBoardingRoute::class,
+            PracticeGraph.RecordVideoRoute::class,
+            PracticeGraph.RecordAudioRoute::class,
+            PracticeGraph.FeedbackRoute::class,
+            MyPageGraph.WebViewRoute::class
         )
     }
 }

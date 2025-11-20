@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
 ) : ContainerHost<Unit, MainSideEffect>, ViewModel() {
     override val container = container<Unit, MainSideEffect>(Unit)
 
@@ -24,9 +24,11 @@ class MainViewModel @Inject constructor(
             notificationRepository.notificationEvents.collect { event ->
                 when (event) {
                     is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
-                        postSideEffect(MainSideEffect.ShowSnackbar("비언어적 분석 완료!", action = {
-
-                        }))
+                        postSideEffect(
+                            MainSideEffect.ShowSnackbar(
+                                "비언어적 분석 완료!",
+                            ),
+                        )
                     }
                 }
             }
@@ -34,10 +36,10 @@ class MainViewModel @Inject constructor(
 
     }
 
-    fun onIntent(event : MainIntent) {
-        when(event) {
+    fun onIntent(event: MainIntent) {
+        when (event) {
             is MainIntent.OnNotificationClick -> {
-                if(event.type == NON_VERBAL_ANALYSIS) {
+                if (event.type == NON_VERBAL_ANALYSIS) {
                     intent {
                         postSideEffect(MainSideEffect.NavigateToFeedback(event.speechId, tab = FeedbackTab.NON_VERBAL_ANALYSIS))
                     }
