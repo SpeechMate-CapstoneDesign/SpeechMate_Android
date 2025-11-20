@@ -2,6 +2,7 @@ package com.speech.main
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -59,14 +60,18 @@ import com.speech.navigation.PracticeGraph
 import com.speech.navigation.SplashRoute
 import com.speech.navigation.getRouteName
 import com.speech.navigation.shouldHideBottomBar
+import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectSideEffect
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
 
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
@@ -76,22 +81,36 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         requestPermissions(this)
-
         window.isNavigationBarContrastEnforced = false
+
+        if(intent.extras != null) handleNotificationIntent(intent)
 
         setContent {
             val navController = rememberNavController()
             val currentDestination = navController.currentBackStackEntryAsState()
                 .value?.destination
-            val snackBarHostState = remember { SnackbarHostState() }
+            val snackbarHostState = remember { SnackbarHostState() }
             var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
             val currentRoute = currentDestination?.route
             val shouldRemovePadding = ROUTES_WITHOUT_PADDING.any { route ->
                 currentRoute?.contains(route) == true
             }
 
+            viewModel.collectSideEffect { sideEffect ->
+                when(sideEffect) {
+                    is MainSideEffect.ShowSnackbar -> {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(sideEffect.message)
+                    }
+                    is MainSideEffect.NavigateToFeedback -> {
+                        navController.navigateToPractice()
+                        navController.navigateToFeedback(speechId = sideEffect.speechId, tab = sideEffect.tab)
+                    }
+                }
+            }
+
             CompositionLocalProvider(
-                LocalSnackbarHostState provides snackBarHostState,
+                LocalSnackbarHostState provides snackbarHostState,
                 LocalShouldApplyScaffoldPadding provides shouldApplyScaffoldPadding,
                 LocalSetShouldApplyScaffoldPadding provides { shouldApply ->
                     shouldApplyScaffoldPadding = shouldApply
@@ -103,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         containerColor = SmTheme.colors.background,
                         snackbarHost = {
                             SpeechMateSnackBarHost(
-                                hostState = snackBarHostState,
+                                hostState = snackbarHostState,
                                 snackbar = { snackBarData -> SpeechMateSnackBar(snackBarData) },
                             )
                         },
@@ -166,7 +185,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        intent?.getStringExtra("type")?.let { type ->
+            val speechId = intent.getStringExtra("speechId")?.toInt() ?: -1
+            if (speechId > 0) {
+                viewModel.onIntent(MainIntent.OnNotificationClick(speechId, type))
+            }
+        }
+    }
+
+
     companion object {
+        private const val NON_VERBAL_ANALYSIS = "non_verbal_analysis"
+
         private val ROUTES_WITHOUT_PADDING = listOf(
             SplashRoute.toString(),
             PracticeGraph.RecordVideoRoute.toString(),
@@ -175,13 +210,18 @@ class MainActivity : ComponentActivity() {
 }
 
 
+
 private fun requestPermissions(activity: Activity) {
-    val permissions = arrayOf(
+    val permissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
         Manifest.permission.CAMERA,
     )
 
-    ActivityCompat.requestPermissions(activity, permissions, 1001)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    ActivityCompat.requestPermissions(activity, permissions.toTypedArray(), 1001)
 }
 
 

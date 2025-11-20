@@ -41,35 +41,12 @@ class NotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
 
         val data = message.data
-        val title = data["title"] ?: "SpeechMate"
-        val body = data["body"] ?: ""
-
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        val speechId = data["speechId"]?.toInt() ?: -1
+        if(speechId > 0) {
+            scope.launch {
+                notificationRepository.onNonVerbalAnalysisCompleted(speechId)
+            }
         }
-
-        if (data.isNotEmpty()) {
-            data.forEach { (key, value) -> intent.putExtra(key, value) }
-        }
-
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-
-        val builder = NotificationCompat.Builder(this, SPEECHMATE_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_speechmate_noti)
-            .setColor(ContextCompat.getColor(this, R.color.white))
-            .setContentTitle(title)
-            .setContentText(body)
-            .setShowWhen(true)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        val notificationManager: NotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
 
     override fun onDestroy() {
