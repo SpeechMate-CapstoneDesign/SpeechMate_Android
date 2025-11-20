@@ -200,7 +200,7 @@ class MainActivity : ComponentActivity() {
 
     private fun handleNotificationIntent(intent: Intent?) {
         intent?.getStringExtra("type")?.let { type ->
-            val speechId = intent.getStringExtra("speechId")?.toInt() ?: -1
+            val speechId = intent.getStringExtra("speechId")?.toIntOrNull() ?: -1
             if (speechId > 0) {
                 viewModel.onIntent(MainIntent.OnNotificationClick(speechId, type))
             }

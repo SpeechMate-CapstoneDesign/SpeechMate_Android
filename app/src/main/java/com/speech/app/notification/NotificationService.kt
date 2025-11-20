@@ -41,7 +41,7 @@ class NotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
 
         val data = message.data
-        val speechId = data["speechId"]?.toInt() ?: -1
+        val speechId = data["speechId"]?.toIntOrNull() ?: -1
         val speechName = data["speechName"] ?: ""
         if (speechId > 0) {
             scope.launch {
