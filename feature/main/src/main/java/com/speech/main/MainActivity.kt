@@ -207,7 +207,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     companion object {
         private val nonePaddingRoutes = setOf(
             SplashRoute::class,

@@ -2,6 +2,7 @@ package com.speech.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.speech.common.util.ellipsize
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.repository.NotificationRepository
 import com.speech.mypage.graph.mypage.MyPageSideEffect
@@ -24,16 +25,17 @@ class MainViewModel @Inject constructor(
             notificationRepository.notificationEvents.collect { event ->
                 when (event) {
                     is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
+                        val speechName = event.speechName.ellipsize(6)
+
                         postSideEffect(
                             MainSideEffect.ShowSnackbar(
-                                "비언어적 분석 완료!",
+                                "$speechName 비언어적 분석 완료!",
                             ),
                         )
                     }
                 }
             }
         }
-
     }
 
     fun onIntent(event: MainIntent) {

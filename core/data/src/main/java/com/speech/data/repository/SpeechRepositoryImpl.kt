@@ -37,8 +37,8 @@ class SpeechRepositoryImpl @Inject constructor(
     private val speechDataSource: SpeechDataSource,
 ) : SpeechRepository {
     private val _speechUpdateEvents = MutableSharedFlow<SpeechUpdateEvent>(
-        replay = 1,
-        extraBufferCapacity = 4,
+        replay = 0,
+        extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     override val speechUpdateEvents: SharedFlow<SpeechUpdateEvent> = _speechUpdateEvents.asSharedFlow()

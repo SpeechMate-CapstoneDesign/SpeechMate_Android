@@ -18,8 +18,8 @@ class NotificationRepositoryImpl @Inject constructor(
     private val notificationDataSource: NotificationDataSource,
 ) : NotificationRepository {
     private val _notificationEvents = MutableSharedFlow<NotificationEvent>(
-        replay = 1,
-        extraBufferCapacity = 4,
+        replay = 0,
+        extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     override val notificationEvents: SharedFlow<NotificationEvent> = _notificationEvents.asSharedFlow()
@@ -29,7 +29,7 @@ class NotificationRepositoryImpl @Inject constructor(
         notificationDataSource.updateDeviceToken(token)
     }
 
-    override suspend fun onNonVerbalAnalysisCompleted(speechId: Int) {
-       _notificationEvents.emit(NotificationEvent.NonVerbalCompleted(speechId))
+    override suspend fun onNonVerbalAnalysisCompleted(speechId: Int, speechName : String) {
+       _notificationEvents.emit(NotificationEvent.NonVerbalCompleted(speechId, speechName))
     }
 }

@@ -42,9 +42,10 @@ class NotificationService : FirebaseMessagingService() {
 
         val data = message.data
         val speechId = data["speechId"]?.toInt() ?: -1
-        if(speechId > 0) {
+        val speechName = data["speechName"] ?: ""
+        if (speechId > 0) {
             scope.launch {
-                notificationRepository.onNonVerbalAnalysisCompleted(speechId)
+                notificationRepository.onNonVerbalAnalysisCompleted(speechId, speechName)
             }
         }
     }

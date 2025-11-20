@@ -19,6 +19,7 @@ import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.repository.NotificationRepository
 import com.speech.domain.repository.SpeechRepository
 import com.speech.navigation.PracticeGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,7 @@ class FeedbackViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val savedStateHandle: SavedStateHandle,
     private val speechRepository: SpeechRepository,
+    private val notificationRepository: NotificationRepository,
     private val analyticsHelper: AnalyticsHelper,
     private val errorHelper: ErrorHelper,
 ) : ContainerHost<FeedbackState, FeedbackSideEffect>, ViewModel() {
@@ -128,7 +130,21 @@ class FeedbackViewModel @Inject constructor(
                             venue = routeArgs.venue,
                         ),
                     ),
+                    feedbackTab = routeArgs.tab,
                 )
+            }
+
+            notificationRepository.notificationEvents.collect { event ->
+                when (event) {
+                    is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
+                        if(event.speechId == state.speechDetail.id) {
+                            // 재요청 로직
+                        }
+                        else {
+                            postSideEffect(FeedbackSideEffect.ShowSnackbar("${event.speechName} 비언어적 분석 완료!"))
+                        }
+                    }
+                }
             }
         }
 
@@ -157,7 +173,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun initializePlayer() {
-        if(_exoPlayer != null) clearResource()
+        if (_exoPlayer != null) clearResource()
 
         val currentState = container.stateFlow.value
         val fileUrl = currentState.speechDetail.fileUrl
