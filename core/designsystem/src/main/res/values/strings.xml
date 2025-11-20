@@ -47,7 +47,9 @@
     <string name="loading_verbal_analysis">언어적 특징을 분석 중입니다.</string>
     <string name="failed_verbal_analysis">언어적 특징을 분석한 결과를 불러오는데 실패했습니다.</string>
 
-    <string name="non_verbal_analysis_preparation">비언어적 행동 분석은 아직 준비중입니다!</string>
+    <string name="loading_non_verbal_analysis">비언어적 행동을 분석중입니다.</string>
+    <string name="failed_non_verbal_analysis">비언어적 행동을 분석한 결과를 불러오는데 실패했습니다.</string>
+    <string name="non_verbal_analysis_detected_count">총 %d개 부적절한 행동 감지</string>
 
     <string name="keywords">키워드</string>
     <string name="summary">요약</string>
