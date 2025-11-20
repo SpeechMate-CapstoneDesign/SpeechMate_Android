@@ -82,6 +82,7 @@ import com.speech.domain.model.speech.SpeechDetail
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.practice.graph.feedback.component.CustomScrollableTabRow
 import com.speech.practice.graph.feedback.component.FeedbackPlayer
+import com.speech.practice.graph.feedback.component.NonVerbalAnalysisContent
 import com.speech.practice.graph.feedback.component.ScriptAnalysisContent
 import com.speech.practice.graph.feedback.component.SpeechConfigContent
 import com.speech.practice.graph.feedback.component.VerbalAnalysisContent
@@ -295,7 +296,7 @@ private fun FeedbackScreen(
             Column(Modifier.fillMaxWidth()) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
                 ) {
                     FeedbackPlayer(
                         state = state,
@@ -475,49 +476,35 @@ private fun FeedbackScreen(
                             }
 
                             FeedbackTab.NON_VERBAL_ANALYSIS -> {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Spacer(Modifier.height(50.dp))
+                                val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
+                                if (!nonVerbalAnalysisTab.isLoading) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Spacer(Modifier.height(100.dp))
 
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(48.dp),
+                                            color = SmTheme.colors.primaryLight,
+                                        )
+
+                                        Spacer(Modifier.height(15.dp))
+
+                                        Text(
+                                            stringResource(R.string.loading_non_verbal_analysis),
+                                            style = SmTheme.typography.bodyXMM,
+                                        )
+                                    }
+                                } else if (nonVerbalAnalysisTab.isError) {
                                     Text(
-                                        text = stringResource(R.string.non_verbal_analysis_preparation),
+                                        stringResource(R.string.failed_non_verbal_analysis),
                                         style = SmTheme.typography.bodyXMM,
-                                        color = SmTheme.colors.textPrimary,
                                     )
+                                } else {
+                                    NonVerbalAnalysisContent(state.speechDetail.nonVerbalAnalysis, seekTo = onSeekTo)
                                 }
-
-//                        val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
-//                        if (nonVerbalAnalysisTab.isLoading) {
-//                            Column(
-//                                modifier = Modifier.fillMaxWidth(),
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                verticalArrangement = Arrangement.Center,
-//                            ) {
-//                                Spacer(Modifier.height(100.dp))
-//
-//                                CircularProgressIndicator(
-//                                    modifier = Modifier.size(48.dp),
-//                                    color = SmTheme.colors.primaryLight,
-//                                )
-//
-//                                Spacer(Modifier.height(15.dp))
-//
-//                                Text(
-//                                    "비언어적 행동을 분석 중입니다.",
-//                                    style = SmTheme.typography.bodyXMM,
-//                                )
-//                            }
-//                        } else if (nonVerbalAnalysisTab.isError) {
-//                            Text(
-//                                "비언어적 을 분석한 결과를 불러오는데 실패했습니다.",
-//                                style = SmTheme.typography.bodyXMM,
-//                            )
-//                        } else {
-//                            NonVerbalAnalysisContent(state.speechDetail.nonverbalAnalysis)
-//                        }
                             }
                         }
 

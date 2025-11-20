@@ -1,12 +1,16 @@
 package com.speech.network.di
 
 
+import com.google.firebase.messaging.FirebaseMessaging
 import com.speech.network.source.auth.AuthDataSource
 import com.speech.network.source.auth.AuthDataSourceImpl
+import com.speech.network.source.notification.NotificationDataSource
+import com.speech.network.source.notification.NotificationDataSourceImpl
 import com.speech.network.source.speech.SpeechDataSource
 import com.speech.network.source.speech.SpeechDataSourceImpl
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -21,4 +25,16 @@ abstract class NetworkModule {
     @Binds
     @Singleton
     abstract fun bindsSpeechDataSource(speechDataSourceImpl: SpeechDataSourceImpl): SpeechDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindsNotificationDataSource(notificationDataSourceImpl: NotificationDataSourceImpl): NotificationDataSource
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkProvidesModule {
+    @Provides
+    @Singleton
+    fun provideFirebaseMessaging(): FirebaseMessaging = FirebaseMessaging.getInstance()
 }

@@ -2,6 +2,7 @@ package com.speech.main
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
@@ -35,6 +36,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -55,44 +57,69 @@ import com.speech.designsystem.theme.SmTheme
 import com.speech.designsystem.theme.SpeechMateTheme
 import com.speech.main.navigation.AppBottomBar
 import com.speech.main.navigation.AppNavHost
+import com.speech.navigation.AuthGraph
+import com.speech.navigation.MyPageGraph
 import com.speech.navigation.PracticeGraph
 import com.speech.navigation.SplashRoute
 import com.speech.navigation.getRouteName
 import com.speech.navigation.shouldHideBottomBar
+import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectSideEffect
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val viewModel: MainViewModel by viewModels()
+
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
         requestPermissions(this)
-
         window.isNavigationBarContrastEnforced = false
+
+        if(intent.extras != null) handleNotificationIntent(intent)
 
         setContent {
             val navController = rememberNavController()
             val currentDestination = navController.currentBackStackEntryAsState()
                 .value?.destination
-            val snackBarHostState = remember { SnackbarHostState() }
+            val snackbarHostState = remember { SnackbarHostState() }
+
+            viewModel.collectSideEffect { sideEffect ->
+                when(sideEffect) {
+                    is MainSideEffect.ShowSnackbar -> {
+                       val isNoSnackbarRoute = noSnackbarRoutes.any { route ->
+                           currentDestination?.hasRoute(route) == true
+                       }
+
+                        if(!isNoSnackbarRoute) {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(sideEffect.message)
+                        }
+                    }
+                    is MainSideEffect.NavigateToFeedback -> {
+                        navController.navigateToPractice()
+                        navController.navigateToFeedback(speechId = sideEffect.speechId, tab = sideEffect.tab)
+                    }
+                }
+            }
+
             var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
-            val currentRoute = currentDestination?.route
-            val shouldRemovePadding = ROUTES_WITHOUT_PADDING.any { route ->
-                currentRoute?.contains(route) == true
+            val shouldRemovePadding = nonePaddingRoutes.any { route ->
+                currentDestination?.hasRoute(route) == true
             }
 
             CompositionLocalProvider(
-                LocalSnackbarHostState provides snackBarHostState,
+                LocalSnackbarHostState provides snackbarHostState,
                 LocalShouldApplyScaffoldPadding provides shouldApplyScaffoldPadding,
                 LocalSetShouldApplyScaffoldPadding provides { shouldApply ->
                     shouldApplyScaffoldPadding = shouldApply
@@ -104,7 +131,7 @@ class MainActivity : ComponentActivity() {
                         containerColor = SmTheme.colors.background,
                         snackbarHost = {
                             SpeechMateSnackBarHost(
-                                hostState = snackBarHostState,
+                                hostState = snackbarHostState,
                                 snackbar = { snackBarData -> SpeechMateSnackBar(snackBarData) },
                             )
                         },
@@ -167,22 +194,50 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        intent?.getStringExtra("type")?.let { type ->
+            val speechId = intent.getStringExtra("speechId")?.toIntOrNull() ?: -1
+            if (speechId > 0) {
+                viewModel.onIntent(MainIntent.OnNotificationClick(speechId, type))
+            }
+        }
+    }
+
     companion object {
-        private val ROUTES_WITHOUT_PADDING = listOf(
-            SplashRoute.toString(),
-            PracticeGraph.RecordVideoRoute.toString(),
+        private val nonePaddingRoutes = setOf(
+            SplashRoute::class,
+            PracticeGraph.RecordVideoRoute::class,
+        )
+
+        private val noSnackbarRoutes = setOf(
+            SplashRoute::class,
+            AuthGraph.LoginRoute::class,
+            AuthGraph.OnBoardingRoute::class,
+            PracticeGraph.RecordVideoRoute::class,
+            PracticeGraph.RecordAudioRoute::class,
+            PracticeGraph.FeedbackRoute::class,
+            MyPageGraph.WebViewRoute::class
         )
     }
 }
 
 
+
 private fun requestPermissions(activity: Activity) {
-    val permissions = arrayOf(
+    val permissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
         Manifest.permission.CAMERA,
     )
 
-    ActivityCompat.requestPermissions(activity, permissions, 1001)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    ActivityCompat.requestPermissions(activity, permissions.toTypedArray(), 1001)
 }
 
 

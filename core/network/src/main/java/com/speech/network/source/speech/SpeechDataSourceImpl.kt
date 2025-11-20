@@ -13,6 +13,7 @@ import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
 import com.speech.network.model.speech.GetPresignedUrlResponse
+import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
 import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
@@ -80,6 +81,9 @@ class SpeechDataSourceImpl @Inject constructor(
                     location = speechConfig.venue?.name ?: "",
                 ),
         ).getData()
+
+    override suspend fun getSpeechConfig(speechId: Int): GetSpeechConfigResponse =
+        speechMateApi.getSpeechConfig(speechId).getData()
 
     override suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int): GetSpeechFeedResponse =
         speechMateApi.getSpeechFeeds(lastSpeechId, limit).getData()

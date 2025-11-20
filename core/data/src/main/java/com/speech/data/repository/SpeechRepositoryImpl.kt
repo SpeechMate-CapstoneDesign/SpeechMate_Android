@@ -37,8 +37,8 @@ class SpeechRepositoryImpl @Inject constructor(
     private val speechDataSource: SpeechDataSource,
 ) : SpeechRepository {
     private val _speechUpdateEvents = MutableSharedFlow<SpeechUpdateEvent>(
-        replay = 1,
-        extraBufferCapacity = 4,
+        replay = 0,
+        extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     override val speechUpdateEvents: SharedFlow<SpeechUpdateEvent> = _speechUpdateEvents.asSharedFlow()
@@ -104,6 +104,8 @@ class SpeechRepositoryImpl @Inject constructor(
         return Pair(response.speechId, response.fileUrl)
     }
 
+    override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
+        speechDataSource.getSpeechConfig(speechId).toDomain()
 
     override fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>> {
         return Pager(
