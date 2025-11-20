@@ -21,6 +21,7 @@ import com.speech.common_ui.util.clickable
 import com.speech.designsystem.R
 import com.speech.designsystem.component.SMCard
 import com.speech.designsystem.theme.SmTheme
+import com.speech.domain.model.speech.BehaviorGroup
 import com.speech.domain.model.speech.NonVerbalAnalysis
 import com.speech.domain.model.speech.VerbalAnalysis
 import kotlin.time.Duration
@@ -34,9 +35,9 @@ internal fun NonVerbalAnalysisContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(15.dp),
     ) {
+        // 헤더 카드
         SMCard(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier
@@ -47,7 +48,7 @@ internal fun NonVerbalAnalysisContent(
                 Text(
                     text = stringResource(
                         id = R.string.non_verbal_analysis_detected_count,
-                        nonVerbalAnalysis.totalCount
+                        nonVerbalAnalysis.totalCount,
                     ),
                     style = SmTheme.typography.bodyXMSB,
                     color = SmTheme.colors.textPrimary,
@@ -55,81 +56,94 @@ internal fun NonVerbalAnalysisContent(
             }
         }
 
-        nonVerbalAnalysis.categories.forEach { category ->
-            SMCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 15.dp),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = category.name,
-                        style = SmTheme.typography.bodyXMSB,
-                        color = SmTheme.colors.textPrimary,
-                    )
+        BehaviorGroup.entries.forEach { group ->
+            val behaviors = nonVerbalAnalysis.results[group]
 
-                    category.behaviors.forEach { behavior ->
+            if (!behaviors.isNullOrEmpty()) {
+                SMCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 15.dp),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = behavior.name,
-                                style = SmTheme.typography.bodySSB,
+                                text = group.emoji,
+                                style = SmTheme.typography.bodyXMSB,
                                 color = SmTheme.colors.textPrimary,
                             )
-                            Spacer(Modifier.width(5.dp))
+
                             Text(
-                                text = "${behavior.count}회",
-                                style = SmTheme.typography.bodySSB,
+                                text = group.label,
+                                style = SmTheme.typography.bodyXMSB,
                                 color = SmTheme.colors.textPrimary,
                             )
                         }
 
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                        ) {
-                            behavior.timestamps.forEachIndexed { index, timeRange ->
-                                Row {
-                                    Text(
-                                        text = "${formatDuration(timeRange.startTime)} ~ ",
-                                        style = SmTheme.typography.bodySM,
-                                        color = SmTheme.colors.primaryDefault,
-                                        modifier = Modifier.clickable {
-                                            seekTo(timeRange.startTime.inWholeMilliseconds.coerceAtLeast(0))
-                                        },
-                                    )
+                        behaviors.forEach { behavior ->
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "${behavior.name} ${behavior.count}회",
+                                    style = SmTheme.typography.bodySSB,
+                                    color = SmTheme.colors.textPrimary,
+                                )
 
-                                    Text(
-                                        text = formatDuration(timeRange.endTime),
-                                        style = SmTheme.typography.bodySM,
-                                        color = SmTheme.colors.primaryDefault,
-                                        modifier = Modifier.clickable {
-                                            seekTo(timeRange.endTime.inWholeMilliseconds)
-                                        },
-                                    )
+                                FlowRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                ) {
+                                    behavior.timestamps.forEachIndexed { index, timeRange ->
+                                        Row {
+                                            Text(
+                                                text = formatDuration(timeRange.startTime),
+                                                style = SmTheme.typography.bodySM,
+                                                color = SmTheme.colors.primaryDefault,
+                                                modifier = Modifier.clickable {
+                                                    seekTo(timeRange.startTime.inWholeMilliseconds.coerceAtLeast(0))
+                                                },
+                                            )
 
-                                    if (index != behavior.timestamps.lastIndex) {
-                                        Text(
-                                            text = ",",
-                                            style = SmTheme.typography.bodySM,
-                                            color = SmTheme.colors.textPrimary,
-                                            modifier = Modifier.clickable {
-                                                seekTo(timeRange.startTime.inWholeMilliseconds.coerceAtLeast(0))
-                                            },
-                                        )
+                                            Text(
+                                                text = " ~ ",
+                                                style = SmTheme.typography.bodySM,
+                                                color = SmTheme.colors.textSecondary,
+                                            )
+
+                                            Text(
+                                                text = formatDuration(timeRange.endTime),
+                                                style = SmTheme.typography.bodySM,
+                                                color = SmTheme.colors.primaryDefault,
+                                                modifier = Modifier.clickable {
+                                                    seekTo(timeRange.endTime.inWholeMilliseconds)
+                                                },
+                                            )
+
+                                            if (index != behavior.timestamps.lastIndex) {
+                                                Text(
+                                                    text = ", ",
+                                                    style = SmTheme.typography.bodySM,
+                                                    color = SmTheme.colors.textPrimary,
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-
             }
         }
     }
 }
+
 
