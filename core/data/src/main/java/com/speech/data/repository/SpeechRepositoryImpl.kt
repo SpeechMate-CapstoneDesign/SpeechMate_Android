@@ -104,6 +104,8 @@ class SpeechRepositoryImpl @Inject constructor(
         return Pair(response.speechId, response.fileUrl)
     }
 
+    override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
+        speechDataSource.getSpeechConfig(speechId).toDomain()
 
     override fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>> {
         return Pager(

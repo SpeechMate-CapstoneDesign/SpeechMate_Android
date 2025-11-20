@@ -28,6 +28,7 @@ interface SpeechRepository {
         duration: Int,
         onProgressUpdate: (UploadFileStatus) -> Unit,
     ): Pair<Int, String>
+    suspend fun getSpeechConfig(speechId: Int) : SpeechDetail
     suspend fun getScript(speechId: Int): Script
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysis
     suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis

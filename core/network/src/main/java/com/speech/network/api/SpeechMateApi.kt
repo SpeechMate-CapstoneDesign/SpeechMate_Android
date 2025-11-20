@@ -9,6 +9,7 @@ import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.notification.PostDeviceTokenRequest
 import com.speech.network.model.speech.GetPresignedUrlResponse
+import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
 import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
@@ -59,6 +60,9 @@ interface SpeechMateApi {
 
     @PUT("/api/speech/metadata/{speechId}")
     suspend fun updateSpeechConfig(@Path("speechId") speechId: Int, @Body updateSpeechConfigRequest: UpdateSpeechConfigRequest): ApiResponse<Unit>
+
+    @GET("/api/speech/{speechId}/speechConfig")
+    suspend fun getSpeechConfig(@Path("speechId") speechId: Int) : ApiResponse<GetSpeechConfigResponse>
 
     @POST("/api/speech/rtzrstt/{speechId}")
     suspend fun getScript(@Path("speechId") speechId: Int): ApiResponse<ScriptResponse>

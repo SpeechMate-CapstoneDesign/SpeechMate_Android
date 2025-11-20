@@ -134,23 +134,15 @@ class FeedbackViewModel @Inject constructor(
                 )
             }
 
-            notificationRepository.notificationEvents.collect { event ->
-                when (event) {
-                    is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
-                        if(event.speechId == state.speechDetail.id) {
-                            // 재요청 로직
-                        }
-                        else {
-                            postSideEffect(FeedbackSideEffect.ShowSnackbar("${event.speechName} 비언어적 분석 완료!"))
-                        }
-                    }
-                }
+            if (state.speechDetail.fileUrl.isEmpty()) {
+                getSpeechConfig()
             }
-        }
+            getScript()
+            if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
+                getVideoAnalysis()
+            }
 
-        getScript()
-        if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
-            getVideoAnalysis()
+            subscribeNotifications()
         }
     }
 
@@ -171,6 +163,21 @@ class FeedbackViewModel @Inject constructor(
             is FeedbackIntent.OnAppBackground -> onAppBackground()
         }
     }
+
+    fun subscribeNotifications() = intent {
+        notificationRepository.notificationEvents.collect { event ->
+            when (event) {
+                is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
+                    if (event.speechId == state.speechDetail.id) {
+                        // 재요청 로직
+                    } else {
+                        postSideEffect(FeedbackSideEffect.ShowSnackbar("${event.speechName} 비언어적 분석 완료!"))
+                    }
+                }
+            }
+        }
+    }
+
 
     fun initializePlayer() {
         if (_exoPlayer != null) clearResource()
@@ -400,13 +407,20 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun loadMedia(fieUrl: String) {
-        _exoPlayer?.let { player ->
-            val mediaItem = MediaItem.fromUri(fieUrl)
-            player.setMediaItem(mediaItem)
-            player.prepare()
+    private fun getSpeechConfig() = intent {
+        val response = speechRepository.getSpeechConfig(state.speechDetail.id)
+        reduce {
+            state.copy(
+                speechDetail = state.speechDetail.copy(
+                    createdAt = response.createdAt,
+                    speechFileType = response.speechFileType,
+                    fileUrl = response.fileUrl,
+                    speechConfig = response.speechConfig,
+                ),
+            )
         }
     }
+
 
     private fun getScript() = intent {
         suspendRunCatching {
