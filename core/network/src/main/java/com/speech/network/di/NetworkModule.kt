@@ -4,6 +4,8 @@ package com.speech.network.di
 import com.google.firebase.messaging.FirebaseMessaging
 import com.speech.network.source.auth.AuthDataSource
 import com.speech.network.source.auth.AuthDataSourceImpl
+import com.speech.network.source.notification.NotificationDataSource
+import com.speech.network.source.notification.NotificationDataSourceImpl
 import com.speech.network.source.speech.SpeechDataSource
 import com.speech.network.source.speech.SpeechDataSourceImpl
 import dagger.Binds
@@ -23,6 +25,10 @@ abstract class NetworkModule {
     @Binds
     @Singleton
     abstract fun bindsSpeechDataSource(speechDataSourceImpl: SpeechDataSourceImpl): SpeechDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindsNotificationDataSource(notificationDataSourceImpl: NotificationDataSourceImpl): NotificationDataSource
 }
 
 @Module
