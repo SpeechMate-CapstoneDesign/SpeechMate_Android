@@ -493,13 +493,13 @@ private fun FeedbackScreen(
                                         Spacer(Modifier.height(15.dp))
 
                                         Text(
-                                            "비언어적 행동을 분석 중입니다.",
+                                            stringResource(R.string.loading_non_verbal_analysis),
                                             style = SmTheme.typography.bodyXMM,
                                         )
                                     }
                                 } else if (nonVerbalAnalysisTab.isError) {
                                     Text(
-                                        "비언어적 을 분석한 결과를 불러오는데 실패했습니다.",
+                                        stringResource(R.string.failed_non_verbal_analysis),
                                         style = SmTheme.typography.bodyXMM,
                                     )
                                 } else {
