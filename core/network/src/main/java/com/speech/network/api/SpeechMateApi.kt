@@ -77,7 +77,7 @@ interface SpeechMateApi {
     suspend fun deleteSpeech(@Path("speechId") speechId: Int)
 
     // Notification
-    @POST("/api/fcm/token")
+    @POST("/api/fcm/register")
     suspend fun postDeviceToken(
         @Body postDeviceTokenRequest: PostDeviceTokenRequest
     )

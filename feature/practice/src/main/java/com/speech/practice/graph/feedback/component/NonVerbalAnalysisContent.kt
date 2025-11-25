@@ -101,29 +101,14 @@ internal fun NonVerbalAnalysisContent(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     verticalArrangement = Arrangement.spacedBy(2.dp),
                                 ) {
-                                    behavior.timestamps.forEachIndexed { index, timeRange ->
+                                    behavior.timestamps.forEachIndexed { index, startTime ->
                                         Row {
                                             Text(
-                                                text = formatDuration(timeRange.startTime),
+                                                text = formatDuration(startTime),
                                                 style = SmTheme.typography.bodySM,
                                                 color = SmTheme.colors.primaryDefault,
                                                 modifier = Modifier.clickable {
-                                                    seekTo(timeRange.startTime.inWholeMilliseconds.coerceAtLeast(0))
-                                                },
-                                            )
-
-                                            Text(
-                                                text = " ~ ",
-                                                style = SmTheme.typography.bodySM,
-                                                color = SmTheme.colors.textSecondary,
-                                            )
-
-                                            Text(
-                                                text = formatDuration(timeRange.endTime),
-                                                style = SmTheme.typography.bodySM,
-                                                color = SmTheme.colors.primaryDefault,
-                                                modifier = Modifier.clickable {
-                                                    seekTo(timeRange.endTime.inWholeMilliseconds)
+                                                    seekTo(startTime.inWholeMilliseconds.coerceAtLeast(0))
                                                 },
                                             )
 

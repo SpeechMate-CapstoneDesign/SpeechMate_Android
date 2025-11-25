@@ -51,7 +51,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
 
-        // notificationDataSource.postDeviceToken()
+        notificationDataSource.postDeviceToken()
 
         return Pair(response.newUser, response.userId ?: -1)
     }
@@ -71,7 +71,7 @@ class AuthRepositoryImpl @Inject constructor(
             joinAll(accessTokenJob, refreshTokenJob)
         }
 
-        // notificationDataSource.postDeviceToken()
+        notificationDataSource.postDeviceToken()
 
         return response.userId
     }
