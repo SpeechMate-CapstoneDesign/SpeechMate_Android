@@ -86,8 +86,15 @@ internal fun FeedbackPlayer(
         }
     }
 
+    // 전체화면일 때 영상 방향에 따라 화면 orientation 설정
     if (state.isFullScreen) {
-        ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        if (state.playerState.isPortrait) {
+            // 세로 영상: 세로 방향 유지
+            ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        } else {
+            // 가로 영상: 가로 방향으로 전환
+            ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        }
     } else {
         ScreenOrientationEffect(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
@@ -105,10 +112,10 @@ internal fun FeedbackPlayer(
                 .fillMaxWidth()
                 .then(
                     if (state.isFullScreen) {
-                        Modifier
+                        Modifier.fillMaxHeight()
                     } else {
                         if (state.playerState.isPortrait) {
-                            Modifier.fillMaxHeight(0.6f)
+                            Modifier.fillMaxHeight(0.4f)
                         } else {
                             Modifier.aspectRatio(16f / 10f)
                         }
