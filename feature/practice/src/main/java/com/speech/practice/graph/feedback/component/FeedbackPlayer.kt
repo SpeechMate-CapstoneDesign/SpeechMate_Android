@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,6 +34,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -102,7 +104,15 @@ internal fun FeedbackPlayer(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
-                    if (state.isFullScreen) Modifier else Modifier.aspectRatio(16f / 10f),
+                    if (state.isFullScreen) {
+                        Modifier
+                    } else {
+                        if (state.playerState.isPortrait) {
+                            Modifier.fillMaxHeight(0.6f)
+                        } else {
+                            Modifier.aspectRatio(16f / 10f)
+                        }
+                    },
                 )
                 .align(Alignment.Center),
         )

@@ -82,10 +82,21 @@ class FeedbackViewModel @Inject constructor(
 
                 Player.STATE_READY -> {
                     val duration = _exoPlayer?.duration ?: 0
+                    val videoSize = _exoPlayer?.videoSize
+
                     intent {
+                        val isPortrait = if (videoSize == null || videoSize.width <= 0 || videoSize.height <= 0) {
+                            false
+                        } else {
+                            (videoSize.width < videoSize.height) && state.speechDetail.speechFileType == SpeechFileType.VIDEO
+                        }
+
                         reduce {
                             state.copy(
-                                playerState = state.playerState.copy(duration = duration.milliseconds),
+                                playerState = state.playerState.copy(
+                                    duration = duration.milliseconds,
+                                    isPortrait = isPortrait,
+                                ),
                                 playingState = PlayingState.Ready,
                             )
                         }
@@ -133,6 +144,12 @@ class FeedbackViewModel @Inject constructor(
                     ),
                     feedbackTab = routeArgs.tab,
                 )
+            }
+
+            if (state.speechDetail.speechFileType == SpeechFileType.AUDIO) {
+                reduce {
+                    state.copy(playerState = state.playerState.copy(isPortrait = false))
+                }
             }
 
             if (state.speechDetail.fileUrl.isEmpty()) {
