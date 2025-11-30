@@ -15,6 +15,7 @@ import androidx.navigation.toRoute
 import com.speech.analytics.AnalyticsHelper
 import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.AnalysisStatus
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
@@ -139,7 +140,7 @@ class FeedbackViewModel @Inject constructor(
             }
             getScript()
             if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
-                getVideoAnalysis()
+                getNonverbalAnalysis()
             }
 
             subscribeNotifications()
@@ -169,7 +170,7 @@ class FeedbackViewModel @Inject constructor(
             when (event) {
                 is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
                     if (event.speechId == state.speechDetail.id) {
-                        // 재요청 로직
+                        getNonverbalAnalysis()
                     } else {
                         postSideEffect(FeedbackSideEffect.ShowSnackbar("${event.speechName} 비언어적 분석 완료!"))
                     }
@@ -177,7 +178,6 @@ class FeedbackViewModel @Inject constructor(
             }
         }
     }
-
 
     fun initializePlayer() {
         if (_exoPlayer != null) clearResource()
@@ -513,12 +513,33 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun getVideoAnalysis() = intent {
+    private fun getNonverbalAnalysis() = intent {
         suspendRunCatching {
-
-        }.onSuccess {
-
+            speechRepository.getNonVerbalAnalysis(state.speechDetail.id)
+        }.onSuccess { nonVerbalAnalysis ->
+            Log.d("nonVerbalAnalysis", "$nonVerbalAnalysis")
+            if (nonVerbalAnalysis.status == AnalysisStatus.COMPLETED) {
+                reduce {
+                    state.copy(
+                        speechDetail = state.speechDetail.copy(
+                            nonVerbalAnalysis = nonVerbalAnalysis,
+                        ),
+                        tabStates = state.tabStates + (FeedbackTab.NON_VERBAL_ANALYSIS to TabState(
+                            isLoading = false,
+                            isError = false,
+                        )),
+                    )
+                }
+            }
         }.onFailure {
+            reduce {
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.NON_VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
+                )
+            }
             errorHelper.logError(it)
         }
     }

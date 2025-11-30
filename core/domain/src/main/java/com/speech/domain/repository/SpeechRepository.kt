@@ -1,6 +1,7 @@
 package com.speech.domain.repository
 
 import androidx.paging.PagingData
+import com.speech.domain.model.speech.NonVerbalAnalysis
 import com.speech.domain.model.speech.Script
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
@@ -32,7 +33,7 @@ interface SpeechRepository {
     suspend fun getScript(speechId: Int): Script
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysis
     suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis
-    suspend fun getVideoAnalysis(speechId: Int)
+    suspend fun getNonVerbalAnalysis(speechId: Int) : NonVerbalAnalysis
     suspend fun deleteSpeech(speechId: Int)
 
     sealed class SpeechUpdateEvent {

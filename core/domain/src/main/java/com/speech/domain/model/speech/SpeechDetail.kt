@@ -13,7 +13,7 @@ data class SpeechDetail(
     val script: Script = Script(),
     val scriptAnalysis: ScriptAnalysis = ScriptAnalysis(),
     val verbalAnalysis: VerbalAnalysis = VerbalAnalysis(),
-    val nonVerbalAnalysis: NonVerbalAnalysis = createSampleNonVerbalAnalysis(),
+    val nonVerbalAnalysis: NonVerbalAnalysis = NonVerbalAnalysis(),
 ) {
     val formattedDate: String =
         createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"))
