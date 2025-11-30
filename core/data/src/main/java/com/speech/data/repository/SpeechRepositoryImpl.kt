@@ -12,6 +12,7 @@ import com.speech.common.util.suspendRunCatching
 import com.speech.data.paging.SpeechFeedPagingSource
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
+import com.speech.domain.model.speech.NonVerbalAnalysis
 import com.speech.domain.model.speech.Script
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
@@ -127,6 +128,11 @@ class SpeechRepositoryImpl @Inject constructor(
 
     override suspend fun getVerbalAnalysis(speechId: Int): VerbalAnalysis =
         speechDataSource.getVerbalAnalysis(speechId).toDomain()
+
+    override suspend fun getNonVerbalAnalysis(speechId: Int): NonVerbalAnalysis =
+        speechDataSource.getNonVerbalAnalysis(speechId).toDomain()
+
+
 
     override suspend fun getVideoAnalysis(speechId: Int) {
 

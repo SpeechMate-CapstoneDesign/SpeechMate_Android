@@ -8,6 +8,7 @@ import com.speech.network.model.auth.ReissueTokenResponse
 import com.speech.network.model.auth.SignUpKakaoRequest
 import com.speech.network.model.auth.SignUpKakaoResponse
 import com.speech.network.model.notification.PostDeviceTokenRequest
+import com.speech.network.model.speech.GetNonVerbalAnalysisResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
@@ -72,6 +73,9 @@ interface SpeechMateApi {
 
     @GET("/api/speech/{speechId}/verbalAnalysis")
     suspend fun getVerbalAnalysis(@Path("speechId") speechId: Int) : ApiResponse<GetVerbalAnalysisResponse>
+
+    @POST("/api/speech/nonverbal/{speechId}")
+    suspend fun getNonVerbalAnalysis(@Path("speechId") speechId: Int) : ApiResponse<GetNonVerbalAnalysisResponse>
 
     @DELETE("/api/speech/delete/{speechId}")
     suspend fun deleteSpeech(@Path("speechId") speechId: Int)

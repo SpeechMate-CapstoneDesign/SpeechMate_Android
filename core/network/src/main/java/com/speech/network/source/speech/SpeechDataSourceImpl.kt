@@ -12,6 +12,7 @@ import com.speech.domain.model.upload.UploadFileStatus
 import com.speech.network.api.S3Api
 import com.speech.network.api.SpeechMateApi
 import com.speech.network.model.getData
+import com.speech.network.model.speech.GetNonVerbalAnalysisResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
 import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
@@ -96,6 +97,10 @@ class SpeechDataSourceImpl @Inject constructor(
 
     override suspend fun getVerbalAnalysis(speechId: Int): GetVerbalAnalysisResponse =
         speechMateApi.getVerbalAnalysis(speechId).getData()
+
+    override suspend fun getNonVerbalAnalysis(speechId: Int): GetNonVerbalAnalysisResponse =
+        speechMateApi.getNonVerbalAnalysis(speechId).getData()
+
 
     override suspend fun deleteSpeech(speechId: Int) = speechMateApi.deleteSpeech(speechId)
 }

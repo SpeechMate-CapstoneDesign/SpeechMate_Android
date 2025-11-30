@@ -1,7 +1,10 @@
 package com.speech.common.util
 
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 fun formatDuration(duration: Duration) =
     duration.toComponents { minutes, seconds, _ ->
@@ -14,5 +17,6 @@ fun getProgress(
 ): Float =
     if (total == 0.milliseconds) 0f
     else (current.inWholeMilliseconds.toFloat() / total.inWholeMilliseconds.toFloat())
+
 
 
