@@ -477,7 +477,7 @@ private fun FeedbackScreen(
 
                             FeedbackTab.NON_VERBAL_ANALYSIS -> {
                                 val nonVerbalAnalysisTab = state.tabStates[FeedbackTab.NON_VERBAL_ANALYSIS] ?: TabState()
-                                if (!nonVerbalAnalysisTab.isLoading) {
+                                if (nonVerbalAnalysisTab.isLoading) {
                                     Column(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalAlignment = Alignment.CenterHorizontally,

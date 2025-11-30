@@ -129,14 +129,22 @@ class SpeechRepositoryImpl @Inject constructor(
     override suspend fun getVerbalAnalysis(speechId: Int): VerbalAnalysis =
         speechDataSource.getVerbalAnalysis(speechId).toDomain()
 
+<<<<<<< Updated upstream
     override suspend fun getNonVerbalAnalysis(speechId: Int): NonVerbalAnalysis =
         speechDataSource.getNonVerbalAnalysis(speechId).toDomain()
 
 
 
+=======
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
     override suspend fun getVideoAnalysis(speechId: Int) {
 
     }
+=======
+    override suspend fun getNonVerbalAnalysis(speechId: Int): NonVerbalAnalysis =
+        speechDataSource.getNonVerbalAnalysis(speechId).toDomain()
+>>>>>>> Stashed changes
 
     override suspend fun deleteSpeech(speechId: Int) {
         speechDataSource.deleteSpeech(speechId)

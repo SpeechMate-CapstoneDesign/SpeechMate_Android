@@ -33,8 +33,15 @@ interface SpeechRepository {
     suspend fun getScript(speechId: Int): Script
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysis
     suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis
+<<<<<<< Updated upstream
     suspend fun getNonVerbalAnalysis(speechId: Int) : NonVerbalAnalysis
+=======
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
     suspend fun getVideoAnalysis(speechId: Int)
+=======
+    suspend fun getNonVerbalAnalysis(speechId: Int) : NonVerbalAnalysis
+>>>>>>> Stashed changes
     suspend fun deleteSpeech(speechId: Int)
 
     sealed class SpeechUpdateEvent {

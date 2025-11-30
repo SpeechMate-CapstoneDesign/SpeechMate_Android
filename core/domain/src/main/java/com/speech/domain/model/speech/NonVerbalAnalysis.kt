@@ -4,7 +4,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 data class NonVerbalAnalysis(
+<<<<<<< Updated upstream
     val status: AnalysisStatus,
+=======
+<<<<<<< Updated upstream
+=======
+    val status: AnalysisStatus = AnalysisStatus.IN_PROGRESS,
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     val totalCount: Int = 0,
     val results: Map<BehaviorGroup, List<Behavior>> = emptyMap(),
 )
