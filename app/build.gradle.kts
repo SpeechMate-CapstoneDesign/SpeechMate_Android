@@ -82,6 +82,7 @@ dependencies {
     implementation(projects.feature.main)
 
     implementation(libs.kakao.user)
+    implementation(libs.firebase.messaging)
     implementation(libs.androidx.profileinstaller)
 //    "baselineProfile"(project(":baselineprofile"))
 }

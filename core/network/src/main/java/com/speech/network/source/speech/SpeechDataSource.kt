@@ -4,7 +4,9 @@ package com.speech.network.source.speech
 import android.net.Uri
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.upload.UploadFileStatus
+import com.speech.network.model.speech.GetNonVerbalAnalysisResponse
 import com.speech.network.model.speech.GetPresignedUrlResponse
+import com.speech.network.model.speech.GetSpeechConfigResponse
 import com.speech.network.model.speech.GetSpeechFeedResponse
 import com.speech.network.model.speech.GetVerbalAnalysisResponse
 import com.speech.network.model.speech.ScriptAnalysisResponse
@@ -19,9 +21,11 @@ interface SpeechDataSource {
     suspend fun uploadSpeechFile(file: File, presignedUrl: String, contentType: String, onProgressUpdate: (UploadFileStatus) -> Unit)
     suspend fun uploadSpeechCallback(fileKey: String, duration: Int): UploadSpeechCallbackResponse
     suspend fun updateSpeechConfig(speechId: Int, speechConfig: SpeechConfig)
+    suspend fun getSpeechConfig(speechId: Int) : GetSpeechConfigResponse
     suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int) : GetSpeechFeedResponse
     suspend fun getScript(speechId: Int): ScriptResponse
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse
     suspend fun getVerbalAnalysis(speechId: Int) : GetVerbalAnalysisResponse
+    suspend fun getNonVerbalAnalysis(speechId: Int) : GetNonVerbalAnalysisResponse
     suspend fun deleteSpeech(speechId: Int)
 }

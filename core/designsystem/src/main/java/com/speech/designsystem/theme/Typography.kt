@@ -47,4 +47,6 @@ data class SpeechMateTypography(
     val bodyXSM: TextStyle = textStyle(PretendardMedium, 12.sp, 16.sp),
     val bodyMSB: TextStyle = textStyle(PretendardSemiBold, 20.sp, 24.sp),
     val bodyXMSB: TextStyle = textStyle(PretendardSemiBold, 16.sp, 18.sp),
+    val bodySSB: TextStyle = textStyle(PretendardSemiBold, 14.sp, 18.sp),
+
 )

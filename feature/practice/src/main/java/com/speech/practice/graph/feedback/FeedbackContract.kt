@@ -1,6 +1,5 @@
 package com.speech.practice.graph.feedback
 
-import androidx.core.util.TimeUtils.formatDuration
 import com.speech.common.base.UiIntent
 import com.speech.common.base.UiSideEffect
 import com.speech.common.base.UiState
@@ -33,6 +32,7 @@ data class PlayerState(
     val playbackSpeed: Float = 1.0f,
     val currentPosition: Duration = 0.seconds,
     val duration: Duration = 0.seconds,
+    val isPortrait: Boolean = true,
 ) {
     val progress: Float
         get() = getProgress(currentPosition, duration)

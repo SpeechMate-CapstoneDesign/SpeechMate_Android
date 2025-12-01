@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
 import com.speech.navigation.PracticeBaseRoute
@@ -31,7 +32,21 @@ fun NavController.navigateToRecordVideo(navOptions: NavOptions? = null) {
 
 fun NavController.navigateToFeedback(
     speechId: Int,
-    fileUrl : String = "",
+    tab: FeedbackTab,
+    navOptions: NavOptions? = null,
+) {
+    navigate(
+        PracticeGraph.FeedbackRoute(
+            speechId = speechId,
+            tab = tab,
+        ),
+        navOptions,
+    )
+}
+
+fun NavController.navigateToFeedback(
+    speechId: Int,
+    fileUrl: String = "",
     speechFileType: SpeechFileType,
     speechConfig: SpeechConfig,
     navOptions: NavOptions? = null,
@@ -55,7 +70,7 @@ fun NavGraphBuilder.practiceNavGraph(
     navigateBack: () -> Unit,
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
-    navigateToFeedback: (Int, String,SpeechFileType, SpeechConfig) -> Unit,
+    navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
 ) {
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {

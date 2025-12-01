@@ -12,6 +12,7 @@ import com.speech.common.util.suspendRunCatching
 import com.speech.data.paging.SpeechFeedPagingSource
 import com.speech.data.util.getExtension
 import com.speech.data.util.getMimeType
+import com.speech.domain.model.speech.NonVerbalAnalysis
 import com.speech.domain.model.speech.Script
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
@@ -37,8 +38,8 @@ class SpeechRepositoryImpl @Inject constructor(
     private val speechDataSource: SpeechDataSource,
 ) : SpeechRepository {
     private val _speechUpdateEvents = MutableSharedFlow<SpeechUpdateEvent>(
-        replay = 1,
-        extraBufferCapacity = 4,
+        replay = 0,
+        extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     override val speechUpdateEvents: SharedFlow<SpeechUpdateEvent> = _speechUpdateEvents.asSharedFlow()
@@ -104,6 +105,8 @@ class SpeechRepositoryImpl @Inject constructor(
         return Pair(response.speechId, response.fileUrl)
     }
 
+    override suspend fun getSpeechConfig(speechId: Int): SpeechDetail =
+        speechDataSource.getSpeechConfig(speechId).toDomain()
 
     override fun getSpeechFeeds(): Flow<PagingData<SpeechFeed>> {
         return Pager(
@@ -126,9 +129,8 @@ class SpeechRepositoryImpl @Inject constructor(
     override suspend fun getVerbalAnalysis(speechId: Int): VerbalAnalysis =
         speechDataSource.getVerbalAnalysis(speechId).toDomain()
 
-    override suspend fun getVideoAnalysis(speechId: Int) {
-
-    }
+    override suspend fun getNonVerbalAnalysis(speechId: Int): NonVerbalAnalysis =
+        speechDataSource.getNonVerbalAnalysis(speechId).toDomain()
 
     override suspend fun deleteSpeech(speechId: Int) {
         speechDataSource.deleteSpeech(speechId)

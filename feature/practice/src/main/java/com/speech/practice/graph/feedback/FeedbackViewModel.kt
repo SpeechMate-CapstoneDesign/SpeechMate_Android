@@ -15,10 +15,12 @@ import androidx.navigation.toRoute
 import com.speech.analytics.AnalyticsHelper
 import com.speech.analytics.error.ErrorHelper
 import com.speech.common.util.suspendRunCatching
+import com.speech.domain.model.speech.AnalysisStatus
 import com.speech.domain.model.speech.FeedbackTab
 import com.speech.domain.model.speech.ScriptAnalysis
 import com.speech.domain.model.speech.SpeechConfig
 import com.speech.domain.model.speech.SpeechFileType
+import com.speech.domain.repository.NotificationRepository
 import com.speech.domain.repository.SpeechRepository
 import com.speech.navigation.PracticeGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +41,7 @@ class FeedbackViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val savedStateHandle: SavedStateHandle,
     private val speechRepository: SpeechRepository,
+    private val notificationRepository: NotificationRepository,
     private val analyticsHelper: AnalyticsHelper,
     private val errorHelper: ErrorHelper,
 ) : ContainerHost<FeedbackState, FeedbackSideEffect>, ViewModel() {
@@ -79,10 +82,21 @@ class FeedbackViewModel @Inject constructor(
 
                 Player.STATE_READY -> {
                     val duration = _exoPlayer?.duration ?: 0
+                    val videoSize = _exoPlayer?.videoSize
+
                     intent {
+                        val isPortrait = if (videoSize == null || videoSize.width <= 0 || videoSize.height <= 0) {
+                            false
+                        } else {
+                            (videoSize.width < videoSize.height) && state.speechDetail.speechFileType == SpeechFileType.VIDEO
+                        }
+
                         reduce {
                             state.copy(
-                                playerState = state.playerState.copy(duration = duration.milliseconds),
+                                playerState = state.playerState.copy(
+                                    duration = duration.milliseconds,
+                                    isPortrait = isPortrait,
+                                ),
                                 playingState = PlayingState.Ready,
                             )
                         }
@@ -128,13 +142,25 @@ class FeedbackViewModel @Inject constructor(
                             venue = routeArgs.venue,
                         ),
                     ),
+                    feedbackTab = routeArgs.tab,
                 )
             }
-        }
 
-        getScript()
-        if (container.stateFlow.value.speechDetail.speechFileType == SpeechFileType.VIDEO) {
-            getVideoAnalysis()
+            if (state.speechDetail.speechFileType == SpeechFileType.AUDIO) {
+                reduce {
+                    state.copy(playerState = state.playerState.copy(isPortrait = false))
+                }
+            }
+
+            if (state.speechDetail.fileUrl.isEmpty()) {
+                getSpeechConfig()
+            }
+            getScript()
+            if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
+                getNonverbalAnalysis()
+            }
+
+            subscribeNotifications()
         }
     }
 
@@ -156,8 +182,22 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
+    fun subscribeNotifications() = intent {
+        notificationRepository.notificationEvents.collect { event ->
+            when (event) {
+                is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
+                    if (event.speechId == state.speechDetail.id) {
+                        getNonverbalAnalysis()
+                    } else {
+                        postSideEffect(FeedbackSideEffect.ShowSnackbar("${event.speechName} 비언어적 분석 완료!"))
+                    }
+                }
+            }
+        }
+    }
+
     fun initializePlayer() {
-        if(_exoPlayer != null) clearResource()
+        if (_exoPlayer != null) clearResource()
 
         val currentState = container.stateFlow.value
         val fileUrl = currentState.speechDetail.fileUrl
@@ -384,13 +424,20 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun loadMedia(fieUrl: String) {
-        _exoPlayer?.let { player ->
-            val mediaItem = MediaItem.fromUri(fieUrl)
-            player.setMediaItem(mediaItem)
-            player.prepare()
+    private fun getSpeechConfig() = intent {
+        val response = speechRepository.getSpeechConfig(state.speechDetail.id)
+        reduce {
+            state.copy(
+                speechDetail = state.speechDetail.copy(
+                    createdAt = response.createdAt,
+                    speechFileType = response.speechFileType,
+                    fileUrl = response.fileUrl,
+                    speechConfig = response.speechConfig,
+                ),
+            )
         }
     }
+
 
     private fun getScript() = intent {
         suspendRunCatching {
@@ -483,12 +530,33 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    private fun getVideoAnalysis() = intent {
+    private fun getNonverbalAnalysis() = intent {
         suspendRunCatching {
-
-        }.onSuccess {
-
+            speechRepository.getNonVerbalAnalysis(state.speechDetail.id)
+        }.onSuccess { nonVerbalAnalysis ->
+            Log.d("nonVerbalAnalysis", "$nonVerbalAnalysis")
+            if (nonVerbalAnalysis.status == AnalysisStatus.COMPLETED) {
+                reduce {
+                    state.copy(
+                        speechDetail = state.speechDetail.copy(
+                            nonVerbalAnalysis = nonVerbalAnalysis,
+                        ),
+                        tabStates = state.tabStates + (FeedbackTab.NON_VERBAL_ANALYSIS to TabState(
+                            isLoading = false,
+                            isError = false,
+                        )),
+                    )
+                }
+            }
         }.onFailure {
+            reduce {
+                state.copy(
+                    tabStates = state.tabStates + (FeedbackTab.NON_VERBAL_ANALYSIS to TabState(
+                        isLoading = false,
+                        isError = true,
+                    )),
+                )
+            }
             errorHelper.logError(it)
         }
     }
