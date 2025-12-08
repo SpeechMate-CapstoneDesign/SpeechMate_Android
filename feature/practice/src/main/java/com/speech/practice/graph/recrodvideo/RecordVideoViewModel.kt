@@ -154,6 +154,10 @@ class RecordVideoViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(uploadFileStatus = UploadFileStatus())
+        }
+
         suspendRunCatching {
             speechRepository.uploadFromPath(
                 filePath = state.videoFile!!.path,

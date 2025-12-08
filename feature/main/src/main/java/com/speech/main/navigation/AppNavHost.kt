@@ -12,6 +12,7 @@ import com.speech.auth.navigation.navigateToOnBoarding
 import com.speech.mypage.navigation.myPageNavGraph
 import com.speech.mypage.navigation.navigateToSetting
 import com.speech.mypage.navigation.navigateToWebView
+import com.speech.navigation.PracticeGraph
 import com.speech.navigation.SplashRoute
 import com.speech.practice.navigation.navigateToFeedback
 import com.speech.practice.navigation.navigateToPractice
@@ -90,11 +91,15 @@ fun AppNavHost(
                     speechFileType = speechFileType,
                     speechConfig = speechConfig,
                     navOptions {
+                        popUpTo(PracticeGraph.PracticeRoute) {
+                            inclusive = false
+                        }
                         launchSingleTop = true
                     },
                 )
             },
         )
+
 
         myPageNavGraph(
             navigateBack = navController::popBackStack,

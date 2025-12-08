@@ -109,6 +109,7 @@ private class CountingSource(
             totalBytesRead += bytesRead
             onProgressUpdate(totalBytesRead)
         }
+
         return bytesRead
     }
 }

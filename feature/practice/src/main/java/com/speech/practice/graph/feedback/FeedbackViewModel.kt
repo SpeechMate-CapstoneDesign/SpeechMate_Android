@@ -152,16 +152,14 @@ class FeedbackViewModel @Inject constructor(
                 }
             }
 
-            if (state.speechDetail.fileUrl.isEmpty()) {
-                getSpeechConfig()
-            }
+            getSpeechConfig()
             getScript()
-            if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
-                getNonverbalAnalysis()
-            }
+        }
 
+        intent {
             subscribeNotifications()
         }
+
     }
 
     fun onIntent(event: FeedbackIntent) {
@@ -182,7 +180,7 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    fun subscribeNotifications() = intent {
+    private fun subscribeNotifications() = intent {
         notificationRepository.notificationEvents.collect { event ->
             when (event) {
                 is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
@@ -432,9 +430,18 @@ class FeedbackViewModel @Inject constructor(
                     createdAt = response.createdAt,
                     speechFileType = response.speechFileType,
                     fileUrl = response.fileUrl,
-                    speechConfig = response.speechConfig,
+                    speechConfig = response.speechConfig.copy(
+                        fileName = state.speechDetail.speechConfig.fileName,
+                        speechType = response.speechConfig.speechType,
+                        audience = response.speechConfig.audience,
+                        venue = response.speechConfig.venue,
+                    ),
                 ),
             )
+        }
+
+        if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
+            getNonverbalAnalysis()
         }
     }
 
@@ -453,7 +460,6 @@ class FeedbackViewModel @Inject constructor(
                 )
 
             }
-
             getScriptAnalysis()
             getVerbalAnalysis()
         }.onFailure {

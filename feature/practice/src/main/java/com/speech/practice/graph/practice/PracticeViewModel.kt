@@ -90,8 +90,12 @@ class PracticeViewModel @Inject constructor(
             return@intent
         }
 
-        val speechFileType = MediaUtil.getSpeechFileType(context, uri)
+        reduce {
+            state.copy(uploadFileStatus = UploadFileStatus())
+        }
 
+
+        val speechFileType = MediaUtil.getSpeechFileType(context, uri)
         suspendRunCatching {
             speechRepository.uploadFromUri(
                 uri.toString(), state.speechConfig, MediaUtil.getDuration(context, uri).toInt(),

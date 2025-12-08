@@ -35,7 +35,6 @@ internal fun NonVerbalAnalysisContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(15.dp),
     ) {
-        // 헤더 카드
         SMCard(
             modifier = Modifier.fillMaxWidth(),
         ) {
