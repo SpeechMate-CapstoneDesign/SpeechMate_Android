@@ -430,11 +430,17 @@ class FeedbackViewModel @Inject constructor(
                     createdAt = response.createdAt,
                     speechFileType = response.speechFileType,
                     fileUrl = response.fileUrl,
-                    speechConfig = response.speechConfig,
+                    speechConfig = response.speechConfig.copy(
+                        fileName = state.speechDetail.speechConfig.fileName,
+                        speechType = response.speechConfig.speechType,
+                        audience = response.speechConfig.audience,
+                        venue = response.speechConfig.venue,
+                    ),
                 ),
             )
         }
-        if(state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
+
+        if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
             getNonverbalAnalysis()
         }
     }
@@ -454,7 +460,6 @@ class FeedbackViewModel @Inject constructor(
                 )
 
             }
-
             getScriptAnalysis()
             getVerbalAnalysis()
         }.onFailure {
