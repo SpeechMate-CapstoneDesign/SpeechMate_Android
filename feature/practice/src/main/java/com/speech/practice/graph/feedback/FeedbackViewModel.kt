@@ -152,16 +152,14 @@ class FeedbackViewModel @Inject constructor(
                 }
             }
 
-            if (state.speechDetail.fileUrl.isEmpty()) {
-                getSpeechConfig()
-            }
+            getSpeechConfig()
             getScript()
-            if (state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
-                getNonverbalAnalysis()
-            }
+        }
 
+        intent {
             subscribeNotifications()
         }
+
     }
 
     fun onIntent(event: FeedbackIntent) {
@@ -182,7 +180,7 @@ class FeedbackViewModel @Inject constructor(
         }
     }
 
-    fun subscribeNotifications() = intent {
+    private fun subscribeNotifications() = intent {
         notificationRepository.notificationEvents.collect { event ->
             when (event) {
                 is NotificationRepository.NotificationEvent.NonVerbalCompleted -> {
@@ -435,6 +433,9 @@ class FeedbackViewModel @Inject constructor(
                     speechConfig = response.speechConfig,
                 ),
             )
+        }
+        if(state.speechDetail.speechFileType == SpeechFileType.VIDEO) {
+            getNonverbalAnalysis()
         }
     }
 

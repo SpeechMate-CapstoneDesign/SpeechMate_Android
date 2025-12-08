@@ -30,9 +30,9 @@ data class GetSpeechConfigResponse(
     fun toDomain(): SpeechDetail = SpeechDetail(
         createdAt = createdAt.toJavaLocalDateTime(),
         fileUrl = fileUrl,
-        speechFileType = SpeechFileType.fromString(presentationContext),
+        speechFileType = SpeechFileType.fromString(fileType),
         speechConfig = SpeechConfig(
-            speechType = SpeechType.fromString(fileType),
+            speechType = SpeechType.fromString(presentationContext),
             audience = Audience.fromString(audience),
             venue = Venue.fromString(location),
         ),
