@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.speech.common_ui.util.clickable
+import com.speech.designsystem.component.SectionDivider
 import com.speech.designsystem.theme.SmTheme
 import com.speech.domain.model.speech.FeedbackTab
 
@@ -36,19 +38,10 @@ fun CustomScrollableTabRow(
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
-    var textWidth by remember { mutableStateOf(0f) }
+    var textWidth by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
 
     Column(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(0.5.dp)
-                .background(SmTheme.colors.border)
-        )
-
-        Spacer(Modifier.height(16.dp))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,11 +83,6 @@ fun CustomScrollableTabRow(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(0.5.dp)
-                .background(SmTheme.colors.border)
-        )
+        SectionDivider(thickness = 0.5.dp)
     }
 }
