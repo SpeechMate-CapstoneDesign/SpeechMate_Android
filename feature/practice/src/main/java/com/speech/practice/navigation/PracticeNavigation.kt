@@ -1,5 +1,6 @@
 package com.speech.practice.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -67,6 +68,7 @@ fun NavController.navigateToFeedback(
 
 
 fun NavGraphBuilder.practiceNavGraph(
+    innerPadding: PaddingValues,
     navigateBack: () -> Unit,
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
@@ -75,6 +77,7 @@ fun NavGraphBuilder.practiceNavGraph(
     navigation<PracticeBaseRoute>(startDestination = PracticeGraph.PracticeRoute) {
         composable<PracticeGraph.PracticeRoute> {
             PracticeRoute(
+                innerPadding = innerPadding,
                 navigateToRecordAudio = navigateToRecordAudio,
                 navigateToRecordVideo = navigateToRecordVideo,
                 navigateToFeedback = navigateToFeedback,
@@ -83,6 +86,7 @@ fun NavGraphBuilder.practiceNavGraph(
 
         composable<PracticeGraph.RecordAudioRoute> {
             RecordAudioRoute(
+                innerPadding = innerPadding,
                 navigateBack = navigateBack,
                 navigateToFeedback = navigateToFeedback,
             )
@@ -90,6 +94,7 @@ fun NavGraphBuilder.practiceNavGraph(
 
         composable<PracticeGraph.RecordVideoRoute> {
             RecordVideoRoute(
+                innerPadding = innerPadding,
                 navigateBack = navigateBack,
                 navigateToFeedback = navigateToFeedback,
             )
@@ -97,6 +102,7 @@ fun NavGraphBuilder.practiceNavGraph(
 
         composable<PracticeGraph.FeedbackRoute> {
             FeedbackRoute(
+                innerPadding = innerPadding,
                 navigateToBack = navigateBack,
             )
         }

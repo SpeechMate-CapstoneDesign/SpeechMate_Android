@@ -17,6 +17,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -88,6 +89,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordVideoRoute(
+    innerPadding: PaddingValues,
     navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordVideoViewModel = hiltViewModel(),
@@ -160,6 +162,7 @@ internal fun RecordVideoRoute(
     }
 
     RecordVideoScreen(
+        innerPadding = innerPadding,
         state = state,
         bindCamera = viewModel::bindCamera,
         onSwitchCamera = { viewModel.onIntent(RecordVideoIntent.SwitchCamera) },
@@ -186,6 +189,7 @@ internal fun RecordVideoRoute(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun RecordVideoScreen(
+    innerPadding: PaddingValues,
     state: RecordVideoState,
     bindCamera: (
         lifecycleOwner: LifecycleOwner,
@@ -585,6 +589,7 @@ private fun RecordVideoButton(
 private fun RecordVideoScreenReadyPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Ready),
             bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
@@ -604,6 +609,7 @@ private fun RecordVideoScreenReadyPreview() {
 private fun RecordVideoScreenRecordingPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Recording),
             bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
@@ -623,6 +629,7 @@ private fun RecordVideoScreenRecordingPreview() {
 private fun RecordVideoScreenPausedPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Paused),
             bindCamera = { _, _, _ -> },
             onSwitchCamera = {},
@@ -643,6 +650,7 @@ private fun RecordVideoScreenPausedPreview() {
 private fun RecordVideoScreenCompletedPreview() {
     SpeechMateTheme {
         RecordVideoScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordVideoState(recordingVideoState = RecordingVideoState.Completed),
             bindCamera = { _, _, _ -> },
             onSwitchCamera = {},

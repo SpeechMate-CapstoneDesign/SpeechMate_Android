@@ -1,5 +1,6 @@
 package com.speech.auth.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -19,12 +20,14 @@ fun NavController.navigateToOnBoarding(idToken: String, navOptions: NavOptions? 
 }
 
 fun NavGraphBuilder.authNavGraph(
+    innerPadding: PaddingValues,
     navigateToPractice: () -> Unit,
     navigateToOnBoarding: (String) -> Unit
 ) {
     navigation<AuthBaseRoute>(startDestination = AuthGraph.LoginRoute) {
         composable<AuthGraph.LoginRoute> {
             LoginRoute(
+                innerPadding = innerPadding,
                 navigateToPractice = navigateToPractice,
                 navigateToOnBoarding = navigateToOnBoarding
             )
@@ -32,6 +35,7 @@ fun NavGraphBuilder.authNavGraph(
 
         composable<AuthGraph.OnBoardingRoute> {
             OnBoardingRoute(
+                innerPadding = innerPadding,
                 navigateToPractice = navigateToPractice
             )
         }

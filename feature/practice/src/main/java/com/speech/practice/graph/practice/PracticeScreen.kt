@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun PracticeRoute(
+    innerPadding: PaddingValues,
     navigateToRecordAudio: () -> Unit,
     navigateToRecordVideo: () -> Unit,
     navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
@@ -84,6 +86,7 @@ internal fun PracticeRoute(
     }
 
     PracticeScreen(
+        innerPadding = innerPadding,
         state = state,
         onRecordAudioClick = { viewModel.onIntent(PracticeIntent.OnRecordAudioClick) },
         onRecordVideoClick = { viewModel.onIntent(PracticeIntent.OnRecordVideoClick) },
@@ -98,6 +101,7 @@ internal fun PracticeRoute(
 
 @Composable
 private fun PracticeScreen(
+    innerPadding: PaddingValues,
     state: PracticeState,
     onRecordAudioClick: () -> Unit,
     onRecordVideoClick: () -> Unit,
@@ -108,6 +112,7 @@ private fun PracticeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(horizontal = 32.dp),
         ) {
             item {
@@ -278,6 +283,7 @@ private fun UploadFileButton(
 private fun PracticeScreenPreview() {
     PracticeScreen(
         state = PracticeState(),
+        innerPadding = PaddingValues(),
         onRecordAudioClick = {},
         onRecordVideoClick = {},
         onUploadSpeechFile = {},

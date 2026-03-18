@@ -3,6 +3,7 @@ package com.speech.auth.graph.onboarding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun OnBoardingRoute(
+    innerPadding: PaddingValues,
     viewModel: OnBoardingViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
 ) {
@@ -62,6 +64,7 @@ internal fun OnBoardingRoute(
     }
 
     OnBoardingScreen(
+        innerPadding = innerPadding,
         state = state,
         onVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleVerbalSkill(it)) },
         onNonVerbalSkillClick = { viewModel.onIntent(OnBoardingIntent.ToggleNonVerbalSkill(it)) },
@@ -71,13 +74,16 @@ internal fun OnBoardingRoute(
 
 @Composable
 fun OnBoardingScreen(
+    innerPadding: PaddingValues,
     state: OnBoardingState,
     onVerbalSkillClick: (VerbalSkill) -> Unit,
     onNonVerbalSkillClick: (NonVerbalSkill) -> Unit,
     signUp: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
     ) {
         LazyColumn(
             modifier = Modifier
@@ -216,6 +222,7 @@ fun OnBoardingScreen(
 @Composable
 private fun OnBoardingScreenPreview() {
     OnBoardingScreen(
+        innerPadding = PaddingValues(0.dp),
         state = OnBoardingState(signUpAvailable = true),
         onVerbalSkillClick = {},
         onNonVerbalSkillClick = {},

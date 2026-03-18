@@ -7,6 +7,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -64,7 +65,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
 import com.speech.common.util.formatDuration
-import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SectionDivider
@@ -93,6 +93,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun FeedbackRoute(
+    innerPadding: PaddingValues,
     navigateToBack: () -> Unit,
     viewModel: FeedbackViewModel = hiltViewModel(),
 ) {
@@ -100,7 +101,6 @@ internal fun FeedbackRoute(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val setScaffoldPadding = LocalSetShouldApplyScaffoldPadding.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -140,14 +140,8 @@ internal fun FeedbackRoute(
         viewModel.onIntent(FeedbackIntent.OnBackPressed)
     }
 
-    DisposableEffect(state.isFullScreen) {
-        setScaffoldPadding(!state.isFullScreen)
-        onDispose {
-            setScaffoldPadding(true)
-        }
-    }
-
     FeedbackScreen(
+        innerPadding = innerPadding,
         state = state,
         exoPlayer = viewModel.exoPlayer,
         onBackPressed = {
@@ -193,6 +187,7 @@ internal fun FeedbackRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FeedbackScreen(
+    innerPadding: PaddingValues,
     state: FeedbackState,
     exoPlayer: ExoPlayer?,
     onBackPressed: () -> Unit,
@@ -246,6 +241,7 @@ private fun FeedbackScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(innerPadding)
                 .onSizeChanged { headerHeightPx = it.height },
         ) {
             Row(
@@ -520,6 +516,7 @@ private fun FeedbackScreen(
 @Composable
 private fun FeedbackScreenSpeechConfigPreview() {
     FeedbackScreen(
+        innerPadding = PaddingValues(0.dp),
         state = FeedbackState(
             feedbackTab = FeedbackTab.SPEECH_CONFIG,
             speechDetail = SpeechDetail(
@@ -549,6 +546,7 @@ private fun FeedbackScreenSpeechConfigPreview() {
 @Composable
 private fun FeedbackScreenScriptPreview() {
     FeedbackScreen(
+        innerPadding = PaddingValues(0.dp),
         state = FeedbackState(
             feedbackTab = FeedbackTab.SCRIPT,
             speechDetail = SpeechDetail(
@@ -578,6 +576,7 @@ private fun FeedbackScreenScriptPreview() {
 @Composable
 private fun FeedbackScreenScriptAnalysisPreview() {
     FeedbackScreen(
+        innerPadding = PaddingValues(0.dp),
         state = FeedbackState(
             feedbackTab = FeedbackTab.SCRIPT_ANALYSIS,
             speechDetail = SpeechDetail(
@@ -607,6 +606,7 @@ private fun FeedbackScreenScriptAnalysisPreview() {
 @Composable
 private fun FeedbackScreenVerbalAnalysisPreview() {
     FeedbackScreen(
+        innerPadding = PaddingValues(0.dp),
         state = FeedbackState(
             feedbackTab = FeedbackTab.VERBAL_ANALYSIS,
             speechDetail = SpeechDetail(
@@ -636,6 +636,7 @@ private fun FeedbackScreenVerbalAnalysisPreview() {
 @Composable
 private fun FeedbackScreenNonVerbalAnalysisPreview() {
     FeedbackScreen(
+        innerPadding = PaddingValues(),
         state = FeedbackState(
             feedbackTab = FeedbackTab.NON_VERBAL_ANALYSIS,
             speechDetail = SpeechDetail(
