@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import com.speech.designsystem.theme.SmTheme
 
 @Composable
 internal fun LoginRoute(
+    innerPadding: PaddingValues,
     viewModel: LoginViewModel = hiltViewModel(),
     navigateToPractice: () -> Unit,
     navigateToOnBoarding: (String) -> Unit,
@@ -57,6 +59,7 @@ internal fun LoginRoute(
     }
 
     LoginScreen(
+        innerPadding = innerPadding,
         onLoginKakaoClick = { idToken -> viewModel.onIntent(LoginIntent.OnLoginClick(idToken)) },
         onLoginFailure = {
             scope.launch {
@@ -69,6 +72,7 @@ internal fun LoginRoute(
 
 @Composable
 fun LoginScreen(
+    innerPadding: PaddingValues,
     onLoginKakaoClick: (String) -> Unit,
     onLoginFailure: () -> Unit,
 ) {
@@ -81,7 +85,8 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(brush = primaryToWhite)
-            .padding(start = 20.dp, end = 20.dp),
+            .padding(innerPadding)
+            .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.weight(1f))
@@ -155,6 +160,7 @@ private fun loginKakao(
 @Composable
 private fun LoginScreenPreview() {
     LoginScreen(
+        innerPadding = PaddingValues(0.dp),
         onLoginKakaoClick = {},
         onLoginFailure = {},
     )

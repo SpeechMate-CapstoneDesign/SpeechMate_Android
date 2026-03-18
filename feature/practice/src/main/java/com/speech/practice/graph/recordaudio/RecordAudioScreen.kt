@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,7 +54,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.designsystem.component.BackButton
 import com.speech.designsystem.component.SimpleCircle
@@ -76,6 +76,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun RecordAudioRoute(
+    innerPadding: PaddingValues,
     navigateToFeedback: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     navigateBack: () -> Unit,
     viewModel: RecordAudioViewModel = hiltViewModel(),
@@ -123,6 +124,7 @@ internal fun RecordAudioRoute(
     }
 
     RecordAudioScreen(
+        innerPadding = innerPadding,
         state = state,
         onBackPressed = {
             viewModel.onIntent(RecordAudioIntent.OnBackPressed)
@@ -158,6 +160,7 @@ internal fun RecordAudioRoute(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun RecordAudioScreen(
+    innerPadding: PaddingValues,
     state: RecordAudioState,
     onBackPressed: () -> Unit,
     onRequestFeedback: () -> Unit,
@@ -182,6 +185,7 @@ private fun RecordAudioScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -392,6 +396,7 @@ private fun RecordAudioScreen(
 private fun RecordAudioScreenReadyPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordAudioState(
                 recordingAudioState = RecordingAudioState.Ready,
                 timeText = "00 : 00 . 00",
@@ -413,6 +418,7 @@ private fun RecordAudioScreenReadyPreview() {
 private fun RecordAudioScreenRecordingPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordAudioState(
                 recordingAudioState = RecordingAudioState.Recording,
                 timeText = "01 : 23 . 45",
@@ -434,6 +440,7 @@ private fun RecordAudioScreenRecordingPreview() {
 private fun RecordAudioScreenPausedPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
+            innerPadding = PaddingValues(0.dp),
             state = RecordAudioState(
                 recordingAudioState = RecordingAudioState.Paused,
                 timeText = "03 : 10 . 99",
@@ -455,6 +462,7 @@ private fun RecordAudioScreenPausedPreview() {
 private fun RecordAudioScreenCompletedPreview() {
     SpeechMateTheme {
         RecordAudioScreen(
+            innerPadding = PaddingValues(),
             state = RecordAudioState(
                 recordingAudioState = RecordingAudioState.Completed,
                 timeText = "05 : 00 . 00",

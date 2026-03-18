@@ -49,8 +49,6 @@ import com.speech.analytics.AnalyticsEvent.PropertiesKeys.SCREEN_NAME
 import com.speech.analytics.AnalyticsEvent.Types.SCREEN_VIEW
 import com.speech.analytics.AnalyticsHelper
 import com.speech.auth.navigation.navigateToLogin
-import com.speech.common_ui.compositionlocal.LocalSetShouldApplyScaffoldPadding
-import com.speech.common_ui.compositionlocal.LocalShouldApplyScaffoldPadding
 import com.speech.common_ui.compositionlocal.LocalSnackbarHostState
 import com.speech.common_ui.ui.SpeechMateBottomBarAnimation
 import com.speech.designsystem.theme.SmTheme
@@ -113,17 +111,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            var shouldApplyScaffoldPadding by remember { mutableStateOf(true) }
-            val shouldRemovePadding = nonePaddingRoutes.any { route ->
-                currentDestination?.hasRoute(route) == true
-            }
-
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
-                LocalShouldApplyScaffoldPadding provides shouldApplyScaffoldPadding,
-                LocalSetShouldApplyScaffoldPadding provides { shouldApply ->
-                    shouldApplyScaffoldPadding = shouldApply
-                },
             ) {
                 SpeechMateTheme {
                     Scaffold(
@@ -160,11 +149,7 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         AppNavHost(
                             navController = navController,
-                            modifier = if (shouldRemovePadding || !shouldApplyScaffoldPadding) {
-                                Modifier
-                            } else {
-                                Modifier.padding(innerPadding)
-                            },
+                            innerPadding = innerPadding,
                         )
                     }
                 }
@@ -208,11 +193,6 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        private val nonePaddingRoutes = setOf(
-            SplashRoute::class,
-            PracticeGraph.RecordVideoRoute::class,
-        )
-
         private val noSnackbarRoutes = setOf(
             SplashRoute::class,
             AuthGraph.LoginRoute::class,

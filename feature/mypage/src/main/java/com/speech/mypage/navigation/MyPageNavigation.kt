@@ -1,5 +1,6 @@
 package com.speech.mypage.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -27,6 +28,7 @@ fun NavController.navigateToWebView(url: String, navOptions: NavOptions? = null)
 }
 
 fun NavGraphBuilder.myPageNavGraph(
+    innerPadding: PaddingValues,
     navigateBack: () -> Unit,
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
@@ -36,6 +38,7 @@ fun NavGraphBuilder.myPageNavGraph(
     navigation<MyPageBaseRoute>(startDestination = MyPageGraph.MyPageRoute) {
         composable<MyPageGraph.MyPageRoute> {
             MyPageRoute(
+                innerPadding = innerPadding,
                 navigateToSetting = navigateToSetting,
                 navigateToFeedBack = navigateToFeedBack,
             )
@@ -43,6 +46,7 @@ fun NavGraphBuilder.myPageNavGraph(
 
         composable<MyPageGraph.SettingRoute> {
             SettingRoute(
+                innerPadding = innerPadding,
                 navigateToBack = navigateBack,
                 navigateToLogin = navigateToLogin,
                 navigateToWebView = navigateToWebView,
@@ -51,7 +55,10 @@ fun NavGraphBuilder.myPageNavGraph(
 
         composable<MyPageGraph.WebViewRoute> { backStackEntry ->
             val webView = backStackEntry.toRoute<MyPageGraph.WebViewRoute>()
-            WebViewRoute(url = webView.url)
+            WebViewRoute(
+                innerPadding = innerPadding,
+                url = webView.url
+            )
         }
     }
 }

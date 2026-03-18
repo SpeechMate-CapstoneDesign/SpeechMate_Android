@@ -1,6 +1,7 @@
 package com.speech.main.navigation
 
 import com.speech.practice.navigation.practiceNavGraph
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -23,6 +24,7 @@ import com.speech.splash.navigation.splashScreen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -50,6 +52,7 @@ fun AppNavHost(
         )
 
         authNavGraph(
+            innerPadding = innerPadding,
             navigateToPractice = {
                 navController.navigateToPractice(
                     navOptions {
@@ -69,6 +72,7 @@ fun AppNavHost(
         )
 
         practiceNavGraph(
+            innerPadding = innerPadding,
             navigateBack = navController::popBackStack,
             navigateToRecordAudio = {
                 navController.navigateToRecordAudio(
@@ -102,6 +106,7 @@ fun AppNavHost(
 
 
         myPageNavGraph(
+            innerPadding = innerPadding,
             navigateBack = navController::popBackStack,
             navigateToLogin = {
                 navController.navigateToLogin(

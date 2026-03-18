@@ -3,6 +3,7 @@ package com.speech.mypage.graph.setting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,9 +47,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun SettingRoute(
+    innerPadding: PaddingValues,
     navigateToBack: () -> Unit,
     navigateToLogin: () -> Unit,
-    navigateToWebView : (String) -> Unit,
+    navigateToWebView: (String) -> Unit,
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -72,6 +74,7 @@ internal fun SettingRoute(
 
 
     SettingScreen(
+        innerPadding = innerPadding,
         onBackPressed = { viewModel.onIntent(SettingIntent.OnBackPressed) },
         onPolicyClick = { viewModel.onIntent(SettingIntent.OnPolicyClick) },
         onInquiryClick = { viewModel.onIntent(SettingIntent.OnInquiry) },
@@ -82,6 +85,7 @@ internal fun SettingRoute(
 
 @Composable
 private fun SettingScreen(
+    innerPadding: PaddingValues,
     onBackPressed: () -> Unit,
     onLogout: () -> Unit,
     onUnRegisterUser: () -> Unit,
@@ -109,7 +113,11 @@ private fun SettingScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -184,7 +192,7 @@ private fun SettingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                        onPolicyClick()
+                                    onPolicyClick()
                                 },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -300,6 +308,7 @@ private fun SettingScreen(
 private fun SettingScreenPreview() {
     SpeechMateTheme {
         SettingScreen(
+            innerPadding = PaddingValues(0.dp),
             onBackPressed = {},
             onPolicyClick = {},
             onInquiryClick = {},
