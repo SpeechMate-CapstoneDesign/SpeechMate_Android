@@ -195,7 +195,7 @@ class FeedbackViewModel @Inject constructor(
     }
 
     fun initializePlayer() {
-        if (_exoPlayer != null) clearResource()
+        if (_exoPlayer != null) return
 
         val currentState = container.stateFlow.value
         val fileUrl = currentState.speechDetail.fileUrl
@@ -540,7 +540,6 @@ class FeedbackViewModel @Inject constructor(
         suspendRunCatching {
             speechRepository.getNonVerbalAnalysis(state.speechDetail.id)
         }.onSuccess { nonVerbalAnalysis ->
-            Log.d("nonVerbalAnalysis", "$nonVerbalAnalysis")
             if (nonVerbalAnalysis.status == AnalysisStatus.COMPLETED) {
                 reduce {
                     state.copy(

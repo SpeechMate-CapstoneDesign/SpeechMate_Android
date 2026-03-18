@@ -101,15 +101,27 @@ internal fun FeedbackRoute(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? androidx.activity.ComponentActivity
+
+
     DisposableEffect(lifecycleOwner) {
+        viewModel.initializePlayer()
+
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> {
-                    viewModel.onIntent(FeedbackIntent.OnAppBackground)
+                    val isConfigChange = activity?.isChangingConfigurations ?: false
+                    if (!isConfigChange) {
+                        viewModel.exoPlayer?.pause()
+                    }
                 }
 
-                Lifecycle.Event.ON_RESUME -> {
-                    viewModel.initializePlayer()
+                Lifecycle.Event.ON_STOP -> {
+                    val isConfigChange = activity?.isChangingConfigurations ?: false
+                    if (!isConfigChange) {
+                        viewModel.onIntent(FeedbackIntent.OnAppBackground)
+                    }
                 }
 
                 else -> {}
