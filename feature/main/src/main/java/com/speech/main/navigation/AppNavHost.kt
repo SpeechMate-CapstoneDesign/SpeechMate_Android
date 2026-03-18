@@ -43,7 +43,7 @@ fun AppNavHost(
             },
             navigateToLogin = {
                 navController.navigateToLogin(
-                    navOptions {2
+                    navOptions {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     },
@@ -64,7 +64,7 @@ fun AppNavHost(
             navigateToOnBoarding = { idToken ->
                 navController.navigateToOnBoarding(
                     idToken,
-                    navOptions {2
+                    navOptions {
                         launchSingleTop = true
                     },
                 )

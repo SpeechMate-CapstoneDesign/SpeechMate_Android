@@ -1,5 +1,6 @@
 package com.speech.practice.graph.feedback
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -110,13 +111,6 @@ internal fun FeedbackRoute(
 
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_PAUSE -> {
-                    val isConfigChange = activity?.isChangingConfigurations ?: false
-                    if (!isConfigChange) {
-                        viewModel.exoPlayer?.pause()
-                    }
-                }
-
                 Lifecycle.Event.ON_STOP -> {
                     val isConfigChange = activity?.isChangingConfigurations ?: false
                     if (!isConfigChange) {
