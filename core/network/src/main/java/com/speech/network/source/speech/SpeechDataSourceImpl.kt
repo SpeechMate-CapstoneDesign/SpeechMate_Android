@@ -26,6 +26,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.BufferedSink
 import java.io.InputStream
 import javax.inject.Inject

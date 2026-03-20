@@ -34,8 +34,10 @@ internal class FileRequestBody(
         val source = file.source()
 
         val startTime = System.currentTimeMillis()
-        val countingSource = CountingSource(source) { bytesWritten ->
-            if (contentLength > 0) {
+        val countingSink = CountingSink(
+            delegate = sink,
+            totalBytes = contentLength,
+            onProgressUpdate = { bytesWritten ->
                 val elapsedTimeMills = System.currentTimeMillis() - startTime
                 listener(
                     UploadFileStatus(
@@ -45,10 +47,12 @@ internal class FileRequestBody(
                     ),
                 )
             }
-        }
+        )
 
-        countingSource.use {
-            sink.writeAll(it)
+        source.use { inputSource ->
+            countingSink.buffer().use { bufferedSink ->
+                bufferedSink.writeAll(inputSource)
+            }
         }
     }
 }
@@ -76,9 +80,11 @@ internal class UriRequestBody(
             ?: throw IOException("Failed to open input stream for $uri")
 
         val startTime = System.currentTimeMillis()
-        val countingSource = CountingSource(source) { bytesWritten ->
-            val elapsedTimeMills = System.currentTimeMillis() - startTime
-            if (contentLength > 0) {
+        val countingSink = CountingSink(
+            delegate = sink,
+            totalBytes = contentLength,
+            onProgressUpdate = { bytesWritten ->
+                val elapsedTimeMills = System.currentTimeMillis() - startTime
                 listener(
                     UploadFileStatus(
                         elapsedSeconds = elapsedTimeMills.milliseconds,
@@ -87,30 +93,32 @@ internal class UriRequestBody(
                     ),
                 )
             }
-        }
+        )
 
-        countingSource.use {
-            sink.writeAll(it)
+        source.use { inputSource ->
+            countingSink.buffer().use { bufferedSink ->
+                bufferedSink.writeAll(inputSource)
+            }
         }
     }
 }
 
-private class CountingSource(
-    delegate: Source,
-    private val onProgressUpdate: (bytesRead: Long) -> Unit,
-) : ForwardingSource(delegate) {
-    private var totalBytesRead = 0L
+private class CountingSink(
+    delegate: Sink,
+    private val totalBytes: Long,
+    private val onProgressUpdate: (bytesWritten: Long) -> Unit
+) : ForwardingSink(delegate) {
+    private var totalBytesWritten = 0L
+    private var lastReportedBytes = 0L
+    private val updateInterval = 100 * 1024L
 
-    @Throws(IOException::class)
-    override fun read(sink: Buffer, byteCount: Long): Long {
-        val bytesRead = super.read(sink, byteCount)
+    override fun write(source: Buffer, byteCount: Long) {
+        super.write(source, byteCount)
+        totalBytesWritten += byteCount
 
-        if (bytesRead != -1L) {
-            totalBytesRead += bytesRead
-            onProgressUpdate(totalBytesRead)
+        if (totalBytesWritten - lastReportedBytes >= updateInterval || totalBytesWritten == totalBytes) {
+            lastReportedBytes = totalBytesWritten
+            onProgressUpdate(totalBytesWritten)
         }
-
-        return bytesRead
     }
 }
-
