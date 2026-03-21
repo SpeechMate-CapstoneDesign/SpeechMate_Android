@@ -46,13 +46,13 @@ internal class FileRequestBody(
                         totalBytes = contentLength,
                     ),
                 )
-            }
+            },
         )
 
         source.use { inputSource ->
-            countingSink.buffer().use { bufferedSink ->
-                bufferedSink.writeAll(inputSource)
-            }
+            val bufferedSink = countingSink.buffer()
+            bufferedSink.writeAll(inputSource)
+            bufferedSink.flush()
         }
     }
 }
@@ -92,13 +92,13 @@ internal class UriRequestBody(
                         totalBytes = contentLength,
                     ),
                 )
-            }
+            },
         )
 
         source.use { inputSource ->
-            countingSink.buffer().use { bufferedSink ->
-                bufferedSink.writeAll(inputSource)
-            }
+            val bufferedSink = countingSink.buffer()
+            bufferedSink.writeAll(inputSource)
+            bufferedSink.flush()
         }
     }
 }
@@ -106,17 +106,27 @@ internal class UriRequestBody(
 private class CountingSink(
     delegate: Sink,
     private val totalBytes: Long,
-    private val onProgressUpdate: (bytesWritten: Long) -> Unit
+    private val onProgressUpdate: (bytesWritten: Long) -> Unit,
 ) : ForwardingSink(delegate) {
     private var totalBytesWritten = 0L
     private var lastReportedBytes = 0L
     private val updateInterval = 100 * 1024L
+    private var finalProgressReported = false
 
     override fun write(source: Buffer, byteCount: Long) {
         super.write(source, byteCount)
         totalBytesWritten += byteCount
 
         if (totalBytesWritten - lastReportedBytes >= updateInterval || totalBytesWritten == totalBytes) {
+            lastReportedBytes = totalBytesWritten
+            onProgressUpdate(totalBytesWritten)
+            if (totalBytesWritten == totalBytes) finalProgressReported = true
+        }
+    }
+
+    override fun flush() {
+        super.flush()
+        if (!finalProgressReported && totalBytesWritten > lastReportedBytes) {
             lastReportedBytes = totalBytesWritten
             onProgressUpdate(totalBytesWritten)
         }
