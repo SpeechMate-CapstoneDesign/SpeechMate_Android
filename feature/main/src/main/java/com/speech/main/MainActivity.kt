@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-        window.isNavigationBarContrastEnforced = false
 
         if(intent.extras != null) handleNotificationIntent(intent)
 
