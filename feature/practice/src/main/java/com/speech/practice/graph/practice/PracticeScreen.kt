@@ -1,6 +1,8 @@
 package com.speech.practice.graph.practice
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +67,20 @@ internal fun PracticeRoute(
     val state by viewModel.collectAsState()
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
+
+    val permissions = buildList {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) {}
+
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(permissions.toTypedArray())
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {

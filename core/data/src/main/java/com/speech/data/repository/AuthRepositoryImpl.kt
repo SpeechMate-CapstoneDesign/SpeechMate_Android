@@ -48,15 +48,15 @@ class AuthRepositoryImpl @Inject constructor(
                 }
 
                 joinAll(accessTokenJob, refreshTokenJob)
+
+                notificationDataSource.postDeviceToken()
             }
         }
-
-        notificationDataSource.postDeviceToken()
 
         return Pair(response.newUser, response.userId ?: -1)
     }
 
-    override suspend fun signupKakao(idToken: String, skills: List<String>) : Int {
+    override suspend fun signupKakao(idToken: String, skills: List<String>): Int {
         val response = authDataSource.signupKakao(idToken = idToken, skills = skills)
 
         coroutineScope {
@@ -69,9 +69,8 @@ class AuthRepositoryImpl @Inject constructor(
             }
 
             joinAll(accessTokenJob, refreshTokenJob)
+            notificationDataSource.postDeviceToken()
         }
-
-        notificationDataSource.postDeviceToken()
 
         return response.userId
     }

@@ -220,6 +220,15 @@ fun RecordVideoScreen(
         colors = listOf(SmTheme.colors.primaryGradientStart, SmTheme.colors.primaryGradientEnd),
     )
 
+    LaunchedEffect(Unit) {
+        if (!cameraPermissionState.status.isGranted) {
+            cameraPermissionState.launchPermissionRequest()
+        }
+        if (!micPermissionState.status.isGranted) {
+            micPermissionState.launchPermissionRequest()
+        }
+    }
+
     LaunchedEffect(state.cameraSelector) {
         bindCamera(
             lifecycleOwner,
