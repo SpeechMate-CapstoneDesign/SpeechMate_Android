@@ -16,3 +16,14 @@ local.properties
 google-services.json
 *.jks
 keystore.properties
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/README.md.bak
+fastlane/.env
+fastlane/.env.*
+fastlane/google-play-key.json
+.bundle/
