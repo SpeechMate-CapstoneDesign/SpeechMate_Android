@@ -29,10 +29,10 @@ android {
         buildConfigField(
             "String",
             "KAKAO_NATIVE_APP_KEY",
-            properties["KAKAO_NATIVE_APP_KEY"] as String,
+            "\"${properties.getProperty("KAKAO_NATIVE_APP_KEY")}\"",
         )
 
-        manifestPlaceholders["KAKAO_REDIRECT_URI"] = properties["KAKAO_REDIRECT_URI"] as String
+        manifestPlaceholders["KAKAO_REDIRECT_URI"] = properties.getProperty("KAKAO_REDIRECT_URI")
     }
 
     signingConfigs {
