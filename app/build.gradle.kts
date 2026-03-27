@@ -40,10 +40,10 @@ android {
         keystoreProperties.load(rootProject.file("keystore.properties").bufferedReader())
 
         create("release") {
-            storeFile = file(keystoreProperties["STORE_PATH"] as String)
-            storePassword = keystoreProperties["STORE_PASSWORD"] as String
-            keyAlias = keystoreProperties["KEY_ALIAS"] as String
-            keyPassword = keystoreProperties["KEY_PASSWORD"] as String
+            storeFile = rootProject.file(keystoreProperties.getProperty("STORE_PATH"))
+            storePassword = keystoreProperties.getProperty("STORE_PASSWORD")
+            keyAlias = keystoreProperties.getProperty("KEY_ALIAS")
+            keyPassword = keystoreProperties.getProperty("KEY_PASSWORD")
         }
     }
 
