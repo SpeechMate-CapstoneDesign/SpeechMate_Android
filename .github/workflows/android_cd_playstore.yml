@@ -117,6 +117,6 @@ jobs:
       - name: Deploy to Google Play Store
         working-directory: fastlane
         env:
-          GOOGLE_PLAY_JSON_KEY_PATH: google-play-key.json
+          GOOGLE_PLAY_JSON_KEY_PATH: ${{ github.workspace }}/fastlane/google-play-key.json
         run: |
           bundle exec fastlane android playstore_production
