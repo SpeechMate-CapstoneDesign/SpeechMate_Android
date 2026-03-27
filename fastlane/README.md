@@ -15,29 +15,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
-### android test
-
-```sh
-[bundle exec] fastlane android test
-```
-
-Build Debug APK and deploy to Firebase App Distribution
-
 ### android firebase_debug
 
 ```sh
 [bundle exec] fastlane android firebase_debug
 ```
 
-
-
-### android firebase_release
-
-```sh
-[bundle exec] fastlane android firebase_release
-```
-
-Build Release APK and deploy to Firebase App Distribution
+Build Debug APK and deploy to Firebase App Distribution
 
 ### android firebase_production
 
@@ -47,21 +31,13 @@ Build Release APK and deploy to Firebase App Distribution
 
 Build Production Release APK and deploy to Firebase
 
-### android playstore
+### android playstore_production
 
 ```sh
-[bundle exec] fastlane android playstore
+[bundle exec] fastlane android playstore_production
 ```
 
-Build AAB and deploy to Play Store Internal Testing
-
-### android deploy_production
-
-```sh
-[bundle exec] fastlane android deploy_production
-```
-
-Deploy to both Firebase and Play Store
+Build AAB and deploy to Play Store Production
 
 ----
 
