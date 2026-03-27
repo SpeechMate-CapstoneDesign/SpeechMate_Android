@@ -18,7 +18,7 @@ android {
         buildConfigField(
             "String",
             "SPEECHMATE_BASE_URL",
-            localProperties["SPEECHMATE_BASE_URL"] as String,
+            "\"${localProperties.getProperty("SPEECHMATE_BASE_URL")}\"",
         )
     }
 

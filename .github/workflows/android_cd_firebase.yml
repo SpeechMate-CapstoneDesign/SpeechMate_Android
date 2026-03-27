@@ -1,0 +1,67 @@
+name: CD - Deploy to Firebase
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate speechmate.jks
+        run: echo '${{ secrets.SPEECHMATE_KEYSTORE }}' | base64 -d > ./speechmate.jks
+
+      - name: Generate local.properties
+        run: echo '${{ secrets.LOCAL_PROPERTIES }}' | base64 -d > ./local.properties
+
+      - name: Generate keystore.properties
+        run: echo '${{ secrets.KEYSTORE_PROPERTIES }}' | base64 -d > ./keystore.properties
+
+      - name: Generate google-services.json
+        run: echo '${{ secrets.GOOGLE_SERVICES }}' | base64 -d > ./app/google-services.json
+
+      - name: Upload config artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-files
+          path: |
+            speechmate.jks
+            local.properties
+            keystore.properties
+            app/google-services.json
+          retention-days: 1
+
+  deploy:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: fastlane
+
+      - name: Install Fastlane dependencies
+        working-directory: fastlane
+        run: bundle install
+
+      - name: Deploy to Firebase App Distribution
+        working-directory: fastlane
+        env:
+          FIREBASE_APP_ID_DEBUG: ${{ secrets.FIREBASE_APP_ID_DEBUG }}
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > firebase-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=firebase-key.json
+          bundle exec fastlane android firebase_debug
