@@ -36,7 +36,7 @@ internal fun VerbalAnalysisContent(
     verbalAnalysis: VerbalAnalysis,
     seekTo: (Long) -> Unit,
 ) {
-    val wpm = verbalAnalysis.wordCount / duration.inWholeMinutes
+    val wpm = if (duration.inWholeMinutes > 0) verbalAnalysis.wordCount / duration.inWholeMinutes else 0
     val fillers = verbalAnalysis.fillers
     val totalFillerCount = fillers.sumOf { it.timestamps.size }
     val repeatedWords = verbalAnalysis.repeatedWords

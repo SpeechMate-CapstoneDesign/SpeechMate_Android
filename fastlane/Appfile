@@ -1,0 +1,2 @@
+json_key_file("")  # Path will be provided via GOOGLE_PLAY_JSON_KEY_PATH environment variable
+package_name("com.speech.speechmate")

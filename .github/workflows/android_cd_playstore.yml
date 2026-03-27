@@ -1,0 +1,122 @@
+name: CD - Deploy to Firebase & Play Store
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    outputs:
+      version-name: ${{ steps.version.outputs.name }}
+      version-code: ${{ steps.version.outputs.code }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version info
+        id: version
+        run: |
+          VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          VERSION_CODE=$(grep 'versionCode' app/build.gradle.kts | sed 's/[^0-9]*//g')
+          echo "name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION_NAME ($VERSION_CODE)"
+
+  setup:
+    needs: check-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate speechmate.jks
+        run: echo '${{ secrets.SPEECHMATE_KEYSTORE }}' | base64 -d > ./speechmate.jks
+
+      - name: Generate local.properties
+        run: echo '${{ secrets.LOCAL_PROPERTIES }}' | base64 -d > ./local.properties
+
+      - name: Generate keystore.properties
+        run: echo '${{ secrets.KEYSTORE_PROPERTIES }}' | base64 -d > ./keystore.properties
+
+      - name: Generate google-services.json
+        run: echo '${{ secrets.GOOGLE_SERVICES }}' | base64 -d > ./app/google-services.json
+
+      - name: Create Google Play service account key
+        run: |
+          mkdir -p fastlane
+          echo '${{ secrets.GOOGLE_PLAY_JSON_KEY }}' | base64 -d > fastlane/google-play-key.json
+
+      - name: Upload config artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-files
+          path: |
+            speechmate.jks
+            local.properties
+            keystore.properties
+            app/google-services.json
+            fastlane/google-play-key.json
+          retention-days: 1
+
+  deploy-firebase:
+    needs: [check-release, setup]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: fastlane
+
+      - name: Install Fastlane dependencies
+        working-directory: fastlane
+        run: bundle install
+
+      - name: Deploy to Firebase App Distribution
+        working-directory: fastlane
+        env:
+          FIREBASE_APP_ID_RELEASE: ${{ secrets.FIREBASE_APP_ID_RELEASE }}
+          VERSION_NAME: ${{ needs.check-release.outputs.version-name }}
+          VERSION_CODE: ${{ needs.check-release.outputs.version-code }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > ${{ github.workspace }}/firebase-key.json
+          bundle exec fastlane android firebase_production
+
+  deploy-playstore:
+    needs: [check-release, setup, deploy-firebase]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: fastlane
+
+      - name: Install Fastlane dependencies
+        working-directory: fastlane
+        run: bundle install
+
+      - name: Deploy to Google Play Store
+        working-directory: fastlane
+        env:
+          GOOGLE_PLAY_JSON_KEY_PATH: google-play-key.json
+        run: |
+          bundle exec fastlane android playstore_production

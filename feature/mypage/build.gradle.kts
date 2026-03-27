@@ -16,12 +16,12 @@ android {
         buildConfigField(
             "String",
             "SPEECHMATE_INQUIRY_URL",
-            properties["SPEECHMATE_INQUIRY_URL"] as String
+            "\"${properties.getProperty("SPEECHMATE_INQUIRY_URL")}\""
         )
         buildConfigField(
             "String",
             "SPEECHMATE_PRIVACY_POLICY_URL",
-            properties["SPEECHMATE_PRIVACY_POLICY_URL"] as String
+            "\"${properties.getProperty("SPEECHMATE_PRIVACY_POLICY_URL")}\""
         )
     }
 

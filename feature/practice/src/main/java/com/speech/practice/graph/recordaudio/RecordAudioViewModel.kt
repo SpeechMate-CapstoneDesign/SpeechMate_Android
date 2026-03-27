@@ -87,6 +87,10 @@ class RecordAudioViewModel @Inject constructor(
             return@intent
         }
 
+        reduce {
+            state.copy(uploadFileStatus = UploadFileStatus())
+        }
+
         suspendRunCatching {
             speechRepository.uploadFromPath(
                 filePath = state.audioFile!!.path,

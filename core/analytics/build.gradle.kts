@@ -17,7 +17,7 @@ android {
         buildConfigField(
             "String",
             "AMPLITUDE_API_KEY",
-            properties["AMPLITUDE_API_KEY"] as String,
+            "\"${properties.getProperty("AMPLITUDE_API_KEY")}\"",
         )
     }
 

@@ -1,0 +1,56 @@
+default_platform(:android)
+
+platform :android do
+
+  # Firebase Debug Lane (for master branch)
+  desc "Build Debug APK and deploy to Firebase App Distribution"
+
+  lane :firebase_debug do
+    gradle(
+      task: "clean assembleDebug",
+      print_command: true
+    )
+
+    firebase_app_distribution(
+      app: ENV['FIREBASE_APP_ID_DEBUG'],
+      groups: "master",
+      release_notes: "Build from master branch - #{last_git_commit[:abbreviated_commit_hash]}",
+      apk_path: "app/build/outputs/apk/debug/app-debug.apk"
+    )
+  end
+
+  # Firebase Production Lane (for release merges)
+  desc "Build Production Release APK and deploy to Firebase"
+  lane :firebase_production do
+    gradle(
+      task: "clean assembleRelease",
+      print_command: true
+    )
+
+    firebase_app_distribution(
+      app: ENV['FIREBASE_APP_ID_RELEASE'],
+      groups: "production",
+      release_notes: "Production Release - Version #{ENV['VERSION_NAME']} (#{ENV['VERSION_CODE']})",
+      apk_path: "app/build/outputs/apk/release/app-release.apk"
+    )
+  end
+
+  # Play Store Lane
+  desc "Build AAB and deploy to Play Store Production"
+  lane :playstore_production do
+    gradle(
+      task: "clean bundleRelease",
+      print_command: true
+    )
+
+    upload_to_play_store(
+      track: 'production',
+      release_status: 'completed',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      json_key: ENV['GOOGLE_PLAY_JSON_KEY_PATH']
+    )
+  end
+end

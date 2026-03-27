@@ -12,6 +12,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -77,6 +78,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun MyPageRoute(
+    innerPadding: PaddingValues,
     navigateToSetting: () -> Unit,
     navigateToFeedBack: (Int, String, SpeechFileType, SpeechConfig) -> Unit,
     viewModel: MyPageViewModel = hiltViewModel(),
@@ -105,6 +107,7 @@ internal fun MyPageRoute(
     }
 
     MyPageScreen(
+        innerPadding = innerPadding,
         state = state,
         onSettingClick = { viewModel.onIntent(MyPageIntent.OnSettingClick) },
         onRefresh = viewModel::onRefresh,
@@ -129,6 +132,7 @@ internal fun MyPageRoute(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun MyPageScreen(
+    innerPadding: PaddingValues,
     state: MyPageState,
     onSettingClick: () -> Unit,
     onRefresh: () -> Unit,
@@ -151,6 +155,7 @@ private fun MyPageScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .padding(innerPadding)
             .pullRefresh(pullRefreshState),
     ) {
         PullRefreshIndicator(
@@ -402,6 +407,7 @@ private fun SpeechFeed(
 @Composable
 private fun MyPageScreenPreview() {
     MyPageScreen(
+        innerPadding = PaddingValues(0.dp),
         state = MyPageState(
             speechFeeds = flowOf(
                 PagingData.from(
