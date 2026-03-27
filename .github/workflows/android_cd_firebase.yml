@@ -61,7 +61,7 @@ jobs:
         working-directory: fastlane
         env:
           FIREBASE_APP_ID_DEBUG: ${{ secrets.FIREBASE_APP_ID_DEBUG }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > firebase-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=firebase-key.json
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > ${{ github.workspace }}/firebase-key.json
           bundle exec fastlane android firebase_debug

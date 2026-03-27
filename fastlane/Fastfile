@@ -15,7 +15,7 @@ platform :android do
       app: ENV['FIREBASE_APP_ID_DEBUG'],
       groups: "master",
       release_notes: "Build from master branch - #{last_git_commit[:abbreviated_commit_hash]}",
-      apk_path: "app/build/outputs/apk/debug/app-debug.apk",
+      apk_path: "app/build/outputs/apk/debug/app-debug.apk"
     )
   end
 
@@ -31,7 +31,7 @@ platform :android do
       app: ENV['FIREBASE_APP_ID_RELEASE'],
       groups: "production",
       release_notes: "Production Release - Version #{ENV['VERSION_NAME']} (#{ENV['VERSION_CODE']})",
-      apk_path: "app/build/outputs/apk/release/app-release.apk",
+      apk_path: "app/build/outputs/apk/release/app-release.apk"
     )
   end
 

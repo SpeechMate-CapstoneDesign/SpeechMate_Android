@@ -91,9 +91,9 @@ jobs:
           FIREBASE_APP_ID_RELEASE: ${{ secrets.FIREBASE_APP_ID_RELEASE }}
           VERSION_NAME: ${{ needs.check-release.outputs.version-name }}
           VERSION_CODE: ${{ needs.check-release.outputs.version-code }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > firebase-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=firebase-key.json
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' | base64 -d > ${{ github.workspace }}/firebase-key.json
           bundle exec fastlane android firebase_production
 
   deploy-playstore:
