@@ -1,0 +1,61 @@
+name: Android CI
+
+on:
+    push:
+        branches: [ "master" ]
+    pull_request:
+        branches: [ "master" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate speechmate.jks
+        run: echo '${{ secrets.SPEECHMATE_KEYSTORE }}' | base64 -d > ./speechmate.jks
+
+      - name: Generate local.properties
+        run: echo '${{ secrets.LOCAL_PROPERTIES }}' | base64 -d > ./local.properties
+
+      - name: Generate keystore.properties
+        run: echo '${{ secrets.KEYSTORE_PROPERTIES }}' | base64 -d > ./keystore.properties
+
+      - name: Generate google-services.json
+        run: echo '${{ secrets.GOOGLE_SERVICES }}' | base64 -d > ./app/google-services.json
+
+      - name: Upload config artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-files
+          path: |
+            speechmate.jks
+            local.properties
+            keystore.properties
+            app/google-services.json
+          retention-days: 1
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Codes style checks
+        run: ./gradlew ktlintCheck --build-cache --parallel
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Run build
+        run: ./gradlew assembleDebug --stacktrace
