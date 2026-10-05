@@ -23,7 +23,7 @@ interface SpeechDataSource {
     suspend fun updateSpeechConfig(speechId: Int, speechConfig: SpeechConfig)
     suspend fun getSpeechConfig(speechId: Int) : GetSpeechConfigResponse
     suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int) : GetSpeechFeedResponse
-    suspend fun getScript(speechId: Int): ScriptResponse
+    suspend fun getScript(speechId: Int, retry: Boolean): ScriptResponse
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse
     suspend fun getVerbalAnalysis(speechId: Int) : GetVerbalAnalysisResponse
     suspend fun getNonVerbalAnalysis(speechId: Int) : GetNonVerbalAnalysisResponse

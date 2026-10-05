@@ -118,8 +118,8 @@ class SpeechRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getScript(speechId: Int): Script =
-        speechDataSource.getScript(speechId).toDomain()
+    override suspend fun getScript(speechId: Int, retry: Boolean): Script =
+        speechDataSource.getScript(speechId, retry).toDomain()
 
 
     override suspend fun getScriptAnalysis(speechId: Int) =
