@@ -89,8 +89,8 @@ class SpeechDataSourceImpl @Inject constructor(
     override suspend fun getSpeechFeeds(lastSpeechId: Int, limit: Int): GetSpeechFeedResponse =
         speechMateApi.getSpeechFeeds(lastSpeechId, limit).getData()
 
-    override suspend fun getScript(speechId: Int): ScriptResponse =
-        speechMateApi.getScript(speechId).getData()
+    override suspend fun getScript(speechId: Int, retry: Boolean): ScriptResponse =
+        speechMateApi.getScript(speechId, retry).getData()
 
     override suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysisResponse =
         speechMateApi.getScriptAnalysis(speechId).getData()

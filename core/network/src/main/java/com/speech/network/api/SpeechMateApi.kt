@@ -65,8 +65,9 @@ interface SpeechMateApi {
     @GET("/api/speech/{speechId}/speechConfig")
     suspend fun getSpeechConfig(@Path("speechId") speechId: Int) : ApiResponse<GetSpeechConfigResponse>
 
+    /** STT 접수/조회. 첫 응답은 보통 IN_PROGRESS, 같은 요청을 다시 보내면 COMPLETED와 sentences. retry=false면 FAILED를 다시 접수하지 않는다. */
     @POST("/api/speech/rtzrstt/{speechId}")
-    suspend fun getScript(@Path("speechId") speechId: Int): ApiResponse<ScriptResponse>
+    suspend fun getScript(@Path("speechId") speechId: Int, @Query("retry") retry: Boolean): ApiResponse<ScriptResponse>
 
     @POST("/api/speech/analyze/{speechId}")
     suspend fun getScriptAnalysis(@Path("speechId") speechId: Int): ApiResponse<ScriptAnalysisResponse>

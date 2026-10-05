@@ -446,9 +446,20 @@ class FeedbackViewModel @Inject constructor(
     }
 
 
+    /**
+     * STT는 서버가 접수만 하고 백그라운드에서 돌린다(비언어 분석과 같은 모델). 첫 호출(retry=true)로 접수하고,
+     * IN_PROGRESS인 동안 retry=false로 폴링한다. retry=false라 서버가 FAILED를 폴링 주기마다 다시 돌리지 않는다.
+     */
     private fun getScript() = intent {
         suspendRunCatching {
-            speechRepository.getScript(state.speechDetail.id)
+            var script = speechRepository.getScript(state.speechDetail.id, retry = true)
+            var polls = 0
+            while (script.status == AnalysisStatus.IN_PROGRESS && polls++ < SCRIPT_MAX_POLLS) {
+                delay(SCRIPT_POLL_INTERVAL_MS)
+                script = speechRepository.getScript(state.speechDetail.id, retry = false)
+            }
+            check(script.status == AnalysisStatus.COMPLETED) { "STT 미완료: ${script.status}" }
+            script
         }.onSuccess {
             reduce {
                 state.copy(
@@ -585,5 +596,7 @@ class FeedbackViewModel @Inject constructor(
 
     companion object {
         const val SEEK_INTERVAL = 10000L
+        private const val SCRIPT_POLL_INTERVAL_MS = 3000L
+        private const val SCRIPT_MAX_POLLS = 200 // 10분. 서버 쪽 STT 타임아웃(10분)과 맞춤
     }
 }

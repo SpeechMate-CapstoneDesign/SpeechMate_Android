@@ -1,17 +1,20 @@
 package com.speech.network.model.speech
 
+import com.speech.domain.model.speech.AnalysisStatus
 import com.speech.domain.model.speech.Script
 import com.speech.domain.model.speech.Sentence
 import kotlinx.serialization.Serializable
-import okhttp3.internal.concurrent.formatDuration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.toDuration
 
 @Serializable
 data class ScriptResponse(
-    val sentences: List<SentenceResponse>,
+    val sttStatus: String = "COMPLETED",
+    val sentences: List<SentenceResponse>? = null, // COMPLETED일 때만 온다
 ) {
-    fun toDomain(): Script = Script(sentences = sentences.map { Sentence(it.startTime.milliseconds, it.sentence) })
+    fun toDomain(): Script = Script(
+        status = AnalysisStatus.fromString(sttStatus),
+        sentences = sentences.orEmpty().map { Sentence(it.startTime.milliseconds, it.sentence) },
+    )
 }
 
 @Serializable

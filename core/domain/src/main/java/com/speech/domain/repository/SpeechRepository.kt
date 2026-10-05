@@ -30,7 +30,7 @@ interface SpeechRepository {
         onProgressUpdate: (UploadFileStatus) -> Unit,
     ): Pair<Int, String>
     suspend fun getSpeechConfig(speechId: Int) : SpeechDetail
-    suspend fun getScript(speechId: Int): Script
+    suspend fun getScript(speechId: Int, retry: Boolean = true): Script
     suspend fun getScriptAnalysis(speechId: Int): ScriptAnalysis
     suspend fun getVerbalAnalysis(speechId: Int) : VerbalAnalysis
     suspend fun getNonVerbalAnalysis(speechId: Int) : NonVerbalAnalysis

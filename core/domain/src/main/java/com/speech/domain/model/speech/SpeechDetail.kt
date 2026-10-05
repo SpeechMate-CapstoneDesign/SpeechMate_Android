@@ -20,6 +20,7 @@ data class SpeechDetail(
 }
 
 data class Script(
+    val status: AnalysisStatus = AnalysisStatus.COMPLETED, // STT는 접수형이라 처음엔 IN_PROGRESS가 올 수 있다
     val sentences: List<Sentence> = emptyList(),
 )
 
